@@ -1,11 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   HiHome,
   HiUser,
   HiBriefcase,
   HiMail,
-  HiMenu,
-  HiX,
   HiLockClosed,
   HiEye,
   HiEyeOff,
@@ -33,7 +31,7 @@ interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
+const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');

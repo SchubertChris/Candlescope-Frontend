@@ -15,6 +15,7 @@ interface RegisterData {
 }
 
 interface AuthResponse {
+  email(email: any): unknown;
   token: string;
   user: {
     id: string;
