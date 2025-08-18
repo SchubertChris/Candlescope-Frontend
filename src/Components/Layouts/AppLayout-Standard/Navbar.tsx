@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import {
   HiHome,
   HiUser,
   HiBriefcase,
   HiMail,
+  HiMenu,
+  HiX,
   HiLockClosed,
   HiEye,
   HiEyeOff,
@@ -16,7 +18,7 @@ import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
-import LogoCS from '@/Assets/Images/Logo/CandleScopeLogo.png';
+import Logo from '@/Assets/Images/Logo/CandleScopeLogo.png';
 import './Style/Navbar.scss';
 
 interface NavbarProps {
@@ -31,8 +33,9 @@ interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
+const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -63,6 +66,15 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase },
     { id: 'contact', label: 'Kontakt', href: '#contact', icon: HiMail },
   ], []);
+
+  // Scroll Handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Navigation Handler
   const handleNavigation = useCallback((section: string) => {
@@ -113,7 +125,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     setLoadingStep('');
   };
 
-  // KORRIGIERT: Login-Handler mit detaillierten Loading-States
+  // ERWEITERT: Login-Handler mit detaillierten Loading-States
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -133,8 +145,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
       // Check auf Bestätigungs-Anfrage
       if (result.requiresConfirmation) {
         setShowConfirmation(true);
-        // KORRIGIERT: Verwende loginForm.email als primäre Quelle für Email
-        setPendingEmail(loginForm.email);
+        setPendingEmail(result.email);
         setLoadingStep('');
         resetLoadingStates();
         return;
@@ -288,7 +299,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
       >
         <div className="navbar-mobile__content">
           <div className="navbar-mobile__header">
-            <img src={LogoCS} alt="CandleScope" className="navbar-mobile__logo" />
+            <img src={Logo} alt="CandleScope" className="navbar-mobile__logo" />
             <div className="navbar-mobile__logo-glow" />
           </div>
           
