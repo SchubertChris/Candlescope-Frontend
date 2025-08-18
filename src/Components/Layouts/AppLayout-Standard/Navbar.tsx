@@ -113,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     setLoadingStep('');
   };
 
-  // ERWEITERT: Login-Handler mit detaillierten Loading-States
+  // KORRIGIERT: Login-Handler mit detaillierten Loading-States
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -133,7 +133,8 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
       // Check auf Bestätigungs-Anfrage
       if (result.requiresConfirmation) {
         setShowConfirmation(true);
-        setPendingEmail(result.email);
+        // KORRIGIERT: Verwende loginForm.email als primäre Quelle für Email
+        setPendingEmail(loginForm.email);
         setLoadingStep('');
         resetLoadingStates();
         return;

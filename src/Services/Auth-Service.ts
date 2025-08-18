@@ -14,8 +14,8 @@ interface RegisterData {
   password: string;
 }
 
+// KORRIGIERT: AuthResponse Interface mit optionaler email-Funktion entfernt
 interface AuthResponse {
-  email(email: any): unknown;
   token: string;
   user: {
     id: string;
@@ -27,11 +27,10 @@ interface AuthResponse {
   accountCreated?: boolean; // HINZUGEFÜGT: Flag für neue Accounts
   emailSent?: boolean; // HINZUGEFÜGT: Flag für Email-Versand
   requiresConfirmation?: boolean; // HINZUGEFÜGT: Flag für Bestätigung
+  email?: string; // HINZUGEFÜGT: Optional für Bestätigungs-Cases
 }
 
-interface ApiError {
-  message: string;
-}
+// ENTFERNT: Ungenutztes ApiError Interface
 
 // HINZUGEFÜGT: OAuth-Provider Types
 type OAuthProvider = 'google' | 'github';
@@ -69,11 +68,11 @@ class AuthService {
     
     console.log(`🔗 INITIATING ${provider.toUpperCase()} OAUTH:`, oauthURL);
     
-    // Öffne OAuth-Popup oder redirect zu OAuth-Provider
+    // OAuth-Flow initiieren
     window.location.href = oauthURL;
   }
 
-  // HINZUGEFÜGT: OAuth-Callback-Handler
+  // KORRIGIERT: OAuth-Callback-Handler mit korrektem AuthResponse
   async handleOAuthCallback(token: string, userDataString: string): Promise<AuthResponse> {
     try {
       console.log('🔄 HANDLING OAUTH CALLBACK');
@@ -87,10 +86,12 @@ class AuthService {
       
       console.log('✅ OAUTH SUCCESS - Data stored:', userData.email);
       
+      // KORRIGIERT: Vollständige AuthResponse mit allen erforderlichen Feldern
       return {
         token,
         user: userData,
-        message: 'OAuth-Login erfolgreich!'
+        message: 'OAuth-Login erfolgreich!',
+        email: userData.email // HINZUGEFÜGT: Email-Feld für Kompatibilität
       };
     } catch (error: any) {
       console.error('❌ OAUTH CALLBACK ERROR:', error);
