@@ -1,6 +1,5 @@
 import React from 'react';
 import './Style/LandingPage-OffersSection.scss';
-import { createFadeInObserver } from '@components/Utils/ScrollObserver';
 
 const OffersSection: React.FC = () => {
   return (
