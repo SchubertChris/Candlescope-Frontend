@@ -33,7 +33,6 @@ interface NavigationItem {
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -64,15 +63,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase },
     { id: 'contact', label: 'Kontakt', href: '#contact', icon: HiMail },
   ], []);
-
-  // Scroll Handler
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Navigation Handler
   const handleNavigation = useCallback((section: string) => {
