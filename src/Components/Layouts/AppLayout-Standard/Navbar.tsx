@@ -1,11 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   HiHome,
   HiUser,
   HiBriefcase,
   HiMail,
-  HiMenu,
-  HiX,
   HiLockClosed,
   HiEye,
   HiEyeOff,
