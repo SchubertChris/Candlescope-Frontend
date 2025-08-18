@@ -16,7 +16,7 @@ import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
-import Logo from '@/Assets/Images/Logo/CandleScopeLogo.png';
+import LogoCS from '@/Assets/Images/Logo/CandleScopeLogo.png';
 import './Style/Navbar.scss';
 
 interface NavbarProps {
@@ -288,7 +288,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
       >
         <div className="navbar-mobile__content">
           <div className="navbar-mobile__header">
-            <img src={Logo} alt="CandleScope" className="navbar-mobile__logo" />
+            <img src={LogoCS} alt="CandleScope" className="navbar-mobile__logo" />
             <div className="navbar-mobile__logo-glow" />
           </div>
           
