@@ -1,0 +1,357 @@
+// ===========================
+// ABOUT SECTION - OHNE FILTER, EINHEITLICHE FARBEN
+// ===========================
+
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+
+// ===========================
+// SECTION CONTAINER (KEIN BACKGROUND)
+// ===========================
+
+.about-section {
+  position: relative;
+  min-height: 100vh;
+  padding: clamp(4rem, 10vh, 8rem) clamp(1rem, 5vw, 2rem);
+  overflow: hidden;
+}
+
+// ===========================
+// HEADER BEREICH
+// ===========================
+
+.about-header {
+  text-align: center;
+  margin-bottom: clamp(3rem, 8vh, 6rem);
+  position: relative;
+  z-index: 10;
+}
+
+.about-title {
+  @include heading-style(2, false);
+  font-family: 'hero-font', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  margin-bottom: 1.5rem;
+  
+  .about-title-accent {
+    color: var(--color-primary);
+    margin-right: 0.5em;
+  }
+  
+  .about-title-main {
+    @include text-gradient();
+    font-family: 'head-font', sans-serif;
+  }
+}
+
+.about-subtitle {
+  @include text-style('lead');
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  line-height: 1.6;
+}
+
+// ENTFERNT: Filter Navigation komplett entfernt
+
+// ===========================
+// SERVICES GRID - MEHR PLATZ DURCH FEHLENDE FILTER
+// ===========================
+
+.about-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+  // GEÄNDERT: Mehr Platz oben durch fehlende Filter-Navigation
+  margin-top: 2rem;
+}
+
+// ===========================
+// SERVICE CARDS - EINHEITLICHE FARBEN
+// ===========================
+
+.service-card {
+  position: relative;
+  padding: 2rem;
+  border-radius: var(--border-radius-xl);
+  
+  // Einfacher, lesbarer Glassmorphism
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  
+  // Entrance-Animation
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+  
+  &.service-card-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  // GEÄNDERT: Einheitlicher Hover-Effekt mit Primary Color
+  &:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-primary); // GEÄNDERT: Immer Primary Color
+    box-shadow: 0 20px 40px rgba(162, 89, 255, 0.15); // GEÄNDERT: Primary Color Shadow
+  }
+}
+
+// ===========================
+// CARD HEADER
+// ===========================
+
+.service-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.service-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  
+  .service-icon-emoji {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+}
+
+.service-card-category {
+  @include text-style('caption');
+  color: var(--color-primary); // GEÄNDERT: Immer Primary Color
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-primary); // GEÄNDERT: Immer Primary Color
+  border-radius: var(--border-radius-full);
+  background: rgba(162, 89, 255, 0.1); // GEÄNDERT: Primary Color Background
+}
+
+// ===========================
+// CARD CONTENT
+// ===========================
+
+.service-card-content {
+  margin-bottom: 1.5rem;
+}
+
+.service-card-title {
+  @include heading-style(3, false);
+  color: var(--color-text-primary);
+  font-family: 'head-font', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 1.6rem);
+  margin-bottom: 1rem;
+}
+
+.service-card-description {
+  @include text-style('body');
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+// ===========================
+// FEATURES SECTION
+// ===========================
+
+.service-features {
+  margin-bottom: 1.5rem;
+}
+
+.service-features-title {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.service-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.service-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: var(--color-text-primary);
+    
+    .service-feature-dot {
+      background: var(--color-primary); // GEÄNDERT: Immer Primary Color
+    }
+  }
+}
+
+.service-feature-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-text-muted);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+// ===========================
+// EXAMPLES SECTION
+// ===========================
+
+.service-examples {
+  margin-bottom: 1rem;
+}
+
+.service-examples-title {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.service-examples-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.service-example-tag {
+  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-full);
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(162, 89, 255, 0.15); // GEÄNDERT: Primary Color Background
+    border-color: var(--color-primary); // GEÄNDERT: Primary Color Border
+    color: var(--color-text-primary);
+  }
+}
+
+// ===========================
+// CARD FOOTER
+// ===========================
+
+.service-card-footer {
+  margin-top: auto;
+}
+
+.service-card-cta {
+  @include button-style('ghost', 'md');
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-lg);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(162, 89, 255, 0.15); // GEÄNDERT: Primary Color Background
+    border-color: var(--color-primary); // GEÄNDERT: Primary Color Border
+    transform: translateY(-2px);
+    
+    .service-cta-arrow {
+      transform: translateX(5px);
+      color: var(--color-primary); // GEÄNDERT: Primary Color
+    }
+  }
+}
+
+.service-cta-arrow {
+  font-size: 1.2em;
+  transition: all 0.2s ease;
+  color: var(--color-text-secondary);
+}
+
+// ENTFERNT: Kategorie-spezifische Farben
+// Alle Cards verwenden jetzt einheitlich var(--color-primary)
+
+// ===========================
+// RESPONSIVE DESIGN
+// ===========================
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 3rem 1rem;
+  }
+  
+  .about-services-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    // GEÄNDERT: Weniger Margin durch fehlende Filter
+    margin-top: 1rem;
+  }
+  
+  .service-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-examples-tags {
+    gap: 0.25rem;
+  }
+  
+  .service-example-tag {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+// ===========================
+// ACCESSIBILITY
+// ===========================
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .about-cta-button {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .service-card-visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+// Immer "hover"-Effekt auf Mobile (z.B. iOS)
+@media (hover: none) and (pointer: coarse), (max-width: 480px) {
+  .service-card,
+  .service-card:hover {
+    // Hover-Styles immer aktiv
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-primary);
+    box-shadow: 0 20px 40px rgba(162, 89, 255, 0.15);
+  }
+  // Deaktiviere Pointer-Hover
+}

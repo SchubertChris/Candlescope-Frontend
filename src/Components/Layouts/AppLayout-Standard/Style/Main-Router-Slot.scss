@@ -1,0 +1,20 @@
+// =============================================================================
+// MAIN CONTENT STYLES - FUTURISTISCHES DARK THEME SYSTEM
+// Datei: main-content.scss
+// =============================================================================
+
+// Import der Design System Dateien
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+
+// =============================================================================
+// MAIN CONTENT CONTAINER
+// =============================================================================
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}

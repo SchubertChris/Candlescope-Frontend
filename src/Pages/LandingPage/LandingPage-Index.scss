@@ -1,0 +1,12 @@
+// ===========================
+// LANDING PAGE STYLES
+// ===========================
+
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+
+.landing-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}

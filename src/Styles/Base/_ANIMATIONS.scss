@@ -1,0 +1,484 @@
+/* Alle animationen für Texte, Cards, Button Hintergründe etc. */
+
+// ===========================
+// ANIMATIONEN
+// ===========================
+
+// Importiere die benötigten Module
+@use 'VARIABLES' as *;
+@use 'MIXINS' as *;
+
+// =============================================================================
+// ANIMATIONEN UND UTILITY KLASSEN
+// Datei: _animations.scss
+// =============================================================================
+
+// =============================================================================
+// KEYFRAME ANIMATIONEN
+// =============================================================================
+
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%, center;
+  }
+  50% {
+    background-position: 100% 50%, center;
+  }
+}
+
+// Glow Pulse Animation für leuchtende Effekte
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px var(--color-shadow-primary);
+  }
+
+  50% {
+    box-shadow: 0 0 25px var(--color-glow);
+  }
+}
+
+// Fade In Up Animation für Eingangseffekte
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Fade In Down Animation
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Fade In Left Animation
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Fade In Right Animation
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Shimmer Animation für glänzende Effekte
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Float Animation für schwebende Elemente
+@keyframes floatAnimation {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// Langsame Float Animation
+@keyframes floatSlow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+// Border Glow Animation für pulsierende Ränder
+@keyframes borderGlow {
+
+  0%,
+  100% {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 10px var(--color-shadow-primary);
+  }
+
+  50% {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 20px var(--color-glow);
+  }
+}
+
+// Rotate Animation für rotierende Icons
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Scale Animation für Zoom-Effekte
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Typing Animation für Texteffekte
+@keyframes typing {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+// Blink Animation für Cursor-Effekte
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+// Slide Up Animation
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// ANIMATION MIXINS
+// =============================================================================
+
+// Universelles Animation Mixin
+@mixin animate($name, $duration: var(--transition-normal), $delay: 0s, $timing: ease-out, $fill-mode: both) {
+  animation: $name $duration $timing $delay $fill-mode;
+}
+
+// Floating Element Mixin mit konfigurierbarer Dauer
+@mixin floating-element($duration: 3s, $intensity: 'normal') {
+  @if $intensity =='subtle' {
+    animation: floatAnimation $duration ease-in-out infinite;
+  }
+
+  @else if $intensity =='normal' {
+    animation: floatAnimation $duration ease-in-out infinite;
+  }
+
+  @else if $intensity =='slow' {
+    animation: floatSlow ($duration * 1.5) ease-in-out infinite;
+  }
+}
+
+// Hover Glow Mixin
+@mixin hover-glow($intensity: 'normal') {
+  transition: all var(--transition-normal) ease;
+
+  &:hover {
+    @if $intensity =='subtle' {
+      box-shadow: 0 0 15px var(--color-shadow-primary);
+    }
+
+    @else if $intensity =='normal' {
+      box-shadow: var(--shadow-glow);
+    }
+
+    @else if $intensity =='intense' {
+      box-shadow: var(--shadow-glow-intense);
+    }
+  }
+}
+
+// Pulse Animation Mixin
+@mixin pulse-animation($duration: 2s) {
+  animation: glowPulse $duration ease-in-out infinite;
+}
+
+// =============================================================================
+// UTILITY KLASSEN FÜR ANIMATIONEN
+// =============================================================================
+
+// Glow Effekte
+.glow {
+  @include glow-effect('normal');
+}
+
+.glow-subtle {
+  @include glow-effect('subtle');
+}
+
+.glow-intense {
+  @include glow-effect('intense');
+}
+
+.glow-pulse {
+  @include pulse-animation();
+}
+
+// Text Effekte
+.text-gradient {
+  @include text-gradient();
+}
+
+.text-shimmer {
+  background: linear-gradient(90deg,
+      var(--color-text-primary) 25%,
+      var(--color-primary) 50%,
+      var(--color-text-primary) 75%);
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2s infinite;
+}
+
+// Floating Animationen
+.floating {
+  @include floating-element();
+}
+
+.floating-slow {
+  @include floating-element(4s, 'slow');
+}
+
+.floating-subtle {
+  @include floating-element(2s, 'subtle');
+}
+
+// Fade Animationen
+.fade-in-up {
+  @include animate(fadeInUp);
+}
+
+.fade-in-down {
+  @include animate(fadeInDown);
+}
+
+.fade-in-left {
+  @include animate(fadeInLeft);
+}
+
+.fade-in-right {
+  @include animate(fadeInRight);
+}
+
+// Timing Varianten für Fade Animationen
+.fade-in-up-fast {
+  @include animate(fadeInUp, 0.3s);
+}
+
+.fade-in-up-slow {
+  @include animate(fadeInUp, 0.8s);
+}
+
+.fade-in-up-delayed {
+  @include animate(fadeInUp, 0.5s, 0.2s);
+}
+
+// Scale Animationen
+.scale-in {
+  @include animate(scaleIn);
+}
+
+.scale-in-fast {
+  @include animate(scaleIn, 0.2s);
+}
+
+// Slide Animationen
+.slide-up {
+  @include animate(slideUp);
+}
+
+// Shimmer Effekte
+.shimmer {
+  background: linear-gradient(90deg,
+      var(--color-bg-primary) 25%,
+      var(--color-primary) 50%,
+      var(--color-bg-primary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+// Hover Effekte
+.hover-glow {
+  @include hover-glow();
+}
+
+.hover-glow-subtle {
+  @include hover-glow('subtle');
+}
+
+.hover-glow-intense {
+  @include hover-glow('intense');
+}
+
+.hover-float {
+  transition: transform var(--transition-normal) ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.hover-scale {
+  transition: transform var(--transition-normal) ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// =============================================================================
+// INTERACTIVE STATES
+// =============================================================================
+
+// Loading States
+.loading-spinner {
+  @include animate(rotate, 1s, 0s, linear, none);
+  animation-iteration-count: infinite;
+}
+
+.loading-pulse {
+  @include pulse-animation(1.5s);
+}
+
+// Disabled States
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+// Focus States
+.focus-glow {
+  &:focus {
+    outline: none;
+    @include glow-effect('normal');
+  }
+}
+
+// =============================================================================
+// DELAY UTILITIES
+// =============================================================================
+
+// Animation Delays für gestaffelte Effekte
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+// =============================================================================
+// PERFORMANCE OPTIMIERUNGEN
+// =============================================================================
+
+// Will-change Property für bessere Performance
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.will-transform {
+  will-change: transform;
+}
+
+.will-opacity {
+  will-change: opacity;
+}
+
+// Hardware Acceleration
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// =============================================================================
+// RESPONSIVE ANIMATION CONTROLS
+// =============================================================================
+
+// Reduzierte Animationen für bessere Zugänglichkeit
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

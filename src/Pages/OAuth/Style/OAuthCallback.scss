@@ -1,0 +1,337 @@
+// src/Pages/OAuth/Style/OAuthCallback.scss
+// ERSTELLT: Styling für OAuth Callback-Pages
+@use "@styles/Base/VARIABLES" as *;
+@use "@styles/Base/MIXINS" as *;
+@use "@styles/Base/ANIMATIONS" as *;
+
+.oauth-callback {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  position: relative;
+  padding: 2rem;
+
+  // Animated background
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+      circle at 30% 20%, 
+      rgba(162, 89, 255, 0.1) 0%, 
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 80%, 
+      rgba(59, 130, 246, 0.08) 0%, 
+      transparent 50%
+    );
+    animation: backgroundPulse 8s ease-in-out infinite;
+  }
+
+  &__container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  &__content {
+    background: rgba(26, 12, 64, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(162, 89, 255, 0.3);
+    border-radius: var(--border-radius-xl);
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInScale 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    &--loading {
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid rgba(59, 130, 246, 0.4);
+      
+      svg {
+        color: #3b82f6;
+      }
+    }
+
+    &--success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid rgba(34, 197, 94, 0.4);
+      animation: successPulse 2s ease-in-out infinite;
+      
+      svg {
+        color: #22c55e;
+        animation: successScale 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+      }
+    }
+
+    &--error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid rgba(239, 68, 68, 0.4);
+      
+      svg {
+        color: #ef4444;
+        animation: errorShake 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+      }
+    }
+  }
+
+  &__spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1rem;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+  }
+
+  &__message {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 0.75rem;
+    line-height: 1.6;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+
+    strong {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+  }
+
+  &__sub-message {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin: 0 0 2rem;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+  }
+
+  &__progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(162, 89, 255, 0.2);
+    border-radius: 2px;
+    margin: 2rem 0;
+    overflow: hidden;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+
+    &-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
+      border-radius: 2px;
+      animation: progressLoad 2s ease-in-out infinite;
+    }
+  }
+
+  &__button {
+    @include button-style("primary", "lg");
+    margin: 0.5rem;
+    min-width: 160px;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.7s both;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--secondary {
+      @include button-style("ghost", "lg");
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(162, 89, 255, 0.4);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    @include breakpoint("sm") {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+
+  &__error-details {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+  }
+
+  &__error-list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+    
+    li {
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes successPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
+  }
+}
+
+@keyframes successScale {
+  0% {
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes progressLoad {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes backgroundPulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive Design
+@include breakpoint("sm") {
+  .oauth-callback {
+    &__content {
+      padding: 4rem 3rem;
+    }
+
+    &__title {
+      font-size: 2.5rem;
+    }
+
+    &__message {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+// Reduced Motion Support
+@media (prefers-reduced-motion: reduce) {
+  .oauth-callback {
+    &__content,
+    &__icon,
+    &__title,
+    &__message,
+    &__sub-message,
+    &__progress,
+    &__button,
+    &__error-details {
+      animation: none;
+    }
+
+    &__spinner {
+      animation: none;
+    }
+
+    &::before {
+      animation: none;
+    }
+  }
+}

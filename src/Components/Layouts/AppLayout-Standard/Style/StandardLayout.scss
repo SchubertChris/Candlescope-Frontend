@@ -1,0 +1,43 @@
+// STANDARD LAYOUT FIXES
+// Füge diese Styles zu deiner StandardLayout.scss hinzu:
+
+.app-layout {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: var(--color-bg-primary);
+}
+
+// MAIN ROUTER SLOT FIXES
+// Füge diese Styles zu deiner Main-Router-Slot.scss hinzu:
+
+.main-router-slot {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  // Padding-top für fixed Navbar
+  padding-top: 80px; // Navbar Höhe
+  min-height: calc(100vh - 80px); // Vollhöhe minus Navbar
+  
+  @include breakpoint-max("md") {
+    padding-top: 60px;
+    min-height: calc(100vh - 60px);
+  }
+}
+
+// Z-INDEX HIERARCHIE (Global)
+// Füge diese zu deiner _VARIABLES.scss hinzu:
+
+$z-index: (
+  base: 1,
+  dropdown: 100,
+  background: 500,
+  sticky: 900,
+  navbar: 1000,
+  navbar-mobile: 1001,
+  navbar-toggle: 1002,
+  modal: 1100,
+  tooltip: 1200,
+) !default;

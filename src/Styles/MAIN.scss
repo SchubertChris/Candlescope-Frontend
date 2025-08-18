@@ -1,0 +1,16 @@
+// =============================================================================
+// MAIN SCSS ENTRY POINT - FUTURISTISCHES DARK THEME SYSTEM
+// =============================================================================
+
+// Base Imports - Reihenfolge ist wichtig!
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+@use '@styles/Base/FONTS' as *;
+
+// Dann die globalen Styles
+@use '@styles/Base/RESET';
+@use '@styles/Base/ANIMATIONS';
+
+// =============================================================================
+// GLOBAL STYLES
+// =============================================================================

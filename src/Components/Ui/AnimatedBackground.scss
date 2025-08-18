@@ -1,0 +1,397 @@
+// =============================================================================
+// ANIMATED Background-Bubble-Bubble STYLES - FUTURISTISCHES DARK THEME
+// Verbesserte Version mit sanfteren Effekten und erhöhtem Kontrast
+// =============================================================================
+
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+
+@keyframes move {
+  100% {
+    transform: translate3d(0, 0, 1px) rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    filter: blur(1.5vmin);
+  }
+
+  50% {
+    opacity: 0.7;
+    filter: blur(0.8vmin);
+  }
+}
+
+.Background-Bubbles {
+  position: fixed;
+  width: 100vw;
+  min-height: 100vh;
+  top: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(1, 130, 133, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(158, 5, 201, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(27, 23, 55, 0.15) 0%, transparent 50%),
+    linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #141027 50%, #0a0a0a 75%, #000000 100%);
+  overflow: hidden;
+  filter: contrast(1.2) brightness(0.9);
+}
+
+.Background-Bubbles::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at top, rgba(0, 0, 0, 0.4) 0%, transparent 70%),
+    radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.Background-Bubbles .Bubble {
+  width: 32vmin;
+  height: 32vmin;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  position: absolute;
+  animation: move, pulse;
+  animation-duration: 23s, 8s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  filter: blur(1.2vmin);
+  will-change: transform, opacity, filter;
+}
+
+.Background-Bubbles .Bubble:nth-child(0) {
+  color: rgba(26, 24, 50, 0.25);
+  top: 4%;
+  left: 4%;
+  animation-duration: 98s, 12s;
+  animation-delay: -39s, -2s;
+  transform-origin: -14vw -7vh;
+  box-shadow:
+    64vmin 0 12vmin currentColor,
+    32vmin 32vmin 8vmin rgba(1, 130, 133, 0.15),
+    -32vmin -16vmin 6vmin rgba(0, 0, 0, 0.3);
+}
+
+.Background-Bubbles .Bubble:nth-child(1) {
+  color: rgba(27, 23, 55, 0.3);
+  top: 11%;
+  left: 67%;
+  animation-duration: 164s, 15s;
+  animation-delay: -193s, -5s;
+  transform-origin: -2vw -20vh;
+  box-shadow:
+    64vmin 0 10vmin currentColor,
+    -48vmin 24vmin 7vmin rgba(158, 5, 201, 0.12),
+    16vmin -32vmin 5vmin rgba(0, 0, 0, 0.4);
+}
+
+.Background-Bubbles .Bubble:nth-child(2) {
+  color: rgba(27, 23, 55, 0.22);
+  top: 78%;
+  left: 30%;
+  animation-duration: 101s, 9s;
+  animation-delay: -46s, -1s;
+  transform-origin: 11vw 11vh;
+  box-shadow:
+    64vmin 0 11vmin currentColor,
+    -24vmin -40vmin 6vmin rgba(1, 130, 133, 0.18),
+    40vmin 16vmin 4vmin rgba(0, 0, 0, 0.35);
+}
+
+.Background-Bubbles .Bubble:nth-child(3) {
+  color: rgba(158, 5, 201, 0.35);
+  top: 95%;
+  left: 59%;
+  animation-duration: 88s, 11s;
+  animation-delay: -213s, -3s;
+  transform-origin: -12vw 2vh;
+  box-shadow:
+    -64vmin 0 13vmin currentColor,
+    32vmin -24vmin 8vmin rgba(26, 24, 50, 0.2),
+    -16vmin 48vmin 5vmin rgba(0, 0, 0, 0.45);
+}
+
+.Background-Bubbles .Bubble:nth-child(4) {
+  color: rgba(26, 24, 50, 0.28);
+  top: 55%;
+  left: 66%;
+  animation-duration: 239s, 14s;
+  animation-delay: -176s, -6s;
+  transform-origin: 2vw 0vh;
+  box-shadow:
+    64vmin 0 9vmin currentColor,
+    -56vmin -8vmin 7vmin rgba(1, 130, 133, 0.14),
+    24vmin 40vmin 6vmin rgba(0, 0, 0, 0.38);
+}
+
+.Background-Bubbles .Bubble:nth-child(5) {
+  color: rgba(26, 24, 50, 0.26);
+  top: 52%;
+  left: 37%;
+  animation-duration: 240s, 10s;
+  animation-delay: -43s, -2s;
+  transform-origin: 17vw -24vh;
+  box-shadow:
+    64vmin 0 14vmin currentColor,
+    -40vmin 32vmin 9vmin rgba(158, 5, 201, 0.16),
+    8vmin -56vmin 5vmin rgba(0, 0, 0, 0.42);
+}
+
+.Background-Bubbles .Bubble:nth-child(6) {
+  color: rgba(27, 23, 55, 0.24);
+  top: 84%;
+  left: 68%;
+  animation-duration: 272s, 13s;
+  animation-delay: -262s, -4s;
+  transform-origin: 25vw -18vh;
+  box-shadow:
+    -64vmin 0 10vmin currentColor,
+    48vmin -16vmin 8vmin rgba(1, 130, 133, 0.13),
+    -32vmin 24vmin 6vmin rgba(0, 0, 0, 0.4);
+}
+
+.Background-Bubbles .Bubble:nth-child(7) {
+  color: rgba(1, 131, 133, 0.32);
+  top: 91%;
+  left: 60%;
+  animation-duration: 230s, 16s;
+  animation-delay: -130s, -7s;
+  transform-origin: -12vw 14vh;
+  box-shadow:
+    -64vmin 0 12vmin currentColor,
+    24vmin 56vmin 7vmin rgba(26, 24, 50, 0.19),
+    -48vmin -32vmin 5vmin rgba(0, 0, 0, 0.46);
+}
+
+.Background-Bubbles .Bubble:nth-child(8) {
+  color: rgba(26, 24, 50, 0.27);
+  top: 46%;
+  left: 71%;
+  animation-duration: 126s, 8s;
+  animation-delay: -136s, -1s;
+  transform-origin: -1vw 8vh;
+  box-shadow:
+    -64vmin 0 11vmin currentColor,
+    -16vmin -48vmin 6vmin rgba(158, 5, 201, 0.11),
+    56vmin 8vmin 4vmin rgba(0, 0, 0, 0.36);
+}
+
+.Background-Bubbles .Bubble:nth-child(9) {
+  color: rgba(26, 24, 50, 0.29);
+  top: 56%;
+  left: 58%;
+  animation-duration: 244s, 12s;
+  animation-delay: -243s, -3s;
+  transform-origin: 20vw -7vh;
+  box-shadow:
+    -64vmin 0 13vmin currentColor,
+    40vmin -40vmin 8vmin rgba(1, 130, 133, 0.17),
+    -24vmin 64vmin 5vmin rgba(0, 0, 0, 0.44);
+}
+
+.Background-Bubbles .Bubble:nth-child(10) {
+  color: rgba(1, 130, 133, 0.34);
+  top: 1%;
+  left: 46%;
+  animation-duration: 105s, 11s;
+  animation-delay: -222s, -5s;
+  transform-origin: -1vw -14vh;
+  box-shadow:
+    64vmin 0 10vmin currentColor,
+    -32vmin 48vmin 7vmin rgba(27, 23, 55, 0.15),
+    16vmin -24vmin 6vmin rgba(0, 0, 0, 0.38);
+}
+
+.Background-Bubbles .Bubble:nth-child(11) {
+  color: rgba(26, 24, 50, 0.31);
+  top: 58%;
+  left: 9%;
+  animation-duration: 50s, 9s;
+  animation-delay: -139s, -2s;
+  transform-origin: 25vw 13vh;
+  box-shadow:
+    -64vmin 0 12vmin currentColor,
+    48vmin -32vmin 8vmin rgba(158, 5, 201, 0.14),
+    -8vmin 40vmin 5vmin rgba(0, 0, 0, 0.41);
+}
+
+.Background-Bubbles .Bubble:nth-child(12) {
+  color: rgba(1, 130, 133, 0.33);
+  top: 84%;
+  left: 3%;
+  animation-duration: 101s, 14s;
+  animation-delay: -175s, -6s;
+  transform-origin: 24vw 11vh;
+  box-shadow:
+    -64vmin 0 11vmin currentColor,
+    32vmin 24vmin 7vmin rgba(26, 24, 50, 0.18),
+    -56vmin -16vmin 4vmin rgba(0, 0, 0, 0.43);
+}
+
+.Background-Bubbles .Bubble:nth-child(13) {
+  color: rgba(1, 130, 133, 0.36);
+  top: 30%;
+  left: 19%;
+  animation-duration: 89s, 10s;
+  animation-delay: -186s, -4s;
+  transform-origin: -1vw -19vh;
+  box-shadow:
+    -64vmin 0 9vmin currentColor,
+    -24vmin -56vmin 6vmin rgba(27, 23, 55, 0.16),
+    40vmin 32vmin 5vmin rgba(0, 0, 0, 0.37);
+}
+
+.Background-Bubbles .Bubble:nth-child(14) {
+  color: rgba(1, 130, 133, 0.35);
+  top: 54%;
+  left: 44%;
+  animation-duration: 240s, 13s;
+  animation-delay: -156s, -7s;
+  transform-origin: 25vw -23vh;
+  box-shadow:
+    -64vmin 0 14vmin currentColor,
+    56vmin 16vmin 9vmin rgba(158, 5, 201, 0.12),
+    -40vmin -8vmin 6vmin rgba(0, 0, 0, 0.45);
+}
+
+.Background-Bubbles .Bubble:nth-child(15) {
+  color: rgba(26, 24, 50, 0.30);
+  top: 29%;
+  left: 3%;
+  animation-duration: 261s, 15s;
+  animation-delay: -223s, -8s;
+  transform-origin: 20vw 21vh;
+  box-shadow:
+    -64vmin 0 10vmin currentColor,
+    24vmin -48vmin 7vmin rgba(1, 130, 133, 0.19),
+    -16vmin 56vmin 5vmin rgba(0, 0, 0, 0.39);
+}
+
+/* Fortsetzung der weiteren Bubble-Styles mit ähnlichen Anpassungen... */
+
+.Background-Bubbles .Bubble:nth-child(16) {
+  color: rgba(27, 23, 55, 0.25);
+  top: 67%;
+  left: 71%;
+  animation-duration: 93s, 11s;
+  animation-delay: -11s, -3s;
+  transform-origin: -8vw 9vh;
+  box-shadow:
+    -64vmin 0 12vmin currentColor,
+    -48vmin 40vmin 8vmin rgba(158, 5, 201, 0.13),
+    32vmin -24vmin 5vmin rgba(0, 0, 0, 0.42);
+}
+
+.Background-Bubbles .Bubble:nth-child(17) {
+  color: rgba(27, 23, 55, 0.28);
+  top: 63%;
+  left: 97%;
+  animation-duration: 255s, 9s;
+  animation-delay: -242s, -1s;
+  transform-origin: 9vw -4vh;
+  box-shadow:
+    64vmin 0 11vmin currentColor,
+    -32vmin -32vmin 7vmin rgba(1, 130, 133, 0.16),
+    8vmin 48vmin 6vmin rgba(0, 0, 0, 0.40);
+}
+
+.Background-Bubbles .Bubble:nth-child(18) {
+  color: rgba(1, 130, 133, 0.37);
+  top: 60%;
+  left: 24%;
+  animation-duration: 246s, 12s;
+  animation-delay: -71s, -4s;
+  transform-origin: -4vw 22vh;
+  box-shadow:
+    -64vmin 0 13vmin currentColor,
+    40vmin 8vmin 8vmin rgba(26, 24, 50, 0.17),
+    -56vmin -40vmin 5vmin rgba(0, 0, 0, 0.44);
+}
+
+.Background-Bubbles .Bubble:nth-child(19) {
+  color: rgba(1, 130, 133, 0.38);
+  top: 45%;
+  left: 97%;
+  animation-duration: 84s, 8s;
+  animation-delay: -136s, -2s;
+  transform-origin: 7vw -3vh;
+  box-shadow:
+    64vmin 0 15vmin currentColor,
+    -24vmin 56vmin 9vmin rgba(158, 5, 201, 0.14),
+    16vmin -32vmin 6vmin rgba(0, 0, 0, 0.46);
+}
+
+.Background-Bubbles .Bubble:nth-child(20) {
+  color: rgba(27, 23, 55, 0.26);
+  top: 91%;
+  left: 11%;
+  animation-duration: 249s, 14s;
+  animation-delay: -97s, -6s;
+  transform-origin: 12vw 13vh;
+  box-shadow:
+    64vmin 0 10vmin currentColor,
+    48vmin -16vmin 7vmin rgba(1, 130, 133, 0.15),
+    -40vmin 24vmin 5vmin rgba(0, 0, 0, 0.38);
+}
+
+/* Erweiterte Animationen für noch sanftere Bewegungen */
+@keyframes gentle-float {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+
+  25% {
+    transform: translateY(-10px) scale(1.05);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: translateY(5px) scale(0.95);
+    opacity: 0.8;
+  }
+
+  75% {
+    transform: translateY(-5px) scale(1.02);
+    opacity: 0.5;
+  }
+}
+
+.Background-Bubbles .Bubble:nth-child(even) {
+  animation-name: move, pulse, gentle-float;
+  animation-duration: inherit, 8s, 20s;
+}
+
+.Background-Bubbles .Bubble:nth-child(odd) {
+  animation-name: move, pulse;
+  animation-duration: inherit, 12s;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  .Background-Bubbles .Bubble {
+    width: 40vmin;
+    height: 40vmin;
+    filter: blur(2vmin);
+  }
+}
+
+@media (max-width: 480px) {
+  .Background-Bubbles .Bubble {
+    width: 45vmin;
+    height: 45vmin;
+    filter: blur(2.5vmin);
+  }
+}

@@ -1,0 +1,1057 @@
+// =============================================================================
+// MOBILE-ONLY NAVBAR STYLES
+// Datei: Navbar.scss
+// GEÄNDERT: Desktop-Styles komplett entfernt, nur Mobile-Styles behalten
+// NEU: iOS Safari Viewport-Höhe Anpassungen
+// NEU: Vereinheitlichte Hover-Effekte für alle Buttons und Links
+// ERWEITERT: OAuth-Integration mit Loading-States
+// =============================================================================
+
+@use "@styles/Base/VARIABLES" as *;
+@use "@styles/Base/MIXINS" as *;
+@use "@styles/Base/ANIMATIONS" as *;
+@use "@styles/Base/FONTS" as *;
+
+// NEU: CSS Custom Property für dynamische Viewport-Höhe
+:root {
+  --vh: 1vh; // Fallback, wird durch JavaScript überschrieben
+}
+
+// =============================================================================
+// NEU: GEMEINSAME HOVER EFFEKTE MIXIN
+// =============================================================================
+@mixin unified-hover-effect {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(162, 89, 255, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4),
+      0 0 40px rgba(162, 89, 255, 0.2), inset 0 0 20px rgba(162, 89, 255, 0.1);
+
+    // NEU: Text-Stroke für knackigere Darstellung
+    -webkit-text-stroke: 0.5px var(--color-primary);
+    text-shadow: 0 0 20px var(--color-glow);
+  }
+}
+
+// NEU: Icon Glow Effekt Mixin
+@mixin icon-glow-effect {
+  // Basis-Transition für Icons
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Hover-Zustand wird vom Parent-Element getriggert
+  .navbar-mobile-toggle:hover &,
+  .navbar-mobile__submit:hover &,
+  .navbar-mobile__social-btn:hover &,
+  .navbar-mobile__link:hover & {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px var(--color-primary))
+      drop-shadow(0 0 16px var(--color-primary))
+      drop-shadow(0 0 24px rgba(162, 89, 255, 0.6));
+    color: var(--color-primary);
+
+    // NEU: Zusätzlicher Glow mit Pseudo-Element
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150%;
+      height: 150%;
+      background: radial-gradient(
+        circle,
+        var(--color-primary) 0%,
+        transparent 70%
+      );
+      opacity: 0.5;
+      filter: blur(10px);
+      pointer-events: none;
+      z-index: -1;
+    }
+  }
+}
+
+// =============================================================================
+// MOBILE STYLES - jetzt die Haupt-Navigation
+// =============================================================================
+
+.navbar-mobile-toggle {
+  @include reset-button;
+  @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  position: fixed;
+  top: 5.5rem !important;
+  top: calc(1rem + env(safe-area-inset-top));
+  right: 3rem !important;
+  right: calc(1rem + env(safe-area-inset-right));
+  z-index: 1002;
+  background: rgba(20, 19, 29, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(162, 89, 255, 0.3);
+  border-radius: 50%;
+
+  .hamburger {
+    width: 24px;
+    height: 20px;
+    position: relative;
+    @include icon-glow-effect; // NEU: Icon Glow Effekt
+
+    &__line {
+      display: block;
+      position: absolute;
+      height: 2px;
+      width: 100%;
+      background: var(--color-primary);
+      border-radius: 2px;
+      opacity: 1;
+      left: 0;
+      transform: rotate(0deg);
+      transition: all 0.25s ease;
+
+      &:nth-child(1) {
+        top: 0;
+      }
+
+      &:nth-child(2) {
+        top: 9px;
+      }
+
+      &:nth-child(3) {
+        top: 18px;
+      }
+    }
+  }
+
+  // NEU: Hover-Effekt für Hamburger-Linien
+  &:hover .hamburger__line {
+    box-shadow: 0 0 10px var(--color-primary);
+    background: var(--color-primary-light);
+  }
+
+  &.active {
+    background: rgba(20, 19, 29, 0.9);
+    box-shadow: 0 0 20px rgba(3, 0, 21, 0.8);
+
+    .hamburger__line {
+      &:nth-child(1) {
+        top: 9px;
+        transform: rotate(135deg);
+      }
+
+      &:nth-child(2) {
+        opacity: 0;
+        left: -60px;
+      }
+
+      &:nth-child(3) {
+        top: 9px;
+        transform: rotate(-135deg);
+      }
+    }
+  }
+}
+
+.navbar-mobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  background: rgba(3, 0, 21, 0.2);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+
+  @supports (-webkit-touch-callout: none) {
+    height: -webkit-fill-available;
+  }
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+
+    .navbar-mobile__content {
+      transform: translateX(0);
+    }
+
+    .navbar-mobile__links li {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  &__content {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.61);
+    backdrop-filter: blur(5px) saturate(150%);
+    right: 0;
+    top: 0rem;
+    min-height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100%;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-left: 1px solid var(--color-glow);
+    border-right: 2px solid var(--color-glow);
+    box-shadow: 0 0 40px rgba(162, 89, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5rem 1rem 5rem 1rem;
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+
+    @supports (-webkit-touch-callout: none) {
+      height: -webkit-fill-available;
+      padding-top: calc(2rem + env(safe-area-inset-top));
+    }
+
+    @include breakpoint("lg") {
+      max-width: 400px;
+    }
+  }
+
+  &__header {
+    position: relative;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+  }
+
+  &__logo {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 0 20px rgba(162, 89, 255, 0.5));
+  }
+
+  &__logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(
+      circle,
+      var(--color-primary) 0%,
+      transparent 60%
+    );
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    filter: blur(30px);
+    pointer-events: none;
+  }
+
+  &__login {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 3rem;
+    z-index: 1;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__input-group {
+    position: relative;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(26, 12, 64, 0.4);
+    border: 1px solid rgba(162, 89, 255, 0.2);
+    border-radius: var(--border-radius-lg);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      background: rgba(26, 12, 64, 0.6);
+
+      ~ .navbar-mobile__input-glow {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__input-glow {
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light) 100%
+    );
+    border-radius: var(--border-radius-lg);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    filter: blur(10px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &__password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+
+    // NEU: Vereinheitlichter Hover-Effekt für Icon
+    svg {
+      @include icon-glow-effect;
+    }
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  &__submit {
+    @include button-style("primary", "lg");
+    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
+    width: 100%;
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+
+    &.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+
+    // NEU: Glänzender Sweep-Effekt beim Hover
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      transition: left 0.5s ease;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+
+      &:hover {
+        transform: none;
+        background: rgba(162, 89, 255, 0.2);
+      }
+    }
+  }
+
+  &__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top-color: var(--color-text-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  &__divider {
+    position: relative;
+    text-align: center;
+    margin: 2rem 0 1.5rem;
+
+    span {
+      position: relative;
+      display: inline-block;
+      padding: 0 1rem;
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+      background: rgba(20, 19, 29, 0.95);
+      z-index: 1;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(162, 89, 255, 0.3),
+        transparent
+      );
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__social-btn {
+    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem;
+    background: rgba(26, 12, 64, 0.3);
+    border: 1px solid rgba(162, 89, 255, 0.2);
+    border-radius: var(--border-radius-lg);
+    color: var(--color-text-primary);
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    position: relative; // NEU: Für Icon-Positionierung
+
+    svg {
+      width: 20px;
+      height: 20px;
+      @include icon-glow-effect; // NEU: Icon Glow Effekt
+      position: relative; // NEU: Für ::after Pseudo-Element
+    }
+
+    // HINZUGEFÜGT: Loading-State für OAuth-Buttons
+    &.loading {
+      pointer-events: none;
+      opacity: 0.8;
+      
+      .navbar-mobile__oauth-spinner {
+        animation: spin 1s linear infinite;
+      }
+      
+      // Deaktiviere Hover-Effekte während Loading
+      &:hover {
+        transform: none;
+        background: rgba(26, 12, 64, 0.3);
+        box-shadow: none;
+      }
+    }
+    
+    // HINZUGEFÜGT: Disabled-State für OAuth-Buttons
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+      
+      &:hover {
+        transform: none;
+        background: rgba(26, 12, 64, 0.3);
+        box-shadow: none;
+      }
+    }
+
+    // NEU: Spezifische Farb-Overlays beim Hover
+    &--google:hover:not(.loading):not(:disabled) {
+      box-shadow: 0 4px 20px rgba(219, 68, 55, 0.4),
+        0 0 40px rgba(219, 68, 55, 0.2), inset 0 0 20px rgba(219, 68, 55, 0.1);
+      border-color: rgba(219, 68, 55, 0.8);
+
+      svg {
+        filter: drop-shadow(0 0 8px #db4437) drop-shadow(0 0 16px #db4437)
+          drop-shadow(0 0 24px rgba(219, 68, 55, 0.6));
+      }
+    }
+
+    &--github:hover:not(.loading):not(:disabled) {
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3),
+        0 0 40px rgba(255, 255, 255, 0.1),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.5);
+
+      svg {
+        filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px #ffffff)
+          drop-shadow(0 0 24px rgba(255, 255, 255, 0.6));
+      }
+    }
+  }
+
+  // HINZUGEFÜGT: OAuth-Spinner für Buttons
+  &__oauth-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  &__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 320px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 8%;
+    bottom: calc(8% + env(safe-area-inset-bottom));
+    transition: all 0.3s ease-out;
+
+    @supports (-webkit-touch-callout: none) {
+      position: relative;
+      bottom: auto;
+      margin-bottom: calc(2rem + env(safe-area-inset-bottom));
+    }
+
+    li {
+      opacity: 0;
+      transform: translateX(50px);
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+  }
+
+  &__link {
+    @include button-style("ghost", "lg");
+    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
+    width: 100%;
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+
+    .navbar-icon {
+      margin-right: 1rem;
+      transition: all 0.3s ease-out;
+      font-size: 1.5rem;
+      @include icon-glow-effect; // NEU: Icon Glow Effekt
+      position: relative; // NEU: Für ::after Pseudo-Element
+    }
+
+    &.active {
+      background: rgba(162, 89, 255, 0.15); // GEÄNDERT: Etwas stärker als Hover
+      border-color: var(--color-primary);
+      color: var(--color-text-primary);
+      box-shadow: 0 0 30px rgba(162, 89, 255, 0.5),
+        inset 0 0 30px rgba(162, 89, 255, 0.2);
+
+      .navbar-icon {
+        color: var(--color-primary);
+        filter: drop-shadow(0 0 10px var(--color-primary))
+          drop-shadow(0 0 20px var(--color-primary));
+      }
+
+      .navbar-mobile__active-dot {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    // NEU: Ripple-Effekt beim Klick
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(162, 89, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    &:active::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &__active-dot {
+    position: absolute;
+    right: 1.5rem;
+    top: 45%;
+    transform: translateY(-50%) scale(0);
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px var(--color-glow);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -70%;
+      left: -70%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--color-primary);
+      border-radius: 50%;
+      animation: pulse 2s infinite; // NEU: Pulsierender Effekt
+    }
+  }
+}
+
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+// NEU: Pulse Animation für Active Dot
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// ACCESSIBILITY & PERFORMANCE
+// =============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+// Focus Styles - NEU: Vereinheitlicht
+.navbar-mobile__link,
+.navbar-mobile__input,
+.navbar-mobile__submit,
+.navbar-mobile__social-btn,
+.navbar-mobile-toggle {
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 4px rgba(162, 89, 255, 0.2);
+  }
+}
+
+// =============================================================================
+// FEEDBACK & INFO MESSAGES - NEU HINZUGEFÜGT
+// =============================================================================
+
+// Feedback Message (Success/Info/Error)
+.navbar-mobile__feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid;
+  font-size: 0.875rem;
+  line-height: 1.4;
+
+  &--success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+  }
+
+  &--info {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+  }
+
+  &--error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
+  &-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &-text {
+    flex: 1;
+  }
+}
+
+// Info Message für automatische Account-Erstellung
+.navbar-mobile__info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: rgba(162, 89, 255, 0.1);
+  border: 1px solid rgba(162, 89, 255, 0.3);
+  border-radius: var(--border-radius-lg);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  backdrop-filter: blur(10px);
+
+  svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.125rem;
+    color: var(--color-primary);
+  }
+
+  span {
+    flex: 1;
+  }
+}
+
+// Error Message (bestehendes Design beibehalten)
+.navbar-mobile__error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius-lg);
+  color: #ef4444;
+  font-size: 0.875rem;
+  backdrop-filter: blur(10px);
+}
+
+// Toggle Mode Button Styling erweitert
+.navbar-mobile__toggle-mode {
+  @include reset-button;
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: rgba(26, 12, 64, 0.2);
+  border: 1px solid rgba(162, 89, 255, 0.2);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(26, 12, 64, 0.4);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+// =============================================================================
+// BESTÄTIGUNGS-DIALOG - NEU HINZUGEFÜGT
+// =============================================================================
+
+.navbar-mobile__confirmation {
+  background: rgba(162, 89, 255, 0.15);
+  border: 1px solid rgba(162, 89, 255, 0.4);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(15px);
+  animation: slideIn 0.3s ease-out;
+
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+
+    svg {
+      width: 24px;
+      height: 24px;
+      filter: drop-shadow(0 0 8px var(--color-primary));
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+    }
+  }
+
+  &-content {
+    margin-bottom: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    line-height: 1.5;
+
+    p {
+      margin: 0 0 0.75rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    strong {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+  }
+
+  &-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-direction: column;
+  }
+
+  &.loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.navbar-mobile__confirm-btn {
+  @include unified-hover-effect;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: var(--border-radius-lg);
+  color: #22c55e;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    transform: translateY(-2px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.navbar-mobile__cancel-btn {
+  @include reset-button;
+  padding: 0.75rem 1.25rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius-lg);
+  color: rgba(239, 68, 68, 0.8);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =============================================================================
+// LOADING-STATUS ANZEIGE - FARBE KORRIGIERT AUF WEISS
+// =============================================================================
+
+.navbar-mobile__loading-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: var(--border-radius-lg);
+  backdrop-filter: blur(15px);
+  animation: pulseGlow 2s ease-in-out infinite;
+
+  &-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: white; // GEÄNDERT: Von #3b82f6 zu white
+      z-index: 2;
+    }
+  }
+
+  &-spinner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.2); // GEÄNDERT: Von blau zu weiß mit Transparenz
+    border-top: 2px solid white; // GEÄNDERT: Von #3b82f6 zu white
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  &-text {
+    flex: 1;
+    color: white; // GEÄNDERT: Von #3b82f6 zu white
+
+    p {
+      margin: 0 0 0.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: white; // HINZUGEFÜGT: Explizit weiß
+    }
+
+    small {
+      margin: 0;
+      opacity: 0.8;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8); // GEÄNDERT: Von blau zu weiß mit Transparenz
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+  }
+}
+
+// Erweiterte Animationen
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// LOADING-STATUS FORCE WHITE TEXT - OVERRIDE
+// =============================================================================
+
+.navbar-mobile__loading-status {
+  * {
+    color: white !important;
+  }
+  
+  svg {
+    color: white !important;
+  }
+  
+  p {
+    color: white !important;
+  }
+  
+  small {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  
+  .navbar-mobile__loading-spinner {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    border-top-color: white !important;
+  }
+}

@@ -1,0 +1,485 @@
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+@use '@styles/Base/FONTS' as *;
+@use '@styles/Base/ANIMATIONS' as *;
+
+// ===========================
+// COOKIE BANNER STYLES
+// ===========================
+
+// Backdrop
+.cookie-banner-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1100; // Modal z-index aus deiner Hierarchie
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Main Cookie Banner Container
+.cookie-banner {
+  position: absolute;
+  top: 30vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1101; // Über dem Backdrop
+  padding: 2rem;
+  pointer-events: none; // Damit nur das Modal selbst klickbar ist
+  
+  @include breakpoint-max(sm) {
+    align-items: flex-end;
+    padding: 0;
+  }
+  
+  &__container {
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    background: var(--color-bg-primary);
+    border-radius: 16px;
+    box-shadow: 
+      0 20px 60px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(162, 89, 255, 0.1);
+    overflow: hidden;
+    pointer-events: all; // Modal selbst ist klickbar
+    animation: slideInUp 0.4s ease-out;
+    
+    @include breakpoint-max(sm) {
+      width: 100%;
+      max-width: none;
+      max-height: 85vh;
+      border-radius: 24px 24px 0 0;
+      animation: slideInUpMobile 0.4s ease-out;
+    }
+  }
+}
+
+// ===========================
+// HEADER SECTION
+// ===========================
+
+.cookie-banner__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid rgba(162, 89, 255, 0.1);
+  
+  @include breakpoint-max(sm) {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+}
+
+.cookie-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(162, 89, 255, 0.1);
+  border-radius: 12px;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  
+  @include breakpoint-max(sm) {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+}
+
+.cookie-banner__title {
+  flex: 1;
+  font-family: head-font;
+  font-size: 1.5rem;
+  font-weight: $font-weight-semibold;
+  color: var(--color-text-primary);
+  margin: 0;
+  
+  @include breakpoint-max(sm) {
+    font-size: 1.25rem;
+  }
+}
+
+.cookie-banner__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background: rgba(162, 89, 255, 0.1);
+    color: var(--color-primary);
+  }
+}
+
+// ===========================
+// CONTENT SECTION
+// ===========================
+
+.cookie-banner__content {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 200px);
+  
+  @include breakpoint-max(sm) {
+    padding: 1.5rem;
+    max-height: calc(85vh - 180px);
+  }
+}
+
+.cookie-banner__description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0 0 1.5rem 0;
+  
+  @include breakpoint-max(sm) {
+    font-size: 0.9375rem;
+  }
+}
+
+// ===========================
+// QUICK ACTIONS
+// ===========================
+
+.cookie-banner__quick-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  @include breakpoint-max(sm) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+// ===========================
+// BUTTONS
+// ===========================
+
+.cookie-banner__button {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: $font-weight-medium;
+  font-family: roboto;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  
+  @include breakpoint-max(sm) {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  &--accept {
+    background: var(--color-primary);
+    color: var(--color-bg-primary);
+    
+    &:hover {
+      background: var(--color-primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(162, 89, 255, 0.3);
+    }
+  }
+  
+  &--reject {
+    background: rgba(162, 89, 255, 0.1);
+    color: var(--color-text-secondary);
+    border: 1px solid rgba(162, 89, 255, 0.2);
+    
+    &:hover {
+      background: rgba(162, 89, 255, 0.15);
+      border-color: rgba(162, 89, 255, 0.3);
+      color: var(--color-text-primary);
+    }
+  }
+  
+  &--settings {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    
+    &:hover {
+      background: var(--color-primary);
+      color: var(--color-bg-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(162, 89, 255, 0.3);
+    }
+  }
+  
+  &--save {
+    background: var(--color-primary);
+    color: var(--color-bg-primary);
+    flex: 2;
+    
+    &:hover {
+      background: var(--color-primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(162, 89, 255, 0.3);
+    }
+  }
+  
+  &--back {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid rgba(162, 89, 255, 0.2);
+    flex: 1;
+    
+    &:hover {
+      background: rgba(162, 89, 255, 0.1);
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+// ===========================
+// DETAILED SETTINGS
+// ===========================
+
+.cookie-banner__details {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.cookie-category {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(162, 89, 255, 0.03);
+  border: 1px solid rgba(162, 89, 255, 0.1);
+  border-radius: 12px;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background: rgba(162, 89, 255, 0.05);
+    border-color: rgba(162, 89, 255, 0.2);
+  }
+  
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  
+  &__info {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+    align-items: flex-start;
+  }
+  
+  &__icon {
+    color: var(--color-primary);
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+  }
+  
+  &__title {
+    font-size: 1.0625rem;
+    font-weight: $font-weight-semibold;
+    color: var(--color-text-primary);
+    margin: 0 0 0.25rem 0;
+    
+    @include breakpoint-max(sm) {
+      font-size: 1rem;
+    }
+  }
+  
+  &__description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    
+    @include breakpoint-max(sm) {
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// ===========================
+// TOGGLE SWITCH
+// ===========================
+
+.cookie-toggle {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
+  
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  &__slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(162, 89, 255, 0.2);
+    border-radius: 26px;
+    transition: all var(--transition-fast);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: var(--color-text-secondary);
+      border-radius: 50%;
+      transition: all var(--transition-fast);
+    }
+  }
+  
+  input:checked + &__slider {
+    background: var(--color-primary);
+    
+    &::before {
+      transform: translateX(22px);
+      background: white;
+    }
+  }
+  
+  &:not(.cookie-toggle--disabled):hover &__slider {
+    background: rgba(162, 89, 255, 0.3);
+  }
+  
+  &:not(.cookie-toggle--disabled):hover input:checked + &__slider {
+    background: var(--color-primary-light);
+  }
+}
+
+// ===========================
+// DETAIL ACTIONS
+// ===========================
+
+.cookie-banner__detail-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  
+  @include breakpoint-max(sm) {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+}
+
+// ===========================
+// FOOTER
+// ===========================
+
+.cookie-banner__footer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem 2rem 1.5rem;
+  border-top: 1px solid rgba(162, 89, 255, 0.1);
+  background: rgba(162, 89, 255, 0.02);
+  
+  @include breakpoint-max(sm) {
+    padding: 1rem 1.5rem;
+    gap: 1.5rem;
+  }
+}
+
+.cookie-banner__link {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transition: transform var(--transition-fast);
+  }
+  
+  &:hover {
+    color: var(--color-primary);
+    
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+}
+
+// ===========================
+// ANIMATIONS
+// ===========================
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInUpMobile {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+// ===========================
+// ACCESSIBILITY
+// ===========================
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner,
+  .cookie-banner-backdrop {
+    animation: none !important;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}

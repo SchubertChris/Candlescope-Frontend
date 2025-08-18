@@ -1,0 +1,575 @@
+// =============================================================================
+// HERO SECTION - KRASSE iOS ENTRANCE ANIMATION
+// =============================================================================
+
+// Import der Base Styles
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+
+// =============================================================================
+// KEYFRAME ANIMATIONEN FÜR ENTRANCE EFFECTS
+// =============================================================================
+
+// Logo Scale-In mit Bounce Effect
+@keyframes heroLogoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg) translateY(50px);
+    filter: blur(10px);
+  }
+  40% {
+    opacity: 0.7;
+    transform: scale(1.1) rotate(2deg) translateY(-10px);
+    filter: blur(2px);
+  }
+  70% {
+    opacity: 0.9;
+    transform: scale(0.95) rotate(-1deg) translateY(5px);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) translateY(0px);
+    filter: blur(0px);
+  }
+}
+
+// Glow Ring Expansion
+@keyframes heroGlowExpand {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: blur(20px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+    filter: blur(15px);
+  }
+}
+
+// Glass Background Fade-In
+@keyframes heroGlassFadeIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(100%);
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(20px) saturate(180%);
+    transform: scale(1);
+  }
+}
+
+// Shimmer Sweep Effect
+@keyframes heroShimmerSweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) rotate(45deg);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+// Particle Float Animation
+@keyframes heroParticleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) scale(0) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(80vh) scale(0.5) rotate(90deg);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(20vh) scale(1) rotate(270deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20vh) scale(0) rotate(360deg);
+  }
+}
+
+// Orbit Dots Rotation
+@keyframes heroOrbitRotation {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--orbit-angle)) translateX(80px) scale(0);
+  }
+  30% {
+    opacity: 1;
+    transform: rotate(var(--orbit-angle)) translateX(80px) scale(1.2);
+  }
+  100% {
+    opacity: 0.8;
+    transform: rotate(calc(var(--orbit-angle) + 360deg)) translateX(80px) scale(1);
+  }
+}
+
+// Text Word Reveal
+@keyframes heroTextReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) rotateX(-90deg);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) rotateX(0deg);
+    filter: blur(0px);
+  }
+}
+
+// Scroll Indicator Drop
+@keyframes heroScrollDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+// =============================================================================
+// MAIN HERO SECTION CONTAINER
+// =============================================================================
+
+.hero-section {
+  position: relative;
+  min-height: 100dvh; // GEÄNDERT: dvh für iOS Safari UI-Bars
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 5vw, 2rem); // GEÄNDERT: Fluid padding mit clamp()
+  overflow: hidden;
+  
+  // iOS Performance Optimierung
+  will-change: transform;
+  transform: translateZ(0); // GPU-Acceleration forcieren
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // Touch-Optimierung für iOS
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
+}
+
+// =============================================================================
+// BACKGROUND PARTICLES SYSTEM
+// =============================================================================
+
+.hero-bg-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+
+  .particle {
+    position: absolute;
+    width: clamp(4px, 1vw, 8px);
+    height: clamp(4px, 1vw, 8px);
+    background: linear-gradient(45deg, 
+      var(--color-primary-light), 
+      var(--color-primary-dark));
+    border-radius: 50%;
+    opacity: 0;
+    left: var(--random-x, 50%);
+    top: var(--random-y, 50%);
+    
+    // Performance-Optimierung
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    
+    &.particle-active {
+      animation: heroParticleFloat 6s ease-out var(--delay, 0s) infinite;
+    }
+    
+    // Verschiedene Partikel-Größen
+    &.particle-1, &.particle-4, &.particle-7, &.particle-10 {
+      width: clamp(6px, 1.5vw, 12px);
+      height: clamp(6px, 1.5vw, 12px);
+      background: var(--color-success);
+      box-shadow: 0 0 10px var(--color-success);
+    }
+    
+    &.particle-2, &.particle-5, &.particle-8, &.particle-11 {
+      background: var(--color-warning);
+      box-shadow: 0 0 8px var(--color-warning);
+    }
+    
+    &.particle-3, &.particle-6, &.particle-9, &.particle-12 {
+      background: var(--color-error);
+      box-shadow: 0 0 6px var(--color-error);
+    }
+  }
+}
+
+// =============================================================================
+// MAIN LOGO CONTAINER MIT GLASSMORPHISM
+// =============================================================================
+
+.hero-logo-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: clamp(2rem, 8vw, 4rem);
+  
+  // Container-Größe responsive
+  width: clamp(200px, 40vw, 400px);
+  height: clamp(200px, 40vw, 400px);
+  
+  // Performance-Optimierung
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+// Glassmorphic Background
+.hero-glass-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  
+  // Glassmorphism Effect
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); // iOS Safari Support
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  
+  // Animation
+  opacity: 0;
+  animation: heroGlassFadeIn 1.5s ease-out 0.5s forwards;
+  
+  // Performance
+  will-change: transform, opacity, backdrop-filter;
+  transform: translateZ(0);
+}
+
+// =============================================================================
+// GLOW RING EFFECTS
+// =============================================================================
+
+.hero-glow-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  
+  // Performance-Optimierung
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  
+  &.hero-glow-ring-1 {
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, 
+      transparent 70%, 
+      rgba(162, 89, 255, 0.3) 85%, 
+      transparent 100%);
+    animation: heroGlowExpand 2s ease-out 0.3s forwards;
+    filter: blur(15px);
+  }
+  
+  &.hero-glow-ring-2 {
+    width: 160%;
+    height: 160%;
+    background: radial-gradient(circle, 
+      transparent 75%, 
+      rgba(162, 89, 255, 0.2) 90%, 
+      transparent 100%);
+    animation: heroGlowExpand 2.5s ease-out 0.7s forwards;
+    filter: blur(25px);
+  }
+}
+
+// =============================================================================
+// LOGO WRAPPER UND IMAGE
+// =============================================================================
+
+.hero-logo-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  
+  // Performance
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.hero-logo-img {
+  width: 80%;
+  height: auto;
+  max-width: 300px;
+  object-fit: contain;
+  z-index: 2;
+  
+  // Logo Entrance Animation
+  opacity: 0;
+  animation: heroLogoEntrance 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  
+  // Performance-Optimierung für iOS
+  will-change: transform, opacity, filter;
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimizeQuality;
+  
+  // Retina-Display Optimierung
+  @media (-webkit-min-device-pixel-ratio: 2) {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+// Shimmer Overlay Effect
+.hero-logo-shimmer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 40%, 
+    rgba(255, 255, 255, 0.6) 50%, 
+    transparent 60%);
+  z-index: 3;
+  opacity: 0;
+  animation: heroShimmerSweep 2s ease-out 1.5s;
+  
+  // Performance
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+// =============================================================================
+// ORBIT DOTS SYSTEM
+// =============================================================================
+
+.hero-orbit-dots {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  
+  .hero-orbit-dot {
+    position: absolute;
+    width: clamp(6px, 1.2vw, 10px);
+    height: clamp(6px, 1.2vw, 10px);
+    background: var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 
+      0 0 10px var(--color-primary),
+      0 0 20px var(--color-primary-light);
+    
+    // Orbit Animation
+    opacity: 0;
+    animation: heroOrbitRotation 4s ease-out var(--orbit-delay, 0s) forwards;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    
+    // Performance
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+}
+
+// =============================================================================
+// TEXT CONTAINER UND REVEAL
+// =============================================================================
+
+.hero-text-container {
+  text-align: center;
+  z-index: 10;
+  opacity: 0;
+  
+  &.hero-text-reveal {
+    opacity: 1;
+    
+    .hero-title-word {
+      animation: heroTextReveal 1s ease-out forwards;
+      
+      &:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+    }
+    
+    .hero-subtitle {
+      animation: heroTextReveal 1s ease-out 0.4s forwards;
+    }
+  }
+}
+
+.hero-title {
+  @include heading-style(1, true);
+  font-family: 'hero-font', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  margin-bottom: 1rem;
+  
+  .hero-title-word {
+    display: inline-block;
+    opacity: 0;
+    margin-right: clamp(0.5rem, 2vw, 1rem);
+    
+    // Performance
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+}
+
+.hero-subtitle {
+  @include text-style('lead');
+  font-family: 'head-font', sans-serif;
+  color: var(--color-text-secondary);
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  opacity: 0;
+  
+  // Performance
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+// =============================================================================
+// SCROLL INDICATOR
+// =============================================================================
+
+.hero-scroll-indicator {
+  position: absolute;
+  bottom: clamp(2rem, 5vh, 4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  opacity: 0;
+  
+  &.hero-scroll-show {
+    animation: heroScrollDrop 1s ease-out forwards;
+  }
+  
+  .hero-scroll-line {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(180deg, 
+      transparent 0%, 
+      var(--color-primary) 50%, 
+      transparent 100%);
+    margin-bottom: 8px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .hero-scroll-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--color-primary);
+    animation: bounce 2s ease-in-out infinite;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE OPTIMIERUNGEN FÜR MOBILE
+// =============================================================================
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: clamp(0.5rem, 3vw, 1rem);
+  }
+  
+  .hero-logo-container {
+    width: clamp(180px, 50vw, 300px);
+    height: clamp(180px, 50vw, 300px);
+    margin-bottom: clamp(1.5rem, 6vw, 3rem);
+  }
+  
+  .hero-bg-particles .particle {
+    width: clamp(3px, 0.8vw, 6px);
+    height: clamp(3px, 0.8vw, 6px);
+  }
+  
+  .hero-orbit-dots .hero-orbit-dot {
+    width: clamp(4px, 1vw, 8px);
+    height: clamp(4px, 1vw, 8px);
+  }
+}
+
+// =============================================================================
+// ACCESSIBILITY UND REDUCED MOTION
+// =============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo-img,
+  .hero-glow-ring,
+  .hero-glass-bg,
+  .hero-orbit-dot,
+  .particle,
+  .hero-title-word,
+  .hero-subtitle,
+  .hero-scroll-indicator {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  .hero-logo-img {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+// =============================================================================
+// PERFORMANCE OPTIMIERUNGEN FÜR ÄLTERE iOS VERSIONEN
+// =============================================================================
+
+@supports not (backdrop-filter: blur(20px)) {
+  .hero-glass-bg {
+    background: rgba(26, 12, 64, 0.8);
+    backdrop-filter: none;
+  }
+}
+
+// =============================================================================
+// HIGH DPI DISPLAYS (RETINA)
+// =============================================================================
+
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .hero-glow-ring {
+    filter: blur(20px); // Schärfere Blur-Effekte auf Retina
+  }
+  
+  .hero-bg-particles .particle {
+    box-shadow: 0 0 15px currentColor; // Intensivere Glows
+  }
+}
