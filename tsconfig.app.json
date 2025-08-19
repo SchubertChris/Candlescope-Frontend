@@ -30,14 +30,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@components/*": ["./src/Components/*"],
-      "@pages/*": ["./src/Pages/*"], 
-      "@styles/*": ["./src/Styles/*"],
-      "@services/*": ["./src/Services/*"],
-      "@router/*": ["./src/Router/*"],
-      "@types/*": ["./src/Types/*"],
-      "@utils/*": ["./src/Components/Utils/*"],
-      "@assets/*": ["./src/assets/*"]
+      "@components/*": ["./src/components/*"],  // Klein: components
+      "@pages/*": ["./src/pages/*"],            // Klein: pages  
+      "@styles/*": ["./src/styles/*"],          // Klein: styles
+      "@services/*": ["./src/services/*"],      // Klein: services
+      "@router/*": ["./src/router/*"],          // Klein: router
+      "@types/*": ["./src/types/*"],            // Klein: types
+      "@utils/*": ["./src/components/utils/*"], // Klein: utils
+      "@assets/*": ["./src/assets/*"]           // Klein: assets
     }
   },
   "include": [
