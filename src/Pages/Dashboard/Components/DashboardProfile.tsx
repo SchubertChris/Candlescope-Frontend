@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/DashboardProfile.tsx
+// KORRIGIERT: Role-System angepasst
 import React from 'react';
 import { 
   HiUser,
@@ -91,7 +92,8 @@ const DashboardProfile: React.FC<DashboardProfileProps> = ({
           <h2>{user.firstName || 'Benutzer'}</h2>
           <p>{user.email}</p>
           <span className="role-badge">
-            {user.role === 'kunde' ? 'Kunde' : user.role === 'mitarbeiter' ? 'Mitarbeiter' : 'Administrator'}
+            {/* KORRIGIERT: 'mitarbeiter' → 'admin' entfernt */}
+            {user.role === 'kunde' ? 'Kunde' : 'Administrator'}
           </span>
         </div>
         

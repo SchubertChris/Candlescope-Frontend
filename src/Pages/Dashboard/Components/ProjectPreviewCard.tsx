@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/ProjectPreviewCard.tsx
+// KORRIGIERT: progress Property entfernt (existiert nicht in DashboardTypes)
 import React from 'react';
 import { 
   HiGlobe,
@@ -73,17 +74,12 @@ const ProjectPreviewCard: React.FC<ProjectPreviewCardProps> = ({ project }) => {
         </div>
       </div>
       
-      <div className="project-progress">
-        <div className="progress-info">
-          <span>Fortschritt</span>
-          <span>{project.progress}%</span>
-        </div>
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{ width: `${project.progress}%` }}
-          />
-        </div>
+      {/* ENTFERNT: Progress Section komplett (progress existiert nicht in DashboardTypes) */}
+      {/* ANGEPASST: Nur Status-basierte Informationen anzeigen */}
+      <div className="project-content">
+        <p className="project-description">
+          {project.description || 'Keine Beschreibung verfügbar'}
+        </p>
       </div>
       
       <div className="project-meta">

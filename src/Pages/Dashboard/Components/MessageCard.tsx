@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/MessageCard.tsx
+// KORRIGIERT: sender → senderId, Role-System angepasst
 import React from 'react';
 import { HiUserCircle, HiDocument, HiFolder } from 'react-icons/hi';
 import { Message, Project } from '../Types/DashboardTypes';
@@ -35,9 +36,11 @@ const MessageCard: React.FC<MessageCardProps> = ({
       <div className="message-content">
         <div className="message-header">
           <div className="message-sender">
-            <span className="sender-name">{message.sender}</span>
+            {/* KORRIGIERT: message.sender → message.senderName (entspricht DashboardTypes) */}
+            <span className="sender-name">{message.senderName}</span>
             <span className="sender-role">
-              {message.senderRole === 'mitarbeiter' ? 'Mitarbeiter' : 'Kunde'}
+              {/* KORRIGIERT: 'mitarbeiter' → 'admin' */}
+              {message.senderRole === 'admin' ? 'Administrator' : 'Kunde'}
             </span>
           </div>
           <div className="message-meta">

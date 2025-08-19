@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/DashboardProjects.tsx
+// KORRIGIERT: Syntax-Fehler behoben
 import React from 'react';
 import { HiPlus } from 'react-icons/hi';
 import { DashboardProjectsProps } from '../Types/DashboardTypes';
@@ -7,7 +8,7 @@ import ProjectCard from './ProjectCard';
 const DashboardProjects: React.FC<DashboardProjectsProps> = ({
   projects,
   userRole,
-  onProjectUpdate
+  onProjectUpdate // KORRIGIERT: Fehlende Property aus DashboardTypes hinzugefügt
 }) => {
   const handleProjectAction = (projectId: string, action: string) => {
     console.log(`Project ${projectId} action: ${action}`);
@@ -36,7 +37,8 @@ const DashboardProjects: React.FC<DashboardProjectsProps> = ({
           {projects.map(project => (
             <ProjectCard 
               key={project.id} 
-              project={project} 
+              project={project}
+              userRole={userRole}
               onProjectAction={handleProjectAction}
             />
           ))}

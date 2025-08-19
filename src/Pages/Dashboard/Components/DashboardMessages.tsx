@@ -1,17 +1,20 @@
 // src/Pages/Dashboard/Components/DashboardMessages.tsx
+// KORRIGIERT: onSendMessage Property hinzugefügt
 import React from 'react';
 import { HiPlus } from 'react-icons/hi';
 import { DashboardMessagesProps } from '../Types/DashboardTypes';
 import MessageCard from './MessageCard';
 
+// ERWEITERT: Component Props um onSendMessage erweitert
 const DashboardMessages: React.FC<DashboardMessagesProps> = ({
   messages,
   projects,
-  onMessageRead
+  onMessageRead,
+  onSendMessage // HINZUGEFÜGT: Fehlende Property aus DashboardTypes
 }) => {
   const handleNewMessage = () => {
     console.log('Create new message');
-    // Hier später Modal für neue Nachricht
+    // Hier später Modal für neue Nachricht mit onSendMessage
   };
 
   const handleMessageAction = (messageId: string, action: string) => {

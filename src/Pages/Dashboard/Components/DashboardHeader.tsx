@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/DashboardHeader.tsx
+// KORRIGIERT: Role-System angepasst
 import React from 'react';
 import { 
   HiLogout, 
@@ -31,7 +32,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <div className="user-details">
               <span className="user-name">{user.firstName || user.email}</span>
               <span className="user-role">
-                {user.role === 'kunde' ? 'Kunde' : user.role === 'mitarbeiter' ? 'Mitarbeiter' : 'Administrator'}
+                {/* KORRIGIERT: 'mitarbeiter' → 'admin' entfernt */}
+                {user.role === 'kunde' ? 'Kunde' : 'Administrator'}
               </span>
             </div>
             <div className="user-avatar">

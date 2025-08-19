@@ -1,9 +1,9 @@
 // src/Pages/Dashboard/Dashboard-Index.tsx
-// KORRIGIERT: Dashboard mit Service-Integration
+// KORRIGIERT: Alle TypeScript-Fehler behoben
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
-import dashboardService from '@/Services/Dashboard-Service'; // HINZUGEFÜGT: Service-Import
+import dashboardService from '@/Services/Dashboard-Service';
 import AnimatedBackground from '@/Components/Ui/AnimatedBackground';
 
 // Dashboard Components
@@ -49,20 +49,13 @@ const Dashboard: React.FC = () => {
 
       setUserData(user);
 
-      // KORRIGIERT: Service-Aufruf mit Fehlerbehandlung
       try {
         const dashboardData = await dashboardService.getDashboardData();
-
-        // Daten aus Service-Response setzen
         setProjects(dashboardData.projects || []);
         setMessages(dashboardData.messages || []);
         setNotifications(dashboardData.notifications || 0);
-
-
       } catch (serviceError: any) {
         console.warn('⚠️ Service call failed, falling back to mock data:', serviceError.message);
-
-        // FALLBACK: Mock-Daten wenn Service nicht verfügbar
         await loadMockData(user);
       }
 
@@ -70,7 +63,6 @@ const Dashboard: React.FC = () => {
       console.error('❌ Dashboard loading error:', error);
       setError('Fehler beim Laden der Dashboard-Daten');
 
-      // Fallback zu Mock-Daten auch bei allgemeinen Fehlern
       const user = authService.getCurrentUser();
       if (user) {
         await loadMockData(user);
@@ -80,121 +72,137 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // BEHALTEN: Mock-Daten als Fallback
+  // KORRIGIERT: Mock-Daten entsprechend DashboardTypes
   const loadMockData = async (user: User) => {
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // Mock Projects
     const mockProjects: Project[] = [
       {
         id: '1',
         name: 'Corporate Website Redesign',
         type: 'website',
         status: 'inProgress',
-        assignedEmployee: 'Chris Schubert',
+        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
+        customerId: 'customer1', // HINZUGEFÜGT: Erforderliche Property
         deadline: '2025-09-15',
         createdAt: '2025-08-01',
+        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
         messagesCount: 12,
         filesCount: 8,
-        progress: 65,
+        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'high',
-        description: 'Komplettes Redesign der Firmenwebsite mit modernem Design'
+        description: 'Komplettes Redesign der Firmenwebsite mit modernem Design',
+        isActive: true // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '2',
         name: 'Newsletter System Setup',
         type: 'newsletter',
         status: 'review',
-        assignedEmployee: 'Chris Schubert',
+        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
+        customerId: 'customer2', // HINZUGEFÜGT: Erforderliche Property
         deadline: '2025-08-30',
         createdAt: '2025-08-10',
+        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
         messagesCount: 5,
         filesCount: 3,
-        progress: 90,
+        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'medium',
-        description: 'Automatisiertes Newsletter-System mit Template-Verwaltung'
+        description: 'Automatisiertes Newsletter-System mit Template-Verwaltung',
+        isActive: true // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '3',
         name: 'Executive Job Application Page',
         type: 'bewerbung',
         status: 'planning',
-        assignedEmployee: 'Chris Schubert',
+        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
+        customerId: 'customer3', // HINZUGEFÜGT: Erforderliche Property
         deadline: '2025-10-01',
         createdAt: '2025-08-18',
+        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
         messagesCount: 2,
         filesCount: 1,
-        progress: 15,
+        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'medium',
-        description: 'Professionelle Bewerbungsseite für Führungskräfte'
+        description: 'Professionelle Bewerbungsseite für Führungskräfte',
+        isActive: true // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '4',
         name: 'E-Commerce Platform',
         type: 'ecommerce',
         status: 'completed',
-        assignedEmployee: 'Chris Schubert',
+        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
+        customerId: 'customer4', // HINZUGEFÜGT: Erforderliche Property
         deadline: '2025-08-15',
         createdAt: '2025-07-01',
+        updatedAt: '2025-08-15', // HINZUGEFÜGT: Erforderliche Property
         messagesCount: 28,
         filesCount: 15,
-        progress: 100,
+        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'high',
-        description: 'Vollständige E-Commerce-Lösung mit Payment-Integration'
+        description: 'Vollständige E-Commerce-Lösung mit Payment-Integration',
+        isActive: false // HINZUGEFÜGT: Erforderliche Property (completed = nicht aktiv)
       }
     ];
 
-    // Mock Messages
     const mockMessages: Message[] = [
       {
         id: '1',
         projectId: '1',
-        sender: 'Chris Schubert',
-        senderRole: 'mitarbeiter',
+        senderId: 'admin1', // KORRIGIERT: senderId statt sender
+        senderRole: 'admin', // KORRIGIERT: admin statt mitarbeiter
+        senderName: 'Chris Schubert', // HINZUGEFÜGT: Erforderliche Property
         content: 'Design-Mockups für die Homepage sind fertig und warten auf Ihr Feedback.',
         timestamp: '2025-08-19T10:30:00Z',
         isRead: false,
-        hasAttachment: true
+        hasAttachment: true,
+        customerId: 'customer1' // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '2',
         projectId: '2',
-        sender: 'Max Mustermann',
-        senderRole: 'kunde',
+        senderId: 'customer2', // KORRIGIERT: senderId statt sender
+        senderRole: 'kunde', // KORRIGIERT: kunde bleibt kunde
+        senderName: 'Max Mustermann', // HINZUGEFÜGT: Erforderliche Property
         content: 'Newsletter-Template sieht fantastisch aus! Können wir das Corporate Design noch etwas anpassen?',
         timestamp: '2025-08-19T09:15:00Z',
         isRead: true,
-        hasAttachment: false
+        hasAttachment: false,
+        customerId: 'customer2' // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '3',
         projectId: '1',
-        sender: 'Chris Schubert',
-        senderRole: 'mitarbeiter',
+        senderId: 'admin1', // KORRIGIERT: senderId statt sender
+        senderRole: 'admin', // KORRIGIERT: admin statt mitarbeiter
+        senderName: 'Chris Schubert', // HINZUGEFÜGT: Erforderliche Property
         content: 'Responsive Versionen für Mobile und Tablet sind jetzt verfügbar.',
         timestamp: '2025-08-18T16:45:00Z',
         isRead: true,
-        hasAttachment: true
+        hasAttachment: true,
+        customerId: 'customer1' // HINZUGEFÜGT: Erforderliche Property
       },
       {
         id: '4',
         projectId: '3',
-        sender: 'Anna Schmidt',
-        senderRole: 'kunde',
+        senderId: 'customer3', // KORRIGIERT: senderId statt sender
+        senderRole: 'kunde', // KORRIGIERT: kunde bleibt kunde
+        senderName: 'Anna Schmidt', // HINZUGEFÜGT: Erforderliche Property
         content: 'Könnten wir einen Termin für die Besprechung der Bewerbungsseite vereinbaren?',
         timestamp: '2025-08-18T14:20:00Z',
         isRead: false,
-        hasAttachment: false
+        hasAttachment: false,
+        customerId: 'customer3' // HINZUGEFÜGT: Erforderliche Property
       }
     ];
 
     setProjects(mockProjects);
     setMessages(mockMessages);
     setNotifications(mockMessages.filter(m => !m.isRead).length);
-
   };
 
-  // HINZUGEFÜGT: Refresh-Funktion für Service-Integration
   const handleRefreshData = async () => {
     setIsLoading(true);
     await loadDashboardData();
@@ -217,44 +225,46 @@ const Dashboard: React.FC = () => {
 
   const handleMessageRead = async (messageId: string) => {
     try {
-      // ERWEITERT: Service-Aufruf für Message-Read
       await dashboardService.markMessageAsRead(messageId);
-
       setMessages(prev =>
         prev.map(m => m.id === messageId ? { ...m, isRead: true } : m)
       );
       setNotifications(prev => Math.max(0, prev - 1));
-
     } catch (error) {
       console.error('❌ Error marking message as read:', error);
-      // Fallback: Lokale State-Update
       setMessages(prev =>
         prev.map(m => m.id === messageId ? { ...m, isRead: true } : m)
       );
       setNotifications(prev => Math.max(0, prev - 1));
+    }
+  };
+
+  // HINZUGEFÜGT: Fehlende onSendMessage Funktion für DashboardMessages
+  const handleSendMessage = async (projectId: string, content: string) => {
+    try {
+      // Backend-Call hier später implementieren
+      console.log('Send message:', { projectId, content });
+    } catch (error) {
+      console.error('❌ Error sending message:', error);
     }
   };
 
   const handleUserUpdate = async (updatedUserData: Partial<User>) => {
     try {
-      // ERWEITERT: Service-Aufruf für Profile-Update
       const updatedUser = await dashboardService.updateProfile(updatedUserData);
       setUserData(updatedUser);
 
-      // Auch localStorage aktualisieren
       const currentUser = authService.getCurrentUser();
       if (currentUser) {
         const newUserData = { ...currentUser, ...updatedUser };
         localStorage.setItem('userData', JSON.stringify(newUserData));
       }
-
     } catch (error) {
       console.error('❌ Error updating user profile:', error);
-      throw error; // Fehler an Component weiterreichen
+      throw error;
     }
   };
 
-  // Loading State
   if (isLoading || !userData) {
     return (
       <div className="dashboard-professional">
@@ -264,7 +274,6 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Error State (HINZUGEFÜGT)
   if (error) {
     return (
       <div className="dashboard-professional">
@@ -281,39 +290,14 @@ const Dashboard: React.FC = () => {
           <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚠️ Dashboard-Fehler</h1>
           <p style={{ marginBottom: '2rem' }}>{error}</p>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button
-              onClick={handleRefreshData}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer'
-              }}
-            >
-              🔄 Erneut versuchen
-            </button>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer'
-              }}
-            >
-              🚪 Abmelden
-            </button>
+            <button onClick={handleRefreshData}>🔄 Erneut versuchen</button>
+            <button onClick={handleLogout}>🚪 Abmelden</button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Normal Dashboard View
   return (
     <div className="dashboard-professional">
       <AnimatedBackground />
@@ -354,6 +338,7 @@ const Dashboard: React.FC = () => {
               messages={messages}
               projects={projects}
               onMessageRead={handleMessageRead}
+              onSendMessage={handleSendMessage}
             />
           )}
 
