@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import path from 'path'
+import react from '@vitejs/plugin-react-swc' // ✅ FUNKTIONIERT: Nach Installation des Plugins
+import path from 'path' // ✅ FUNKTIONIERT: Nach Installation von @types/node
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react()], // ✅ KORRIGIERT: Plugin funktioniert nach Installation
+  
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -18,19 +19,38 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './src/assets'),
     }
   },
+  
   css: {
     preprocessorOptions: {
       scss: {
-        // Moderne Sass API verwenden
+        // ✅ MODERNE: Sass API verwenden
         api: 'modern-compiler',
         silenceDeprecations: ['import', 'mixed-decls']
       }
     }
   },
-  // 🟡 HINZUGEFÜGT: Server-Option für LAN-Zugriff
+  
+  // ✅ SERVER: Entwicklungsserver-Konfiguration
   server: {
-    host: true,            // ⬅️ Erlaubt Zugriffe von anderen Geräten im Netzwerk
-    port: 5173,            // ⬅️ Standardport von Vite (anpassbar)
-    strictPort: true       // ⬅️ Verhindert automatisches Wechseln des Ports
+    host: true,        // ⬅️ LAN-Zugriff erlauben
+    port: 5173,        // ⬅️ Vite Standardport
+    strictPort: true   // ⬅️ Port nicht automatisch wechseln
+  },
+  
+  // ✅ HINZUGEFÜGT: Build-Optimierungen für Vercel
+  build: {
+    outDir: 'dist',
+    sourcemap: false, // ⬅️ Kleinere Build-Größe
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // ⬅️ Code-Splitting für bessere Performance
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          animations: ['framer-motion', 'gsap'],
+          icons: ['react-icons']
+        }
+      }
+    }
   }
 })
