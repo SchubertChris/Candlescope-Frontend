@@ -298,10 +298,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
       >
         <div className="navbar-mobile__content">
           <div className="navbar-mobile__header">
-            <img src={Logo} alt="CandleScope" className="navbar-mobile__logo" />
-            <div className="navbar-mobile__logo-glow" />
+            <a href="/" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); navigate('/'); }}>
+              <img src={Logo} alt="CandleScope" className="navbar-mobile__logo" />
+              <div className="navbar-mobile__logo-glow" />
+            </a>
           </div>
-
           <div className="navbar-mobile__login">
             {/* ERWEITERT: Loading-Status Anzeige für OAuth und Standard-Login */}
             {(isLoggingIn || isOAuthLoading) && loadingStep && (

@@ -91,9 +91,9 @@ const Footer: React.FC = () => {
           <div className="footer-section footer-section--links">
             <h3 className="footer-section__title">Quick Links</h3>
             <nav className="footer-nav">
-              <a href="#about" className="footer-nav__link">Das bin ich</a>
-              <a href="#projects" className="footer-nav__link">Library</a>
-              <a href="#contact" className="footer-nav__link">Kontaktanfrage</a>
+              <a href="/about" className="footer-nav__link">Das bin ich</a>
+              <a href="/projects" className="footer-nav__link">Library</a>
+              <a href="/kontakt" className="footer-nav__link">Kontaktanfrage</a>
               <a href="/impressum" className="footer-nav__link">Impressum</a>
               <a href="/datenschutz" className="footer-nav__link">Datenschutz</a>
             </nav>
@@ -119,7 +119,7 @@ const Footer: React.FC = () => {
             </div>
             <div className="footer-cta">
               <p className="cta-text">Bereit für Ihr nächstes Projekt?</p>
-              <a href="#contact" className="cta-button">
+              <a href="/kontakt" className="cta-button">
                 Kontakt aufnehmen
               </a>
             </div>
