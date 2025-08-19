@@ -1,5 +1,5 @@
 // src/Services/Auth-Service.ts
-// ERWEITERT: Auth-Service für OAuth-Integration
+// ERWEITERT: Auth-Service für OAuth-Integration mit dynamischen URLs
 import axiosInstance from './AxiosInstance-Service';
 
 // HINZUGEFÜGT: Erweiterte TypeScript-Interfaces für OAuth
@@ -30,10 +30,14 @@ interface AuthResponse {
   email?: string; // HINZUGEFÜGT: Optional für Bestätigungs-Cases
 }
 
-// ENTFERNT: Ungenutztes ApiError Interface
-
 // HINZUGEFÜGT: OAuth-Provider Types
 type OAuthProvider = 'google' | 'github';
+
+// HINZUGEFÜGT: Dynamische Backend-URL Funktion
+const getBackendURL = (): string => {
+  // Priorität: Environment Variable → Development Default
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+};
 
 class AuthService {
   
@@ -61,10 +65,10 @@ class AuthService {
     }
   }
 
-  // HINZUGEFÜGT: OAuth-Login initiieren
+  // KORRIGIERT: OAuth-Login mit dynamischer Backend-URL
   initiateOAuth(provider: OAuthProvider): void {
-    const baseURL = 'http://localhost:5000/api/auth';
-    const oauthURL = `${baseURL}/${provider}`;
+    const baseURL = getBackendURL(); // GEÄNDERT: Dynamische URL
+    const oauthURL = `${baseURL}/auth/${provider}`;
     
     console.log(`🔗 INITIATING ${provider.toUpperCase()} OAUTH:`, oauthURL);
     
@@ -204,9 +208,10 @@ class AuthService {
     }
   }
 
-  // HINZUGEFÜGT: Debug-Funktion für Development
+  // ERWEITERT: Debug-Funktion für Development
   debugAuthState(): void {
     console.log('🔍 AUTH DEBUG STATE:');
+    console.log('Backend URL:', getBackendURL()); // HINZUGEFÜGT: Backend-URL anzeigen
     console.log('Token:', this.getToken() ? '✅ Present' : '❌ Missing');
     console.log('User:', this.getCurrentUser());
     console.log('Is Authenticated:', this.isAuthenticated());
