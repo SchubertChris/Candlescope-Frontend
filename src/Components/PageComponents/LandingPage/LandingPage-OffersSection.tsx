@@ -169,7 +169,7 @@ const OffersSection: React.FC = () => {
   };
 
   return (
-    <section className="offers-section" id="angebote">
+    <section className="offers-section" id="work">
       <div className="offers-header">
         <h2 className="section-title">
           Erfolgreiche Projekte & <span className="highlight">Zufriedene Kunden</span>

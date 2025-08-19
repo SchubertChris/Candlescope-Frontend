@@ -41,28 +41,28 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
   const [loginError, setLoginError] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackType, setFeedbackType] = useState<'success' | 'info' | 'error'>('info');
-  
+
   // Bestätigungs-States
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
-  
+
   // HINZUGEFÜGT: Erweiterte Loading-States
   const [loadingStep, setLoadingStep] = useState('');
   const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
-  
+
   // HINZUGEFÜGT: OAuth-Loading-States
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [oauthProvider, setOAuthProvider] = useState<'google' | 'github' | null>(null);
-  
+
   const navigate = useNavigate();
 
   const navigationItems: NavigationItem[] = useMemo(() => [
     { id: 'home', label: 'Übersicht', href: '#home', icon: HiHome },
     { id: 'about', label: 'Informationen', href: '#about', icon: HiUser },
     { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase },
-    { id: 'contact', label: 'Kontakt', href: '#contact', icon: HiMail },
+    { id: 'contact', label: 'Kontakt', href: '/kontakt', icon: HiMail },
   ], []);
 
   // Scroll Handler
@@ -131,15 +131,15 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     setLoadingStep('Prüfe Benutzer...');
     setLoginError('');
     setFeedbackMessage('');
-    
+
     try {
       const result = await authService.login({
         ...loginForm,
         confirmAccountCreation: false
       });
-      
+
       setIsCheckingUser(false);
-      
+
       // Check auf Bestätigungs-Anfrage
       if (result.requiresConfirmation) {
         setShowConfirmation(true);
@@ -149,17 +149,17 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
         resetLoadingStates();
         return;
       }
-      
+
       // Account wurde erstellt
       if (result.accountCreated && result.emailSent) {
         setFeedbackType('info');
         setFeedbackMessage(`📧 Neuer Account wurde für ${loginForm.email} erstellt! Bitte prüfen Sie Ihre Emails für die Login-Daten.`);
         setLoginForm({ email: '', password: '' });
-        
+
       } else if (result.accountCreated && !result.emailSent) {
         setFeedbackType('error');
         setFeedbackMessage(`⚠️ Account wurde erstellt, aber Email-Versand fehlgeschlagen. Bitte kontaktieren Sie den Support.`);
-        
+
       } else {
         // Normaler Login erfolgreich
         setLoadingStep('Weiterleitung...');
@@ -168,7 +168,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
           navigate('/dashboard');
         }, 500);
       }
-      
+
     } catch (error: any) {
       setLoginError(error.message || 'Ein Fehler ist aufgetreten');
     } finally {
@@ -182,38 +182,38 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     setIsCreatingAccount(true);
     setLoadingStep('Erstelle Account...');
     setShowConfirmation(false);
-    
+
     try {
       // HINZUGEFÜGT: Simuliere Loading-Schritte für bessere UX
       await new Promise(resolve => setTimeout(resolve, 800));
-      
+
       setLoadingStep('Generiere Passwort...');
       setIsSendingEmail(true);
       setIsCreatingAccount(false);
-      
+
       await new Promise(resolve => setTimeout(resolve, 500));
       setLoadingStep('Sende Email...');
-      
+
       const result = await authService.login({
         email: pendingEmail,
         password: loginForm.password,
         confirmAccountCreation: true
       });
-      
+
       setIsSendingEmail(false);
-      
+
       if (result.accountCreated && result.emailSent) {
         setLoadingStep('Email versendet!');
         setFeedbackType('success');
         setFeedbackMessage(`🎉 Account wurde für ${pendingEmail} erstellt! Login-Daten wurden per Email versendet.`);
         setLoginForm({ email: '', password: '' });
         setPendingEmail('');
-        
+
       } else if (result.accountCreated && !result.emailSent) {
         setFeedbackType('error');
         setFeedbackMessage(`⚠️ Account wurde erstellt, aber Email-Versand fehlgeschlagen.`);
       }
-      
+
     } catch (error: any) {
       setLoginError(error.message || 'Fehler bei der Account-Erstellung');
       setShowConfirmation(false);
@@ -236,7 +236,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     setIsOAuthLoading(true);
     setOAuthProvider(provider);
     setLoadingStep(`Weiterleitung zu ${provider === 'google' ? 'Google' : 'GitHub'}...`);
-    
+
     try {
       // OAuth-Flow initiieren
       authService.initiateOAuth(provider);
@@ -254,9 +254,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     const isCurrentlyLoading = isOAuthLoading && oauthProvider === provider;
     const Icon = provider === 'google' ? FcGoogle : FaGithub;
     const label = provider === 'google' ? 'Google' : 'GitHub';
-    
+
     return (
-      <button 
+      <button
         className={`navbar-mobile__social-btn navbar-mobile__social-btn--${provider} ${isCurrentlyLoading ? 'loading' : ''}`}
         onClick={() => handleOAuthLogin(provider)}
         disabled={isLoggingIn || isOAuthLoading}
@@ -301,7 +301,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
             <img src={Logo} alt="CandleScope" className="navbar-mobile__logo" />
             <div className="navbar-mobile__logo-glow" />
           </div>
-          
+
           <div className="navbar-mobile__login">
             {/* ERWEITERT: Loading-Status Anzeige für OAuth und Standard-Login */}
             {(isLoggingIn || isOAuthLoading) && loadingStep && (
@@ -334,7 +334,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                   <p>Möchten Sie automatisch einen Account erstellen? Sie erhalten die Login-Daten per Email.</p>
                 </div>
                 <div className="navbar-mobile__confirmation-actions">
-                  <button 
+                  <button
                     onClick={handleConfirmAccountCreation}
                     className="navbar-mobile__confirm-btn"
                     disabled={isLoggingIn}
@@ -342,7 +342,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     <HiCheckCircle />
                     Account erstellen
                   </button>
-                  <button 
+                  <button
                     onClick={handleCancelConfirmation}
                     className="navbar-mobile__cancel-btn"
                     disabled={isLoggingIn}
@@ -366,14 +366,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                 </div>
               </div>
             )}
-            
+
             {/* Error-Nachricht */}
             {loginError && !showConfirmation && !isLoggingIn && !isOAuthLoading && (
               <div className="navbar-mobile__error">
                 {loginError}
               </div>
             )}
-            
+
             {/* Info-Text für automatische Account-Erstellung */}
             {!showConfirmation && !feedbackMessage && !isLoggingIn && !isOAuthLoading && (
               <div className="navbar-mobile__info">
@@ -381,7 +381,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                 <span>Einfach mit Email + Passwort einloggen. Falls noch kein Account existiert, wird automatisch einer erstellt!</span>
               </div>
             )}
-            
+
             {/* Login-Form (nur anzeigen wenn keine Bestätigung oder Loading läuft) */}
             {!showConfirmation && !isLoggingIn && !isOAuthLoading && (
               <>
@@ -398,7 +398,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     />
                     <div className="navbar-mobile__input-glow" />
                   </div>
-                  
+
                   <div className="navbar-mobile__input-group">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -418,7 +418,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     </button>
                     <div className="navbar-mobile__input-glow" />
                   </div>
-                  
+
                   <button
                     type="submit"
                     className="navbar-mobile__submit"
@@ -428,11 +428,11 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     <span>Login</span>
                   </button>
                 </form>
-                
+
                 <div className="navbar-mobile__divider">
                   <span>or continue with</span>
                 </div>
-                
+
                 {/* ERWEITERT: OAuth-Buttons mit Loading-States */}
                 <div className="navbar-mobile__social">
                   {renderOAuthButton('google')}
@@ -441,11 +441,12 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
               </>
             )}
           </div>
-          
+
           <ul className="navbar-mobile__links">
             {navigationItems.map((item, index) => {
               const IconComponent = item.icon;
               const isActive = activeSection === item.id;
+
               return (
                 <li key={item.id} style={{ animationDelay: `${index * 0.1 + 0.3}s` }}>
                   <a
@@ -453,7 +454,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     className={`navbar-mobile__link ${isActive ? 'active' : ''}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      handleNavigation(item.id);
+
+                      if (item.id === 'contact') {
+                        // ➜ Seite wechseln (Router Navigation)
+                        navigate('/kontakt');
+                      } else {
+                        // ➜ In-Page scrollen
+                        handleNavigation(item.id);
+                      }
                     }}
                   >
                     <IconComponent className="navbar-icon" />
