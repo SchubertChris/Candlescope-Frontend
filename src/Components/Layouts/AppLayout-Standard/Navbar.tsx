@@ -16,8 +16,8 @@ import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
-import Logo from '@/assets/Images/Logo/CandleScopeLogo.png';
 import './Style/Navbar.scss';
+import Logo from '@/assets/Images/Logo/Logo.png';
 
 interface NavbarProps {
   className?: string;
