@@ -143,7 +143,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
       // Check auf Bestätigungs-Anfrage
       if (result.requiresConfirmation) {
         setShowConfirmation(true);
-        setPendingEmail(result.email);
+        // KORRIGIERT: Nullish coalescing operator für undefined-Schutz
+        setPendingEmail(result.email ?? loginForm.email);
         setLoadingStep('');
         resetLoadingStates();
         return;
