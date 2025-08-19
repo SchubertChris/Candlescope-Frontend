@@ -1,93 +1,753 @@
-// Import Base Styles
+// src/Components/PageComponents/LandingPage/Style/LandingPage-OffersSection.scss
+// OPTIMIERT: Perfekte Lesbarkeit durch intelligente Clip-Path-Zonen
+
 @use '@styles/Base/VARIABLES' as *;
 @use '@styles/Base/MIXINS' as *;
 @use '@styles/Base/FONTS' as *;
 @use '@styles/Base/ANIMATIONS' as *;
 
-
-.offers-section{
+.offers-section {
   position: relative;
-  padding: 4rem 0;
+  padding: 6rem 0;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.offers-container {
-  width: 98vw;
-  height: 58vh;
-  border: 3px inset var(--color-primary);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.041);
-  background-size: cover;
-  background-position: center;
-  background-image: url("https://cdn.pixabay.com/photo/2016/11/18/21/30/open-sign-1836961_960_720.jpg");
-  clip-path: polygon(
-    140px 0px,
-    100% 0,
-    90% 50%,
-    0% 80%,
-    0 calc(90% - 200px)
-  );
-  position: relative;
-  overflow: hidden;
-
-  // Responsive adjustments
-  @media (max-width: 900px) {
-    width: 98vw;
-    height: 40vh;
-    clip-path: polygon(
-      60px 0px,
-      100% 0,
-      95% 50%,
-      0% 90%,
-      0 calc(100% - 80px)
-    );
-  }
-
-  @media (max-width: 600px) {
-    width: 98vw;
-    height: 30vh;
-    clip-path: polygon(
-      30px 0px,
-      100% 0,
-      100% 60%,
-      0% 100%,
-      0 80%
-    );
-    border-radius: 10px;
-  }
-}
-
-// Spiegelverkehrte Variante für den zweiten Container
-.offers-container.mirrored {
-  clip-path: polygon(
-    calc(100% - 140px) 0px,
-    0 0,
-    10% 50%,
-    100% 80%,
-    100% calc(90% - 200px)
+  background: linear-gradient(
+    135deg,
+    rgba(var(--color-primary-rgb), 0.05) 0%,
+    rgba(var(--color-secondary-rgb), 0.02) 100%
   );
 
-  @media (max-width: 900px) {
-    clip-path: polygon(
-      calc(100% - 60px) 0px,
-      0 0,
-      5% 50%,
-      100% 90%,
-      100% calc(100% - 80px)
-    );
+  // ===========================
+  // SECTION HEADER
+  // ===========================
+  .offers-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 2rem;
+
+    .section-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+
+      .highlight {
+        color: var(--color-primary);
+        position: relative;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+          border-radius: 2px;
+        }
+      }
+    }
+
+    .section-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+      margin-bottom: 3rem;
+      padding: 0 1rem;
+
+      .section-subtitle {
+        font-size: 1.125rem;
+      }
+    }
   }
 
-  @media (max-width: 600px) {
+  // ===========================
+  // OFFERS GRID
+  // ===========================
+  .offers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 0 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  // ===========================
+  // OFFER CONTAINERS - OPTIMIERT FÜR LESBARKEIT
+  // ===========================
+  .offer-container {
+    position: relative;
+    width: 100%;
+    min-height: 85vh;
+    border: 3px solid var(--color-primary);
+    border-radius: 24px;
+    backdrop-filter: blur(15px);
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll; // GEÄNDERT: Bessere mobile Performance
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // OPTIMIERT: Intelligente Clip-Path mit Lesbarkeits-Zonen
     clip-path: polygon(
-      calc(100% - 30px) 0px,
-      0 0,
-      0 60%,
-      100% 100%,
-      100% 80%
+      120px 0px,        // REDUZIERT: Weniger aggressiver Schnitt
+      100% 0,
+      100% 70%,         // GEÄNDERT: Sanfterer Übergang
+      20px 100%,        // ANGEPASST: Bessere Ecken-Behandlung
+      0 30%             // OPTIMIERT: Mehr Platz für Content
     );
+
+    // Hover-Effekte
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(var(--color-primary-rgb), 0.3);
+      
+      .offer-overlay {
+        background: rgba(0, 0, 0, 0.4);
+      }
+
+      .offer-content {
+        transform: translateY(-5px);
+      }
+    }
+
+    &.active {
+      .hover-details {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+    }
+
+    // OPTIMIERT: Spiegelverkehrte Variante mit besserer Lesbarkeit
+    &.mirrored {
+      clip-path: polygon(
+        calc(100% - 120px) 0px,  // REDUZIERT: Weniger aggressiver Schnitt
+        0 0,
+        0 70%,                   // GEÄNDERT: Sanfterer Übergang
+        calc(100% - 20px) 100%,  // ANGEPASST: Bessere Ecken-Behandlung
+        100% 30%                 // OPTIMIERT: Mehr Platz für Content
+      );
+
+      .offer-content {
+        text-align: right;
+        
+        .project-header {
+          flex-direction: row-reverse;
+        }
+
+        .detail-row {
+          flex-direction: row-reverse;
+        }
+
+        .cta-section {
+          align-items: flex-end;
+        }
+      }
+    }
+
+    // ===========================
+    // BACKGROUND OVERLAY
+    // ===========================
+    .offer-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65); // ERHÖHT: Bessere Lesbarkeit
+      transition: all 0.4s ease;
+      z-index: 1;
+    }
+
+    // ===========================
+    // OFFER CONTENT - OPTIMIERT FÜR CLIP-PATH
+    // ===========================
+    .offer-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      // OPTIMIERT: Intelligentes Padding für Clip-Path-Bereiche
+      padding: 3rem 4rem 3rem 3rem; // Mehr rechts für normale Variante
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: white;
+      transition: transform 0.4s ease;
+
+      // HINZUGEFÜGT: Safe-Zone für kritischen Content
+      .content-safe-zone {
+        // Stellt sicher, dass wichtiger Content immer im sichtbaren Bereich liegt
+        margin: 0 2rem 0 1rem;
+        
+        @media (max-width: 768px) {
+          margin: 0 1rem;
+        }
+      }
+
+      // Project Header
+      .project-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+
+        .project-icon {
+          width: 64px;
+          height: 64px;
+          background: rgba(var(--color-primary-rgb), 0.2);
+          border: 2px solid var(--color-primary);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          backdrop-filter: blur(10px);
+
+          .icon {
+            width: 32px;
+            height: 32px;
+            color: var(--color-primary);
+          }
+        }
+
+        .project-meta {
+          flex: 1;
+          // HINZUGEFÜGT: Maximale Breite für bessere Lesbarkeit
+          max-width: calc(100% - 140px); // BERÜCKSICHTIGT: Clip-Path-Bereiche
+
+          .project-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+            color: white;
+            // HINZUGEFÜGT: Text-Shadow für bessere Lesbarkeit
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+          }
+
+          .project-description {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            opacity: 0.95; // ERHÖHT: Bessere Sichtbarkeit
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+          }
+        }
+      }
+
+      // Project Details
+      .project-details {
+        margin-bottom: 2rem;
+        // HINZUGEFÜGT: Maximale Breite für Safe-Zone
+        max-width: calc(100% - 80px);
+
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          gap: 1rem;
+          flex-wrap: wrap; // HINZUGEFÜGT: Bessere mobile Darstellung
+
+          .price-tag {
+            .price {
+              font-size: 1.5rem;
+              font-weight: 700;
+              color: var(--color-primary);
+              background: rgba(var(--color-primary-rgb), 0.2); // ERHÖHT: Bessere Sichtbarkeit
+              padding: 0.5rem 1rem;
+              border-radius: 12px;
+              border: 2px solid var(--color-primary); // VERSTÄRKT: Besserer Kontrast
+              backdrop-filter: blur(10px);
+              text-shadow: none; // Entfernt für bessere Klarheit
+            }
+          }
+
+          .duration {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.95; // ERHÖHT
+            background: rgba(0, 0, 0, 0.3); // HINZUGEFÜGT: Hintergrund für Lesbarkeit
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+
+            .duration-icon {
+              width: 20px;
+              height: 20px;
+            }
+          }
+        }
+
+        .features-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); // VERGRÖSSERT: Bessere Lesbarkeit
+          gap: 0.75rem;
+
+          .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            // HINZUGEFÜGT: Hintergrund für bessere Lesbarkeit
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem;
+            border-radius: 6px;
+
+            .check-icon {
+              width: 16px;
+              height: 16px;
+              color: var(--color-success);
+              flex-shrink: 0;
+            }
+          }
+
+          .feature-more {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8; // ERHÖHT
+            font-style: italic;
+            margin-top: 0.5rem;
+            background: rgba(0, 0, 0, 0.2); // HINZUGEFÜGT
+            padding: 0.5rem;
+            border-radius: 6px;
+          }
+        }
+      }
+
+      // Customer Feedback
+      .customer-feedback {
+        background: rgba(0, 0, 0, 0.4); // VERDUNKELT: Bessere Lesbarkeit
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3); // VERSTÄRKT
+        backdrop-filter: blur(15px);
+        margin-bottom: 2rem;
+        // HINZUGEFÜGT: Maximale Breite für Safe-Zone
+        max-width: calc(100% - 60px);
+
+        .feedback-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1rem;
+          gap: 1rem;
+
+          .customer-info {
+            strong {
+              display: block;
+              font-size: 1.1rem;
+              margin-bottom: 0.25rem;
+              color: white; // HINZUGEFÜGT: Explizite Farbe
+            }
+
+            .company {
+              font-size: 0.9rem;
+              opacity: 0.9; // ERHÖHT
+              color: rgba(255, 255, 255, 0.9); // HINZUGEFÜGT
+            }
+          }
+
+          .rating {
+            display: flex;
+            gap: 0.25rem;
+
+            .star {
+              width: 20px;
+              height: 20px;
+              color: #fbbf24;
+
+              &.filled {
+                color: #f59e0b;
+              }
+            }
+          }
+        }
+
+        .feedback-text {
+          font-size: 1rem;
+          line-height: 1.6;
+          font-style: italic;
+          margin: 0;
+          opacity: 0.95;
+          color: rgba(255, 255, 255, 0.95); // HINZUGEFÜGT: Bessere Sichtbarkeit
+        }
+      }
+
+      // CTA Section
+      .cta-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        // HINZUGEFÜGT: Maximale Breite für Safe-Zone
+        max-width: calc(100% - 60px);
+
+        .cta-button {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+          color: white;
+          border: 2px solid var(--color-primary); // HINZUGEFÜGT: Border für bessere Sichtbarkeit
+          padding: 1rem 2rem;
+          border-radius: 50px;
+          font-size: 1.125rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.4); // VERSTÄRKT
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.5); // VERSTÄRKT
+          }
+
+          .cta-icon {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+          }
+
+          &:hover .cta-icon {
+            transform: translateX(4px);
+          }
+        }
+
+        .cta-note {
+          font-size: 0.9rem;
+          opacity: 0.9; // ERHÖHT
+          background: rgba(0, 0, 0, 0.3); // HINZUGEFÜGT
+          padding: 0.25rem 0.75rem;
+          border-radius: 4px;
+          color: rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      // Hover Details Overlay
+      .hover-details {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, calc(-50% + 20px));
+        background: rgba(0, 0, 0, 0.95);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 2px solid var(--color-primary);
+        backdrop-filter: blur(15px);
+        max-width: 400px;
+        width: 80%; // REDUZIERT: Bessere Clip-Path-Kompatibilität
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s ease;
+        z-index: 10;
+
+        .hover-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          color: var(--color-primary);
+          font-weight: 600;
+
+          .eye-icon {
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .all-features {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+
+          .feature-item-hover {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+
+            .check-icon {
+              width: 16px;
+              height: 16px;
+              color: var(--color-success);
+              flex-shrink: 0;
+            }
+          }
+        }
+      }
+    }
+
+    // ===========================
+    // RESPONSIVE ANPASSUNGEN - OPTIMIERT
+    // ===========================
+    @media (max-width: 1200px) {
+      min-height: 70vh;
+      
+      .offer-content {
+        padding: 2.5rem 3rem 2.5rem 2.5rem; // ANGEPASST: Weniger Padding
+
+        .project-header .project-meta {
+          max-width: calc(100% - 120px); // ANGEPASST
+        }
+      }
+    }
+
+    @media (max-width: 900px) {
+      min-height: 60vh;
+      // OPTIMIERT: Sanftere Clip-Paths für Tablets
+      clip-path: polygon(
+        80px 0px,           // REDUZIERT
+        100% 0,
+        100% 75%,           // SANFTER
+        15px 100%,
+        0 25%               // MEHR PLATZ
+      );
+
+      &.mirrored {
+        clip-path: polygon(
+          calc(100% - 80px) 0px, // REDUZIERT
+          0 0,
+          0 75%,               // SANFTER
+          calc(100% - 15px) 100%,
+          100% 25%             // MEHR PLATZ
+        );
+
+        .offer-content {
+          padding: 2rem 2rem 2rem 3rem; // ANGEPASST: Umgekehrtes Padding
+        }
+      }
+
+      .offer-content {
+        padding: 2rem 3rem 2rem 2rem; // ANGEPASST
+
+        .project-header {
+          .project-title {
+            font-size: 1.75rem;
+          }
+
+          .project-meta {
+            max-width: calc(100% - 100px); // ANGEPASST
+          }
+        }
+
+        .project-details {
+          max-width: calc(100% - 60px); // ANGEPASST
+
+          .features-list {
+            grid-template-columns: 1fr; // VEREINFACHT: Eine Spalte
+          }
+        }
+
+        .customer-feedback,
+        .cta-section {
+          max-width: calc(100% - 40px); // ANGEPASST
+        }
+      }
+    }
+
+    @media (max-width: 600px) {
+      min-height: 50vh;
+      // OPTIMIERT: Sehr sanfte Clip-Paths für Mobile
+      clip-path: polygon(
+        40px 0px,           // MINIMAL
+        100% 0,
+        100% 80%,           // SEHR SANFT
+        10px 100%,
+        0 20%               // VIEL PLATZ
+      );
+      border-radius: 16px;
+
+      &.mirrored {
+        clip-path: polygon(
+          calc(100% - 40px) 0px, // MINIMAL
+          0 0,
+          0 80%,               // SEHR SANFT
+          calc(100% - 10px) 100%,
+          100% 20%             // VIEL PLATZ
+        );
+
+        .offer-content {
+          text-align: left; // VEREINFACHT: Einheitliche Ausrichtung
+          padding: 1.5rem; // VEREINFACHT: Gleichmäßiges Padding
+
+          .project-header {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .detail-row {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .cta-section {
+            align-items: center;
+          }
+        }
+      }
+
+      .offer-content {
+        padding: 1.5rem; // VEREINFACHT: Gleichmäßiges Padding für Mobile
+
+        // ENTFERNT: Alle max-width Beschränkungen für Mobile
+        .project-header .project-meta,
+        .project-details,
+        .customer-feedback,
+        .cta-section {
+          max-width: 100%;
+        }
+
+        .project-header {
+          flex-direction: column;
+          text-align: center;
+          gap: 1rem;
+
+          .project-title {
+            font-size: 1.5rem;
+          }
+
+          .project-description {
+            font-size: 1rem;
+          }
+        }
+
+        .project-details .detail-row {
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .customer-feedback {
+          padding: 1rem;
+
+          .feedback-header {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+        }
+
+        .cta-section {
+          align-items: center;
+          text-align: center;
+        }
+
+        .hover-details {
+          width: 90%; // VERGRÖSSERT: Bessere mobile Darstellung
+        }
+      }
+    }
+
+    // HINZUGEFÜGT: Spezielle Anpassungen für sehr kleine Screens
+    @media (max-width: 380px) {
+      .offer-content {
+        padding: 1rem;
+
+        .project-header .project-icon {
+          width: 48px;
+          height: 48px;
+
+          .icon {
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .cta-button {
+          padding: 0.75rem 1.5rem;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  // ===========================
+  // BOTTOM CTA SECTION
+  // ===========================
+  .bottom-cta {
+    text-align: center;
+    margin-top: 4rem;
+    padding: 3rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+
+    h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.125rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .main-cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      color: white;
+      border: none;
+      padding: 1.25rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.3);
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(var(--color-primary-rgb), 0.4);
+      }
+
+      .cta-icon {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover .cta-icon {
+        transform: translateX(6px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      margin-top: 3rem;
+      padding: 2rem 1rem;
+
+      h3 {
+        font-size: 1.75rem;
+      }
+
+      .main-cta-button {
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+      }
+    }
   }
 }
