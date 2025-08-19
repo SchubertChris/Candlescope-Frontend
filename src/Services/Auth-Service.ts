@@ -164,11 +164,8 @@ class AuthService {
     if (userData) {
       try {
         const parsed = JSON.parse(userData);
-        console.log('👤 CURRENT USER:', parsed.email);
         return parsed;
       } catch (error) {
-        console.error('❌ ERROR PARSING USER DATA:', error);
-        // Corrupted data - clear it
         this.logout();
         return null;
       }
@@ -206,17 +203,6 @@ class AuthService {
       console.error('❌ RATE LIMIT STATUS ERROR:', error);
       return null;
     }
-  }
-
-  // ERWEITERT: Debug-Funktion für Development
-  debugAuthState(): void {
-    console.log('🔍 AUTH DEBUG STATE:');
-    console.log('Backend URL:', getBackendURL()); // HINZUGEFÜGT: Backend-URL anzeigen
-    console.log('Token:', this.getToken() ? '✅ Present' : '❌ Missing');
-    console.log('User:', this.getCurrentUser());
-    console.log('Is Authenticated:', this.isAuthenticated());
-    console.log('Is OAuth User:', this.isOAuthUser());
-    console.log('OAuth Provider:', this.getOAuthProvider());
   }
 }
 

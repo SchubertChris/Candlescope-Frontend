@@ -1,4 +1,5 @@
 // src/Pages/Dashboard/Components/ProjectCard.tsx
+// ANGEPASST: Ohne Progress, Admin/Kunde System
 import React from 'react';
 import { 
   HiGlobe,
@@ -17,10 +18,11 @@ import { Project, ProjectType } from '../Types/DashboardTypes';
 
 interface ProjectCardProps {
   project: Project;
+  userRole: 'admin' | 'kunde';
   onProjectAction: (projectId: string, action: string) => void;
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ project, onProjectAction }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ project, userRole, onProjectAction }) => {
   const getProjectTypeConfig = (type: ProjectType) => {
     switch (type) {
       case 'website':
@@ -83,12 +85,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onProjectAction }) =
             <p>{typeConfig.label}</p>
           </div>
         </div>
-        <button 
-          className="project-menu-btn"
-          onClick={() => onProjectAction(project.id, 'menu')}
-        >
-          <HiDotsVertical className="icon icon--menu" />
-        </button>
+        {/* Nur Admin sieht Menu */}
+        {userRole === 'admin' && (
+          <button 
+            className="project-menu-btn"
+            onClick={() => onProjectAction(project.id, 'menu')}
+          >
+            <HiDotsVertical className="icon icon--menu" />
+          </button>
+        )}
       </div>
       
       <div className="project-card-content">
@@ -99,31 +104,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onProjectAction }) =
           >
             {statusConfig.label}
           </span>
-          <span 
-            className="priority-badge"
-            style={{ color: priorityConfig.color, borderColor: priorityConfig.color }}
-          >
-            {priorityConfig.label}
-          </span>
+          {/* Nur Admin sieht Priorität */}
+          {userRole === 'admin' && (
+            <span 
+              className="priority-badge"
+              style={{ color: priorityConfig.color, borderColor: priorityConfig.color }}
+            >
+              {priorityConfig.label}
+            </span>
+          )}
         </div>
         
-        <div className="project-progress">
-          <div className="progress-info">
-            <span>Fortschritt</span>
-            <span>{project.progress}%</span>
-          </div>
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${project.progress}%` }}
-            />
-          </div>
-        </div>
+        {/* ENTFERNT: Progress Bar komplett */}
         
         <div className="project-details">
+          {/* Admin sieht zugewiesenen Admin, Kunde sieht "Ihr Projektmanager" */}
           <div className="detail-item">
             <HiUser className="icon icon--detail" />
-            <span>{project.assignedEmployee}</span>
+            <span>
+              {userRole === 'admin' ? `Admin: ${project.assignedAdmin}` : 'Ihr Projektmanager'}
+            </span>
           </div>
           <div className="detail-item">
             <HiCalendar className="icon icon--detail" />
@@ -138,6 +138,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onProjectAction }) =
             <span>{project.filesCount} Dateien</span>
           </div>
         </div>
+
+        {/* Projekt-Beschreibung */}
+        {project.description && (
+          <div className="project-description">
+            <p>{project.description}</p>
+          </div>
+        )}
       </div>
       
       <div className="project-card-actions">
@@ -146,7 +153,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onProjectAction }) =
           onClick={() => onProjectAction(project.id, 'view')}
         >
           <HiEye className="icon icon--btn" />
-          Ansehen
+          Details
         </button>
         <button 
           className="btn btn--primary"

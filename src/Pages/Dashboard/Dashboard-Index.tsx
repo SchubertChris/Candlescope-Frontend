@@ -1,8 +1,9 @@
 // src/Pages/Dashboard/Dashboard-Index.tsx
-// MAIN DASHBOARD - Komponenten-basierte Struktur
+// KORRIGIERT: Dashboard mit Service-Integration
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
+import dashboardService from '@/Services/Dashboard-Service'; // HINZUGEFÜGT: Service-Import
 import AnimatedBackground from '@/Components/Ui/AnimatedBackground';
 
 // Dashboard Components
@@ -26,7 +27,8 @@ const Dashboard: React.FC = () => {
   const [notifications, setNotifications] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<DashboardView>('overview');
-  
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,32 +37,53 @@ const Dashboard: React.FC = () => {
 
   const loadDashboardData = async () => {
     try {
+      setError(null);
+
+      // Prüfe Authentifizierung
       const user = authService.getCurrentUser();
       if (!user) {
+        console.warn('⚠️ No authenticated user found - redirecting to login');
         navigate('/');
         return;
       }
-      
+
       setUserData(user);
-      
-      // Load data from backend services (später implementiert)
-      // const projectsData = await projectService.getProjects();
-      // const messagesData = await messageService.getMessages();
-      
-      // Für jetzt: Mock-Daten laden
-      await loadMockData(user);
-      
-    } catch (error) {
-      console.error('Fehler beim Laden der Dashboard-Daten:', error);
+
+      // KORRIGIERT: Service-Aufruf mit Fehlerbehandlung
+      try {
+        const dashboardData = await dashboardService.getDashboardData();
+
+        // Daten aus Service-Response setzen
+        setProjects(dashboardData.projects || []);
+        setMessages(dashboardData.messages || []);
+        setNotifications(dashboardData.notifications || 0);
+
+
+      } catch (serviceError: any) {
+        console.warn('⚠️ Service call failed, falling back to mock data:', serviceError.message);
+
+        // FALLBACK: Mock-Daten wenn Service nicht verfügbar
+        await loadMockData(user);
+      }
+
+    } catch (error: any) {
+      console.error('❌ Dashboard loading error:', error);
+      setError('Fehler beim Laden der Dashboard-Daten');
+
+      // Fallback zu Mock-Daten auch bei allgemeinen Fehlern
+      const user = authService.getCurrentUser();
+      if (user) {
+        await loadMockData(user);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Mock-Daten (später durch echte Services ersetzen)
+  // BEHALTEN: Mock-Daten als Fallback
   const loadMockData = async (user: User) => {
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     // Mock Projects
     const mockProjects: Project[] = [
       {
@@ -128,7 +151,7 @@ const Dashboard: React.FC = () => {
         projectId: '1',
         sender: 'Chris Schubert',
         senderRole: 'mitarbeiter',
-        content: 'Design-Mockups für die Homepage sind fertig und warten auf Ihr Feedback. Die neuen Layouts berücksichtigen alle Ihre Wünsche bezüglich der Benutzerführung.',
+        content: 'Design-Mockups für die Homepage sind fertig und warten auf Ihr Feedback.',
         timestamp: '2025-08-19T10:30:00Z',
         isRead: false,
         hasAttachment: true
@@ -138,7 +161,7 @@ const Dashboard: React.FC = () => {
         projectId: '2',
         sender: 'Max Mustermann',
         senderRole: 'kunde',
-        content: 'Newsletter-Template sieht fantastisch aus! Können wir das Corporate Design noch etwas anpassen? Besonders die Farbgebung sollte mehr zu unserer Marke passen.',
+        content: 'Newsletter-Template sieht fantastisch aus! Können wir das Corporate Design noch etwas anpassen?',
         timestamp: '2025-08-19T09:15:00Z',
         isRead: true,
         hasAttachment: false
@@ -148,7 +171,7 @@ const Dashboard: React.FC = () => {
         projectId: '1',
         sender: 'Chris Schubert',
         senderRole: 'mitarbeiter',
-        content: 'Responsive Versionen für Mobile und Tablet sind jetzt verfügbar. Alle Breakpoints wurden getestet und optimiert.',
+        content: 'Responsive Versionen für Mobile und Tablet sind jetzt verfügbar.',
         timestamp: '2025-08-18T16:45:00Z',
         isRead: true,
         hasAttachment: true
@@ -158,7 +181,7 @@ const Dashboard: React.FC = () => {
         projectId: '3',
         sender: 'Anna Schmidt',
         senderRole: 'kunde',
-        content: 'Könnten wir einen Termin für die Besprechung der Bewerbungsseite vereinbaren? Ich hätte gerne noch einige Details besprochen.',
+        content: 'Könnten wir einen Termin für die Besprechung der Bewerbungsseite vereinbaren?',
         timestamp: '2025-08-18T14:20:00Z',
         isRead: false,
         hasAttachment: false
@@ -168,6 +191,13 @@ const Dashboard: React.FC = () => {
     setProjects(mockProjects);
     setMessages(mockMessages);
     setNotifications(mockMessages.filter(m => !m.isRead).length);
+
+  };
+
+  // HINZUGEFÜGT: Refresh-Funktion für Service-Integration
+  const handleRefreshData = async () => {
+    setIsLoading(true);
+    await loadDashboardData();
   };
 
   const handleLogout = () => {
@@ -180,22 +210,51 @@ const Dashboard: React.FC = () => {
   };
 
   const handleProjectUpdate = (updatedProject: Project) => {
-    setProjects(prev => 
+    setProjects(prev =>
       prev.map(p => p.id === updatedProject.id ? updatedProject : p)
     );
   };
 
-  const handleMessageRead = (messageId: string) => {
-    setMessages(prev => 
-      prev.map(m => m.id === messageId ? { ...m, isRead: true } : m)
-    );
-    setNotifications(prev => Math.max(0, prev - 1));
+  const handleMessageRead = async (messageId: string) => {
+    try {
+      // ERWEITERT: Service-Aufruf für Message-Read
+      await dashboardService.markMessageAsRead(messageId);
+
+      setMessages(prev =>
+        prev.map(m => m.id === messageId ? { ...m, isRead: true } : m)
+      );
+      setNotifications(prev => Math.max(0, prev - 1));
+
+    } catch (error) {
+      console.error('❌ Error marking message as read:', error);
+      // Fallback: Lokale State-Update
+      setMessages(prev =>
+        prev.map(m => m.id === messageId ? { ...m, isRead: true } : m)
+      );
+      setNotifications(prev => Math.max(0, prev - 1));
+    }
   };
 
-  const handleUserUpdate = (updatedUser: User) => {
-    setUserData(updatedUser);
+  const handleUserUpdate = async (updatedUserData: Partial<User>) => {
+    try {
+      // ERWEITERT: Service-Aufruf für Profile-Update
+      const updatedUser = await dashboardService.updateProfile(updatedUserData);
+      setUserData(updatedUser);
+
+      // Auch localStorage aktualisieren
+      const currentUser = authService.getCurrentUser();
+      if (currentUser) {
+        const newUserData = { ...currentUser, ...updatedUser };
+        localStorage.setItem('userData', JSON.stringify(newUserData));
+      }
+
+    } catch (error) {
+      console.error('❌ Error updating user profile:', error);
+      throw error; // Fehler an Component weiterreichen
+    }
   };
 
+  // Loading State
   if (isLoading || !userData) {
     return (
       <div className="dashboard-professional">
@@ -205,51 +264,101 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // Error State (HINZUGEFÜGT)
+  if (error) {
+    return (
+      <div className="dashboard-professional">
+        <AnimatedBackground />
+        <div className="dashboard-error" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚠️ Dashboard-Fehler</h1>
+          <p style={{ marginBottom: '2rem' }}>{error}</p>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              onClick={handleRefreshData}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer'
+              }}
+            >
+              🔄 Erneut versuchen
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer'
+              }}
+            >
+              🚪 Abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal Dashboard View
   return (
     <div className="dashboard-professional">
       <AnimatedBackground />
-      
-      <DashboardHeader 
+
+      <DashboardHeader
         user={userData}
         notifications={notifications}
         onLogout={handleLogout}
       />
-      
-      <DashboardNavigation 
+
+      <DashboardNavigation
         activeView={activeView}
         notifications={notifications}
         onViewChange={handleViewChange}
       />
-      
+
       <main className="dashboard-professional__main">
         <div className="main-container">
           {activeView === 'overview' && (
-            <DashboardOverview 
+            <DashboardOverview
               projects={projects}
               messages={messages}
               notifications={notifications}
               onViewChange={handleViewChange}
             />
           )}
-          
+
           {activeView === 'projects' && (
-            <DashboardProjects 
+            <DashboardProjects
               projects={projects}
               userRole={userData.role}
               onProjectUpdate={handleProjectUpdate}
             />
           )}
-          
+
           {activeView === 'messages' && (
-            <DashboardMessages 
+            <DashboardMessages
               messages={messages}
               projects={projects}
               onMessageRead={handleMessageRead}
             />
           )}
-          
+
           {activeView === 'profile' && (
-            <DashboardProfile 
+            <DashboardProfile
               user={userData}
               onLogout={handleLogout}
               onUserUpdate={handleUserUpdate}
