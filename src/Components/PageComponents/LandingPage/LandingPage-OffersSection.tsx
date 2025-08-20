@@ -1,5 +1,5 @@
 // src/Components/PageComponents/LandingPage/LandingPage-OffersSection.tsx
-// OPTIMIERT: Verbesserte Performance und mobile Kompatibilität
+// KORRIGIERT: TypeScript-Fehler behoben + Verbesserte Performance und mobile Kompatibilität
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -32,10 +32,10 @@ interface ProjectOffer {
 
 const OffersSection: React.FC = () => {
   const [activeOffer, setActiveOffer] = useState<string | null>(null);
-  const [isMobile, setIsMobile] = useState<boolean>(false); // HINZUGEFÜGT: Mobile Detection
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // HINZUGEFÜGT: Mobile Detection Hook
+  // Mobile Detection Hook
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -49,7 +49,7 @@ const OffersSection: React.FC = () => {
     };
   }, []);
 
-  // OPTIMIERT: Verbesserte Projektdaten mit hochauflösenden Bildern
+  // Projektdaten mit hochauflösenden Bildern
   const projectOffers: ProjectOffer[] = [
     {
       id: 'onepager',
@@ -63,7 +63,7 @@ const OffersSection: React.FC = () => {
         'Kontaktformular',
         'Social Media Integration',
         'Content Management',
-        'SSL-Zertifikat inklusive', // HINZUGEFÜGT: Zusätzliche Features
+        'SSL-Zertifikat inklusive',
         'Google Analytics Setup'
       ],
       priceRange: '499€ - 899€',
@@ -72,7 +72,7 @@ const OffersSection: React.FC = () => {
       clientCompany: 'Wellness Studio Balance',
       feedback: 'Chris hat unsere Vision perfekt umgesetzt. Die Website ist nicht nur schön, sondern auch technisch einwandfrei. Unsere Buchungsanfragen haben sich verdreifacht!',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80', // VERBESSERT: Höhere Qualität
+      backgroundImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
       icon: HiGlobe
     },
     {
@@ -87,7 +87,7 @@ const OffersSection: React.FC = () => {
         'Download-Bereich',
         'Kontakt-Integration',
         'Professional Branding',
-        'PDF-Export Funktion', // HINZUGEFÜGT
+        'PDF-Export Funktion',
         'LinkedIn-Integration'
       ],
       priceRange: '649€ - 1.200€',
@@ -96,7 +96,7 @@ const OffersSection: React.FC = () => {
       clientCompany: 'Senior Marketing Director',
       feedback: 'Die Bewerbungsseite war ausschlaggebend für meinen neuen Job als Marketing Director. Das Design ist elegant und die Technik überzeugt jeden Personaler.',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80', // VERBESSERT
+      backgroundImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
       icon: HiDocument
     },
     {
@@ -111,7 +111,7 @@ const OffersSection: React.FC = () => {
         'Analytics & Tracking',
         'A/B Testing',
         'DSGVO-konform',
-        'Multi-Template Library', // HINZUGEFÜGT
+        'Multi-Template Library',
         'Personalisierung Engine'
       ],
       priceRange: '799€ - 1.200€',
@@ -120,26 +120,31 @@ const OffersSection: React.FC = () => {
       clientCompany: 'E-Commerce Boutique',
       feedback: 'Unser Newsletter-System läuft seit 6 Monaten perfekt. Die Open-Rate ist um 40% gestiegen und die Automatisierung spart uns täglich Stunden!',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200&q=80', // VERBESSERT
+      backgroundImage: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200&q=80',
       icon: HiMail
     }
   ];
 
-  // OPTIMIERT: Intelligente CTA-Handler mit Analytics
+  // KORRIGIERT: CTA-Handler mit TypeScript-konformer Analytics
   const handleCTAClick = (projectType: string, projectId?: string) => {
-    // HINZUGEFÜGT: Optional Analytics Tracking
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'cta_click', {
-        event_category: 'engagement',
-        event_label: projectType,
-        project_id: projectId
-      });
+    // KORRIGIERT: Type-Assertion für gtag-Funktionen
+    try {
+      const gtagFunc = (window as any).gtag;
+      if (gtagFunc && typeof gtagFunc === 'function') {
+        gtagFunc('event', 'cta_click', {
+          event_category: 'engagement',
+          event_label: projectType,
+          project_id: projectId
+        });
+      }
+    } catch (error) {
+      console.warn('Analytics tracking failed:', error);
     }
     
     navigate(`/kontakt?projekt=${projectType}`);
   };
 
-  // OPTIMIERT: Effizientere Star-Rendering
+  // Effizientere Star-Rendering
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <HiStar 
@@ -149,7 +154,7 @@ const OffersSection: React.FC = () => {
     ));
   };
 
-  // HINZUGEFÜGT: Touch-Handler für bessere mobile Erfahrung
+  // Touch-Handler für bessere mobile Erfahrung
   const handleOfferInteraction = (offerId: string, isTouch: boolean = false) => {
     if (isMobile && isTouch) {
       // Auf Mobile: Toggle-Verhalten für Touch
@@ -160,7 +165,7 @@ const OffersSection: React.FC = () => {
     }
   };
 
-  // HINZUGEFÜGT: Keyboard Navigation Support
+  // Keyboard Navigation Support
   const handleKeyDown = (event: React.KeyboardEvent, offerId: string, projectType: string) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -190,18 +195,18 @@ const OffersSection: React.FC = () => {
               key={offer.id}
               className={`offer-container ${isEven ? '' : 'mirrored'} ${isActive ? 'active' : ''}`}
               style={{ backgroundImage: `url(${offer.backgroundImage})` }}
-              onMouseEnter={() => !isMobile && handleOfferInteraction(offer.id)} // ANGEPASST: Nur auf Desktop
-              onMouseLeave={() => !isMobile && setActiveOffer(null)} // ANGEPASST: Nur auf Desktop
-              onClick={() => isMobile && handleOfferInteraction(offer.id, true)} // HINZUGEFÜGT: Mobile Touch
-              onKeyDown={(e) => handleKeyDown(e, offer.id, offer.type)} // HINZUGEFÜGT: Keyboard Support
-              tabIndex={0} // HINZUGEFÜGT: Keyboard Navigation
-              role="button" // HINZUGEFÜGT: Accessibility
-              aria-label={`${offer.title} - ${offer.description}`} // HINZUGEFÜGT: Screen Reader Support
+              onMouseEnter={() => !isMobile && handleOfferInteraction(offer.id)}
+              onMouseLeave={() => !isMobile && setActiveOffer(null)}
+              onClick={() => isMobile && handleOfferInteraction(offer.id, true)}
+              onKeyDown={(e) => handleKeyDown(e, offer.id, offer.type)}
+              tabIndex={0}
+              role="button"
+              aria-label={`${offer.title} - ${offer.description}`}
             >
               <div className="offer-overlay" />
               
               <div className="offer-content">
-                {/* HINZUGEFÜGT: Content Safe Zone Wrapper für kritischen Content */}
+                {/* Content Safe Zone Wrapper für kritischen Content */}
                 <div className="content-safe-zone">
                   <div className="project-header">
                     <div className="project-icon">
@@ -225,7 +230,7 @@ const OffersSection: React.FC = () => {
                     </div>
 
                     <div className="features-list">
-                      {/* OPTIMIERT: Intelligente Feature-Anzeige basierend auf Screen-Size */}
+                      {/* Intelligente Feature-Anzeige basierend auf Screen-Size */}
                       {offer.features.slice(0, isMobile ? 3 : 4).map((feature, idx) => (
                         <div key={idx} className="feature-item">
                           <HiCheckCircle className="check-icon" />
@@ -259,10 +264,10 @@ const OffersSection: React.FC = () => {
                     <button 
                       className="cta-button"
                       onClick={(e) => {
-                        e.stopPropagation(); // HINZUGEFÜGT: Verhindert Event-Bubbling
+                        e.stopPropagation();
                         handleCTAClick(offer.type, offer.id);
                       }}
-                      aria-label={`Projekt ${offer.title} anfragen`} // HINZUGEFÜGT: Accessibility
+                      aria-label={`Projekt ${offer.title} anfragen`}
                     >
                       <span>Projekt anfragen</span>
                       <HiArrowRight className="cta-icon" />
@@ -271,11 +276,11 @@ const OffersSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* OPTIMIERT: Hover Details mit besserer Positionierung */}
+                {/* Hover Details mit besserer Positionierung */}
                 {isActive && (
                   <div 
                     className="hover-details"
-                    role="dialog" // HINZUGEFÜGT: Accessibility
+                    role="dialog"
                     aria-label="Alle Features anzeigen"
                   >
                     <div className="hover-header">
@@ -290,7 +295,7 @@ const OffersSection: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                    {/* HINZUGEFÜGT: Close Button für Mobile */}
+                    {/* Close Button für Mobile */}
                     {isMobile && (
                       <button 
                         className="close-details"
@@ -332,7 +337,7 @@ const OffersSection: React.FC = () => {
         <button 
           className="main-cta-button"
           onClick={() => handleCTAClick('custom')}
-          aria-label="Kostenlose Beratung für individuelles Projekt vereinbaren" // HINZUGEFÜGT: Accessibility
+          aria-label="Kostenlose Beratung für individuelles Projekt vereinbaren"
         >
           Kostenlose Beratung vereinbaren
           <HiArrowRight className="cta-icon" />

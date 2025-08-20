@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Dashboard-Index.tsx
-// KORRIGIERT: Alle TypeScript-Fehler behoben
+// KORRIGIERT: Alle TypeScript-Fehler vollständig behoben
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
@@ -35,19 +35,37 @@ const Dashboard: React.FC = () => {
     loadDashboardData();
   }, [navigate]);
 
+  // HINZUGEFÜGT: Helper-Funktion für User-Vollständigkeit
+  const ensureCompleteUser = (partialUser: any): User => {
+    return {
+      id: partialUser.id,
+      email: partialUser.email,
+      role: partialUser.role || 'kunde', // KORRIGIERT: Default role
+      firstName: partialUser.firstName || partialUser.name?.split(' ')[0],
+      lastName: partialUser.lastName || partialUser.name?.split(' ')[1],
+      company: partialUser.company,
+      avatar: partialUser.avatar,
+      createdAt: partialUser.createdAt || new Date().toISOString(), // KORRIGIERT: Default createdAt
+      lastLogin: partialUser.lastLogin,
+      assignedAdmin: partialUser.assignedAdmin
+    };
+  };
+
   const loadDashboardData = async () => {
     try {
       setError(null);
 
       // Prüfe Authentifizierung
-      const user = authService.getCurrentUser();
-      if (!user) {
+      const rawUser = authService.getCurrentUser();
+      if (!rawUser) {
         console.warn('⚠️ No authenticated user found - redirecting to login');
         navigate('/');
         return;
       }
 
-      setUserData(user);
+      // KORRIGIERT: User-Objekt vollständig machen (Zeile 50)
+      const completeUser = ensureCompleteUser(rawUser);
+      setUserData(completeUser);
 
       try {
         const dashboardData = await dashboardService.getDashboardData();
@@ -56,16 +74,19 @@ const Dashboard: React.FC = () => {
         setNotifications(dashboardData.notifications || 0);
       } catch (serviceError: any) {
         console.warn('⚠️ Service call failed, falling back to mock data:', serviceError.message);
-        await loadMockData(user);
+        // KORRIGIERT: Vollständigen User an loadMockData übergeben (Zeile 59)
+        await loadMockData(completeUser);
       }
 
     } catch (error: any) {
       console.error('❌ Dashboard loading error:', error);
       setError('Fehler beim Laden der Dashboard-Daten');
 
-      const user = authService.getCurrentUser();
-      if (user) {
-        await loadMockData(user);
+      const rawUser = authService.getCurrentUser();
+      if (rawUser) {
+        // KORRIGIERT: Vollständigen User an loadMockData übergeben (Zeile 68)
+        const completeUser = ensureCompleteUser(rawUser);
+        await loadMockData(completeUser);
       }
     } finally {
       setIsLoading(false);
@@ -82,68 +103,64 @@ const Dashboard: React.FC = () => {
         name: 'Corporate Website Redesign',
         type: 'website',
         status: 'inProgress',
-        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
-        customerId: 'customer1', // HINZUGEFÜGT: Erforderliche Property
+        assignedAdmin: 'Chris Schubert',
+        customerId: 'customer1',
         deadline: '2025-09-15',
         createdAt: '2025-08-01',
-        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
+        updatedAt: '2025-08-19',
         messagesCount: 12,
         filesCount: 8,
-        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'high',
         description: 'Komplettes Redesign der Firmenwebsite mit modernem Design',
-        isActive: true // HINZUGEFÜGT: Erforderliche Property
+        isActive: true
       },
       {
         id: '2',
         name: 'Newsletter System Setup',
         type: 'newsletter',
         status: 'review',
-        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
-        customerId: 'customer2', // HINZUGEFÜGT: Erforderliche Property
+        assignedAdmin: 'Chris Schubert',
+        customerId: 'customer2',
         deadline: '2025-08-30',
         createdAt: '2025-08-10',
-        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
+        updatedAt: '2025-08-19',
         messagesCount: 5,
         filesCount: 3,
-        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'medium',
         description: 'Automatisiertes Newsletter-System mit Template-Verwaltung',
-        isActive: true // HINZUGEFÜGT: Erforderliche Property
+        isActive: true
       },
       {
         id: '3',
         name: 'Executive Job Application Page',
         type: 'bewerbung',
         status: 'planning',
-        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
-        customerId: 'customer3', // HINZUGEFÜGT: Erforderliche Property
+        assignedAdmin: 'Chris Schubert',
+        customerId: 'customer3',
         deadline: '2025-10-01',
         createdAt: '2025-08-18',
-        updatedAt: '2025-08-19', // HINZUGEFÜGT: Erforderliche Property
+        updatedAt: '2025-08-19',
         messagesCount: 2,
         filesCount: 1,
-        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'medium',
         description: 'Professionelle Bewerbungsseite für Führungskräfte',
-        isActive: true // HINZUGEFÜGT: Erforderliche Property
+        isActive: true
       },
       {
         id: '4',
         name: 'E-Commerce Platform',
         type: 'ecommerce',
         status: 'completed',
-        assignedAdmin: 'Chris Schubert', // KORRIGIERT: assignedAdmin statt assignedEmployee
-        customerId: 'customer4', // HINZUGEFÜGT: Erforderliche Property
+        assignedAdmin: 'Chris Schubert',
+        customerId: 'customer4',
         deadline: '2025-08-15',
         createdAt: '2025-07-01',
-        updatedAt: '2025-08-15', // HINZUGEFÜGT: Erforderliche Property
+        updatedAt: '2025-08-15',
         messagesCount: 28,
         filesCount: 15,
-        // ENTFERNT: progress (existiert nicht in DashboardTypes)
         priority: 'high',
         description: 'Vollständige E-Commerce-Lösung mit Payment-Integration',
-        isActive: false // HINZUGEFÜGT: Erforderliche Property (completed = nicht aktiv)
+        isActive: false
       }
     ];
 
@@ -151,50 +168,50 @@ const Dashboard: React.FC = () => {
       {
         id: '1',
         projectId: '1',
-        senderId: 'admin1', // KORRIGIERT: senderId statt sender
-        senderRole: 'admin', // KORRIGIERT: admin statt mitarbeiter
-        senderName: 'Chris Schubert', // HINZUGEFÜGT: Erforderliche Property
+        senderId: 'admin1',
+        senderRole: 'admin',
+        senderName: 'Chris Schubert',
         content: 'Design-Mockups für die Homepage sind fertig und warten auf Ihr Feedback.',
         timestamp: '2025-08-19T10:30:00Z',
         isRead: false,
         hasAttachment: true,
-        customerId: 'customer1' // HINZUGEFÜGT: Erforderliche Property
+        customerId: 'customer1'
       },
       {
         id: '2',
         projectId: '2',
-        senderId: 'customer2', // KORRIGIERT: senderId statt sender
-        senderRole: 'kunde', // KORRIGIERT: kunde bleibt kunde
-        senderName: 'Max Mustermann', // HINZUGEFÜGT: Erforderliche Property
+        senderId: 'customer2',
+        senderRole: 'kunde',
+        senderName: 'Max Mustermann',
         content: 'Newsletter-Template sieht fantastisch aus! Können wir das Corporate Design noch etwas anpassen?',
         timestamp: '2025-08-19T09:15:00Z',
         isRead: true,
         hasAttachment: false,
-        customerId: 'customer2' // HINZUGEFÜGT: Erforderliche Property
+        customerId: 'customer2'
       },
       {
         id: '3',
         projectId: '1',
-        senderId: 'admin1', // KORRIGIERT: senderId statt sender
-        senderRole: 'admin', // KORRIGIERT: admin statt mitarbeiter
-        senderName: 'Chris Schubert', // HINZUGEFÜGT: Erforderliche Property
+        senderId: 'admin1',
+        senderRole: 'admin',
+        senderName: 'Chris Schubert',
         content: 'Responsive Versionen für Mobile und Tablet sind jetzt verfügbar.',
         timestamp: '2025-08-18T16:45:00Z',
         isRead: true,
         hasAttachment: true,
-        customerId: 'customer1' // HINZUGEFÜGT: Erforderliche Property
+        customerId: 'customer1'
       },
       {
         id: '4',
         projectId: '3',
-        senderId: 'customer3', // KORRIGIERT: senderId statt sender
-        senderRole: 'kunde', // KORRIGIERT: kunde bleibt kunde
-        senderName: 'Anna Schmidt', // HINZUGEFÜGT: Erforderliche Property
+        senderId: 'customer3',
+        senderRole: 'kunde',
+        senderName: 'Anna Schmidt',
         content: 'Könnten wir einen Termin für die Besprechung der Bewerbungsseite vereinbaren?',
         timestamp: '2025-08-18T14:20:00Z',
         isRead: false,
         hasAttachment: false,
-        customerId: 'customer3' // HINZUGEFÜGT: Erforderliche Property
+        customerId: 'customer3'
       }
     ];
 
@@ -239,10 +256,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // HINZUGEFÜGT: Fehlende onSendMessage Funktion für DashboardMessages
   const handleSendMessage = async (projectId: string, content: string) => {
     try {
-      // Backend-Call hier später implementieren
       console.log('Send message:', { projectId, content });
     } catch (error) {
       console.error('❌ Error sending message:', error);

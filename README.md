@@ -28,4 +28,8 @@ find . -type d -name "node_modules" -prune -o -type d -name ".git" -prune -o -pr
 - Kontakt auf telefon Welcom dann Formular dann werbung / werbung als Pop up zum wegdrücken nicht zu aufdringlich
 - Deployment Vercel Reparieren 🚀
 
+- - - Danach erstmal die Seiten anbinden und das Backend funktionsfähigmachen 
+- Profilsettings für PW 
+- 2 Fa und Push benachrichtigungen 
+
 ```
