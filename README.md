@@ -22,9 +22,7 @@ find . -type d -name "node_modules" -prune -o -type d -name ".git" -prune -o -pr
 # Weitermachen
 
 ```js
-- Logo Nav Link zu Home
-- Nav auch bei Kontakt wieder zu Landing --> zurück
-- Kontakt Style Verbessern
+- Kontakt wenn auf anderen Linkj der LP direktes Scrollen zur jeweiligen Section
 - Kontakt auf telefon Welcom dann Formular dann werbung / werbung als Pop up zum wegdrücken nicht zu aufdringlich
 - Deployment Vercel Reparieren 🚀
 

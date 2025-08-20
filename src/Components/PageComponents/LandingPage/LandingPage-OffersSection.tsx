@@ -2,11 +2,11 @@
 // KORRIGIERT: TypeScript-Fehler behoben + Verbesserte Performance und mobile Kompatibilität
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  HiGlobe, 
-  HiDocument, 
-  HiMail, 
-  HiStar, 
+import {
+  HiGlobe,
+  HiDocument,
+  HiMail,
+  HiStar,
   HiArrowRight,
   HiClock,
   HiCheckCircle,
@@ -72,7 +72,7 @@ const OffersSection: React.FC = () => {
       clientCompany: 'Wellness Studio Balance',
       feedback: 'Chris hat unsere Vision perfekt umgesetzt. Die Website ist nicht nur schön, sondern auch technisch einwandfrei. Unsere Buchungsanfragen haben sich verdreifacht!',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
+      backgroundImage: 'https://cdn.pixabay.com/photo/2022/09/05/17/15/vancouver-7434702_960_720.jpg',
       icon: HiGlobe
     },
     {
@@ -96,7 +96,7 @@ const OffersSection: React.FC = () => {
       clientCompany: 'Senior Marketing Director',
       feedback: 'Die Bewerbungsseite war ausschlaggebend für meinen neuen Job als Marketing Director. Das Design ist elegant und die Technik überzeugt jeden Personaler.',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
+      backgroundImage: 'https://cdn.pixabay.com/photo/2022/09/05/16/17/baltic-sea-7434540_960_720.jpg',
       icon: HiDocument
     },
     {
@@ -120,7 +120,7 @@ const OffersSection: React.FC = () => {
       clientCompany: 'E-Commerce Boutique',
       feedback: 'Unser Newsletter-System läuft seit 6 Monaten perfekt. Die Open-Rate ist um 40% gestiegen und die Automatisierung spart uns täglich Stunden!',
       rating: 5,
-      backgroundImage: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=1200&q=80',
+      backgroundImage: 'https://cdn.pixabay.com/photo/2025/06/01/17/31/denali-9635666_960_720.jpg',
       icon: HiMail
     }
   ];
@@ -140,16 +140,16 @@ const OffersSection: React.FC = () => {
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
     }
-    
+
     navigate(`/kontakt?projekt=${projectType}`);
   };
 
   // Effizientere Star-Rendering
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
-      <HiStar 
-        key={index} 
-        className={`star ${index < rating ? 'filled' : ''}`} 
+      <HiStar
+        key={index}
+        className={`star ${index < rating ? 'filled' : ''}`}
       />
     ));
   };
@@ -189,9 +189,9 @@ const OffersSection: React.FC = () => {
           const IconComponent = offer.icon;
           const isActive = activeOffer === offer.id;
           const isEven = index % 2 === 0;
-          
+
           return (
-            <div 
+            <div
               key={offer.id}
               className={`offer-container ${isEven ? '' : 'mirrored'} ${isActive ? 'active' : ''}`}
               style={{ backgroundImage: `url(${offer.backgroundImage})` }}
@@ -204,7 +204,7 @@ const OffersSection: React.FC = () => {
               aria-label={`${offer.title} - ${offer.description}`}
             >
               <div className="offer-overlay" />
-              
+
               <div className="offer-content">
                 {/* Content Safe Zone Wrapper für kritischen Content */}
                 <div className="content-safe-zone">
@@ -261,7 +261,7 @@ const OffersSection: React.FC = () => {
                   </div>
 
                   <div className="cta-section">
-                    <button 
+                    <button
                       className="cta-button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -278,7 +278,7 @@ const OffersSection: React.FC = () => {
 
                 {/* Hover Details mit besserer Positionierung */}
                 {isActive && (
-                  <div 
+                  <div
                     className="hover-details"
                     role="dialog"
                     aria-label="Alle Features anzeigen"
@@ -297,7 +297,7 @@ const OffersSection: React.FC = () => {
                     </div>
                     {/* Close Button für Mobile */}
                     {isMobile && (
-                      <button 
+                      <button
                         className="close-details"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -334,7 +334,7 @@ const OffersSection: React.FC = () => {
       <div className="bottom-cta">
         <h3>Bereit für Ihr Projekt?</h3>
         <p>Lassen Sie uns gemeinsam Ihre Vision verwirklichen</p>
-        <button 
+        <button
           className="main-cta-button"
           onClick={() => handleCTAClick('custom')}
           aria-label="Kostenlose Beratung für individuelles Projekt vereinbaren"
@@ -346,5 +346,5 @@ const OffersSection: React.FC = () => {
     </section>
   );
 };
-
+// kommentar
 export default OffersSection;

@@ -1,11 +1,11 @@
-// 1. ERSETZE: src/Pages/Kontakt/Kontakt-Index.tsx
-// NEUE VERSION: Modernisierte Kontaktseite mit Backend-Integration
+// src/Pages/Kontakt/Kontakt-Index.tsx
+// VOLLSTÄNDIG ÜBERARBEITET: Bessere Dropdown-UX, Accessibility, Auto-Close
 
-import React, { useState } from 'react';
-import { Send, Mail, Phone, MapPin, Star, Gift, Users, Clock, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Send, Mail, Phone, MapPin, Star, X, Clock, CheckCircle, Gift, Users, ChevronDown } from 'lucide-react';
+import AnimatedBackground from '@/Components/Ui/AnimatedBackground';
 import './Kontakt-Index.scss';
 
-// Erweiterte Interface für Contact Form
 interface ContactFormData {
   name: string;
   email: string;
@@ -33,46 +33,143 @@ const KontaktIndex: React.FC = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
+  
+  // VERBESSERT: Dropdown States mit Refs für Auto-Close
+  const [showBudgetDropdown, setShowBudgetDropdown] = useState(false);
+  const [showTimelineDropdown, setShowTimelineDropdown] = useState(false);
+  const budgetDropdownRef = useRef<HTMLDivElement>(null);
+  const timelineDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Field Focus States
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // ECHTE API-Integration mit deinem Backend
+  // HINZUGEFÜGT: Auto-Close Dropdown bei Klick außerhalb
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (budgetDropdownRef.current && !budgetDropdownRef.current.contains(event.target as Node)) {
+      setShowBudgetDropdown(false);
+    }
+    if (timelineDropdownRef.current && !timelineDropdownRef.current.contains(event.target as Node)) {
+      setShowTimelineDropdown(false);
+    }
+  }, []);
+
+  // HINZUGEFÜGT: Keyboard Navigation für Dropdowns
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setShowBudgetDropdown(false);
+      setShowTimelineDropdown(false);
+    }
+  }, []);
+
+  // HINZUGEFÜGT: Event Listeners für bessere UX
+  useEffect(() => {
+    if (showBudgetDropdown || showTimelineDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [showBudgetDropdown, showTimelineDropdown, handleClickOutside, handleKeyDown]);
+
+  // Pop-up nur einmal pro Session
+  useEffect(() => {
+    const hasSeenPromo = sessionStorage.getItem('hasSeenPromoPopup');
+    
+    if (!hasSeenPromo) {
+      const timer = setTimeout(() => {
+        setShowPromoPopup(true);
+        sessionStorage.setItem('hasSeenPromoPopup', 'true');
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Backend-Integration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('idle');
     
     try {
-      const response = await fetch('/api/contact', {
+      console.log('📧 SENDING CONTACT REQUEST...');
+      
+      const apiUrl = import.meta.env.VITE_API_BASE_URL 
+        ? `${import.meta.env.VITE_API_BASE_URL}/contact`
+        : '/api/contact';
+      
+      console.log('🔗 API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          source: 'enhanced_contact_page'
+          source: 'contact_page',
+          timestamp: new Date().toISOString()
         })
       });
       
+      console.log('📡 Response Status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const result = await response.json();
+      console.log('📨 Response Data:', result);
       
       if (result.success) {
         setSubmitStatus('success');
-        // Formular zurücksetzen nach erfolgreichem Senden
+        
+        // Analytics-Tracking
+        try {
+          const gtagFunc = (window as any).gtag;
+          if (gtagFunc && typeof gtagFunc === 'function') {
+            gtagFunc('event', 'contact_form_submit', {
+              event_category: 'engagement',
+              event_label: formData.projectType,
+              value: 1
+            });
+          }
+        } catch (error) {
+          console.warn('⚠️ Analytics tracking failed:', error);
+        }
+        
+        // Formular zurücksetzen
         setFormData({
           name: '', email: '', phone: '', company: '',
           projectType: 'website', budget: '', timeline: '',
           message: '', newsletter: false
         });
+        
+        // Scroll to success message
+        setTimeout(() => {
+          document.querySelector('.success-message')?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }, 100);
+        
       } else {
+        console.error('❌ Backend returned error:', result.message);
         throw new Error(result.message || 'Fehler beim Senden');
       }
-    } catch (error) {
-      console.error('Contact form error:', error);
+    } catch (error: any) {
+      console.error('❌ Contact form error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
     
@@ -82,50 +179,147 @@ const KontaktIndex: React.FC = () => {
     }));
   };
 
+  // VERBESSERT: Custom Select Handler mit automatischem Schließen
+  const handleSelectChange = (field: 'budget' | 'timeline', value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Alle Dropdowns schließen
+    setShowBudgetDropdown(false);
+    setShowTimelineDropdown(false);
+    
+    // HINZUGEFÜGT: Kurzes Feedback für User
+    const button = field === 'budget' ? budgetDropdownRef.current : timelineDropdownRef.current;
+    if (button) {
+      button.style.transform = 'scale(0.98)';
+      setTimeout(() => {
+        button.style.transform = 'scale(1)';
+      }, 150);
+    }
+  };
+
+  // HINZUGEFÜGT: Toggle-Funktionen für bessere UX
+  const toggleBudgetDropdown = () => {
+    setShowBudgetDropdown(!showBudgetDropdown);
+    setShowTimelineDropdown(false); // Anderen schließen
+  };
+
+  const toggleTimelineDropdown = () => {
+    setShowTimelineDropdown(!showTimelineDropdown);
+    setShowBudgetDropdown(false); // Anderen schließen
+  };
+
+  // Projekt-Typen mit korrekten Preisen
   const projectTypes = [
-    { value: 'website', label: '🌐 Website Development', price: 'ab 2.500€' },
-    { value: 'ecommerce', label: '🛒 E-Commerce Platform', price: 'ab 5.000€' },
-    { value: 'webapp', label: '⚡ Web Application', price: 'ab 8.000€' },
-    { value: 'consulting', label: '🎯 IT Consulting', price: 'ab 150€/h' },
-    { value: 'seo', label: '📈 SEO Optimization', price: 'ab 800€/Monat' }
+    { value: 'website', label: 'Website Development', price: 'ab 2.500€', icon: '🌐', description: 'Moderne Websites mit React/TypeScript' },
+    { value: 'ecommerce', label: 'E-Commerce Platform', price: 'ab 5.000€', icon: '🛒', description: 'Online-Shops mit Payment-Integration' },
+    { value: 'bewerbung', label: 'Bewerbungsseite', price: 'ab 1.200€', icon: '📋', description: 'Professionelle Online-Bewerbung' },
+    { value: 'newsletter', label: 'Newsletter-System', price: 'ab 800€', icon: '📧', description: 'E-Mail-Marketing & Automation' },
+    { value: 'consulting', label: 'IT Consulting', price: 'ab 150€/h', icon: '🎯', description: 'Technische Beratung & Code-Review' }
   ];
 
+  // Budget-Optionen für Custom Select
+  const budgetOptions = [
+    { value: '', label: 'Budget wählen', disabled: true },
+    { value: 'unter-2500', label: 'Unter 2.500€' },
+    { value: '2500-5000', label: '2.500€ - 5.000€' },
+    { value: '5000-10000', label: '5.000€ - 10.000€' },
+    { value: '10000-plus', label: 'Über 10.000€' }
+  ];
+
+  // Timeline-Optionen für Custom Select
+  const timelineOptions = [
+    { value: '', label: 'Zeitrahmen wählen', disabled: true },
+    { value: 'asap', label: 'So schnell wie möglich' },
+    { value: '1-month', label: 'Innerhalb 1 Monat' },
+    { value: '2-3-months', label: '2-3 Monate' },
+    { value: 'flexible', label: 'Flexibel' }
+  ];
+
+  // Empfohlene Tools für Pop-up
   const affiliateProducts = [
     {
-      title: "Hostinger Premium Hosting",
-      description: "Blitzschnelles Webhosting mit 24/7 Support",
+      title: "Hostinger Premium",
+      description: "Blitzschnelles Webhosting für deine Website",
       price: "2,99€/Monat",
       discount: "75% Rabatt",
-      affiliate: "https://hostinger.com?ref=chris-schubert", // HIER ECHTE AFFILIATE-LINKS EINFÜGEN
-      commission: "Ich erhalte eine kleine Provision"
+      affiliate: "https://hostinger.com?ref=chris-schubert",
+      commission: "Partnerlink"
     },
     {
-      title: "Elementor Pro Website Builder",
-      description: "Professionelle WordPress-Themes ohne Code",
+      title: "Elementor Pro",
+      description: "Professioneller Website Builder",
       price: "49$/Jahr",
-      discount: "20% mit Code CHRIS20",
-      affiliate: "https://elementor.com?ref=chris-schubert", // HIER ECHTE AFFILIATE-LINKS EINFÜGEN
-      commission: "Partnerschaft - keine Mehrkosten für dich"
-    },
-    {
-      title: "Figma Professional",
-      description: "Design-Tool für moderne UI/UX Entwicklung",
-      price: "12$/Monat",
-      discount: "Kostenlos testen",
-      affiliate: "https://figma.com?ref=chris-schubert", // HIER ECHTE AFFILIATE-LINKS EINFÜGEN
-      commission: "Empfehlung - Tool das ich täglich nutze"
+      discount: "20% Rabatt", 
+      affiliate: "https://elementor.com?ref=chris-schubert",
+      commission: "Tool-Empfehlung"
     }
   ];
 
   return (
-    <div className="kontakt-page" id='contact'>
+    <div className="kontakt-page" id="contact">
+      {/* AnimatedBackground für Konsistenz */}
+      <AnimatedBackground />
+
+      {/* KORRIGIERT: Promo Pop-up nur einmal pro Session */}
+      {showPromoPopup && (
+        <div className="promo-popup-overlay" onClick={() => setShowPromoPopup(false)}>
+          <div className="promo-popup" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="popup-close"
+              onClick={() => setShowPromoPopup(false)}
+              aria-label="Schließen"
+            >
+              <X size={20} />
+            </button>
+            
+            <div className="popup-header">
+              <Gift className="popup-icon" />
+              <h3>Exklusive Tool-Empfehlungen</h3>
+              <p>Tools, die ich täglich für erfolgreiche Projekte nutze</p>
+            </div>
+
+            <div className="popup-content">
+              {affiliateProducts.map((product, index) => (
+                <div key={index} className="popup-product">
+                  <div className="popup-product-header">
+                    <h4>{product.title}</h4>
+                    <span className="popup-price">{product.price}</span>
+                  </div>
+                  <p>{product.description}</p>
+                  
+                  {product.discount && (
+                    <div className="popup-discount">
+                      {product.discount}
+                    </div>
+                  )}
+                  
+                  <a 
+                    href={product.affiliate}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="popup-cta"
+                  >
+                    Jetzt entdecken
+                  </a>
+                  
+                  <span className="popup-commission">{product.commission}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="popup-footer">
+              <p>💡 Diese Tools nutze ich täglich - Keine Mehrkosten für dich</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <div className="hero-section">
         <div className="kontakt-container">
           <h1 className="page-title">
             Lass uns dein Projekt
-            <span className="highlight">zum Leben erwecken</span>
+            <span className="highlight"> zum Leben erwecken</span>
           </h1>
           <p className="page-subtitle">
             Von der ersten Idee bis zur erfolgreichen Umsetzung - ich begleite dich mit über 13 Jahren Erfahrung 
@@ -137,28 +331,30 @@ const KontaktIndex: React.FC = () => {
       <div className="kontakt-container">
         <div className="kontakt-content">
           
-          {/* HAUPTFORMULAR - 2/3 der Breite */}
+          {/* HAUPTFORMULAR */}
           <div className="contact-form-section">
             
             {submitStatus === 'success' && (
               <div className="success-message">
                 <CheckCircle className="success-icon" />
                 <div>
-                  <h3>Nachricht erfolgreich gesendet!</h3>
-                  <p>Ich melde mich innerhalb von 24 Stunden bei dir.</p>
+                  <h3>Nachricht erfolgreich gesendet! 🎉</h3>
+                  <p>Ich melde mich innerhalb von 24 Stunden bei dir. Check auch dein E-Mail-Postfach für eine Bestätigung.</p>
                 </div>
               </div>
             )}
 
             {submitStatus === 'error' && (
               <div className="error-message">
-                Fehler beim Senden. Bitte versuche es erneut oder kontaktiere mich direkt.
+                <strong>Fehler beim Senden!</strong><br/>
+                Bitte versuche es erneut oder kontaktiere mich direkt per E-Mail: 
+                <a href="mailto:schubert_chris@rocketmail.com">schubert_chris@rocketmail.com</a>
               </div>
             )}
 
             <h2 className="section-title">Kostenlose Projekt-Beratung</h2>
 
-            <div className="contact-form">
+            <form className="contact-form" onSubmit={handleSubmit}>
               {/* Persönliche Daten */}
               <div className="form-section">
                 <h3 className="form-section-title">Persönliche Daten</h3>
@@ -172,9 +368,12 @@ const KontaktIndex: React.FC = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
+                      onFocus={() => setFocusedField('name')}
+                      onBlur={() => setFocusedField(null)}
                       required
                       disabled={isSubmitting}
                       placeholder="Dein Name"
+                      className={`${focusedField === 'name' ? 'focused' : ''} ${formData.name ? 'has-value' : ''}`}
                     />
                   </div>
                   <div className="form-group">
@@ -185,9 +384,12 @@ const KontaktIndex: React.FC = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField(null)}
                       required
                       disabled={isSubmitting}
                       placeholder="deine@email.de"
+                      className={`${focusedField === 'email' ? 'focused' : ''} ${formData.email ? 'has-value' : ''}`}
                     />
                   </div>
                 </div>
@@ -201,8 +403,11 @@ const KontaktIndex: React.FC = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
+                      onFocus={() => setFocusedField('phone')}
+                      onBlur={() => setFocusedField(null)}
                       disabled={isSubmitting}
                       placeholder="+49 160 123 456 78"
+                      className={`${focusedField === 'phone' ? 'focused' : ''} ${formData.phone ? 'has-value' : ''}`}
                     />
                   </div>
                   <div className="form-group">
@@ -213,8 +418,11 @@ const KontaktIndex: React.FC = () => {
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
+                      onFocus={() => setFocusedField('company')}
+                      onBlur={() => setFocusedField(null)}
                       disabled={isSubmitting}
                       placeholder="Dein Unternehmen"
+                      className={`${focusedField === 'company' ? 'focused' : ''} ${formData.company ? 'has-value' : ''}`}
                     />
                   </div>
                 </div>
@@ -230,53 +438,118 @@ const KontaktIndex: React.FC = () => {
                     {projectTypes.map((type) => (
                       <div 
                         key={type.value} 
-                        className={`project-type-card ${formData.projectType === type.value ? 'selected' : ''}`}
-                        onClick={() => setFormData(prev => ({ ...prev, projectType: type.value }))}
+                        className={`project-type-card ${formData.projectType === type.value ? 'selected' : ''} ${isSubmitting ? 'disabled' : ''}`}
+                        onClick={() => !isSubmitting && setFormData(prev => ({ ...prev, projectType: type.value }))}
+                        role="button"
+                        tabIndex={isSubmitting ? -1 : 0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            !isSubmitting && setFormData(prev => ({ ...prev, projectType: type.value }));
+                          }
+                        }}
+                        aria-pressed={formData.projectType === type.value}
                       >
-                        <div className="project-type-icon">
-                          <div className="icon">🌐</div>
+                        <div className="project-type-header">
+                          <div className="project-type-icon">
+                            <span className="icon" role="img" aria-label={type.label}>{type.icon}</span>
+                          </div>
+                          <div className="project-type-info">
+                            <h4>{type.label}</h4>
+                            <span className="price-range">{type.price}</span>
+                          </div>
                         </div>
-                        <div className="project-type-info">
-                          <h4>{type.label}</h4>
-                          <p className="price-range">{type.price}</p>
-                        </div>
+                        <p className="project-description">{type.description}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="form-row">
+                  {/* VERBESSERT: Custom Budget Select mit Accessibility */}
                   <div className="form-group">
                     <label htmlFor="budget">Budget</label>
-                    <select
-                      id="budget"
-                      name="budget"
-                      value={formData.budget}
-                      onChange={handleInputChange}
-                      disabled={isSubmitting}
-                    >
-                      <option value="">Budget wählen</option>
-                      <option value="unter-2500">Unter 2.500€</option>
-                      <option value="2500-5000">2.500€ - 5.000€</option>
-                      <option value="5000-10000">5.000€ - 10.000€</option>
-                      <option value="10000-plus">Über 10.000€</option>
-                    </select>
+                    <div className="custom-select-wrapper" ref={budgetDropdownRef}>
+                      <div 
+                        className={`custom-select ${showBudgetDropdown ? 'open' : ''} ${formData.budget ? 'has-value' : ''}`}
+                        onClick={() => !isSubmitting && toggleBudgetDropdown()}
+                        role="combobox"
+                        aria-expanded={showBudgetDropdown}
+                        aria-haspopup="listbox"
+                        tabIndex={isSubmitting ? -1 : 0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            !isSubmitting && toggleBudgetDropdown();
+                          }
+                        }}
+                        aria-label="Budget auswählen"
+                      >
+                        <span className="select-value">
+                          {budgetOptions.find(opt => opt.value === formData.budget)?.label || 'Budget wählen'}
+                        </span>
+                        <ChevronDown className={`select-arrow ${showBudgetDropdown ? 'rotated' : ''}`} />
+                      </div>
+                      {showBudgetDropdown && (
+                        <div className="select-dropdown" role="listbox">
+                          {budgetOptions.map((option) => (
+                            <div
+                              key={option.value}
+                              className={`select-option ${formData.budget === option.value ? 'selected' : ''} ${option.disabled ? 'disabled' : ''}`}
+                              onClick={() => !option.disabled && handleSelectChange('budget', option.value)}
+                              role="option"
+                              aria-selected={formData.budget === option.value}
+                              aria-disabled={option.disabled}
+                            >
+                              {option.label}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  
+                  {/* VERBESSERT: Custom Timeline Select mit Accessibility */}
                   <div className="form-group">
                     <label htmlFor="timeline">Zeitrahmen</label>
-                    <select
-                      id="timeline"
-                      name="timeline"
-                      value={formData.timeline}
-                      onChange={handleInputChange}
-                      disabled={isSubmitting}
-                    >
-                      <option value="">Zeitrahmen wählen</option>
-                      <option value="asap">So schnell wie möglich</option>
-                      <option value="1-month">Innerhalb 1 Monat</option>
-                      <option value="2-3-months">2-3 Monate</option>
-                      <option value="flexible">Flexibel</option>
-                    </select>
+                    <div className="custom-select-wrapper" ref={timelineDropdownRef}>
+                      <div 
+                        className={`custom-select ${showTimelineDropdown ? 'open' : ''} ${formData.timeline ? 'has-value' : ''}`}
+                        onClick={() => !isSubmitting && toggleTimelineDropdown()}
+                        role="combobox"
+                        aria-expanded={showTimelineDropdown}
+                        aria-haspopup="listbox"
+                        tabIndex={isSubmitting ? -1 : 0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            !isSubmitting && toggleTimelineDropdown();
+                          }
+                        }}
+                        aria-label="Zeitrahmen auswählen"
+                      >
+                        <span className="select-value">
+                          {timelineOptions.find(opt => opt.value === formData.timeline)?.label || 'Zeitrahmen wählen'}
+                        </span>
+                        <ChevronDown className={`select-arrow ${showTimelineDropdown ? 'rotated' : ''}`} />
+                      </div>
+                      {showTimelineDropdown && (
+                        <div className="select-dropdown" role="listbox">
+                          {timelineOptions.map((option) => (
+                            <div
+                              key={option.value}
+                              className={`select-option ${formData.timeline === option.value ? 'selected' : ''} ${option.disabled ? 'disabled' : ''}`}
+                              onClick={() => !option.disabled && handleSelectChange('timeline', option.value)}
+                              role="option"
+                              aria-selected={formData.timeline === option.value}
+                              aria-disabled={option.disabled}
+                            >
+                              {option.label}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -287,11 +560,18 @@ const KontaktIndex: React.FC = () => {
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
+                    onFocus={() => setFocusedField('message')}
+                    onBlur={() => setFocusedField(null)}
                     required
                     rows={6}
                     disabled={isSubmitting}
+                    maxLength={2000}
                     placeholder="Beschreibe dein Projekt so detailliert wie möglich. Was sind deine Ziele? Wer ist deine Zielgruppe? Welche Features benötigst du?"
+                    className={`${focusedField === 'message' ? 'focused' : ''} ${formData.message ? 'has-value' : ''}`}
                   />
+                  <div className="character-count">
+                    {formData.message.length}/2000 Zeichen
+                  </div>
                 </div>
 
                 {/* Newsletter Checkbox */}
@@ -305,33 +585,49 @@ const KontaktIndex: React.FC = () => {
                       disabled={isSubmitting}
                     />
                     <span className="checkmark"></span>
-                    Ja, ich möchte den Newsletter mit Web-Tipps und exklusiven Angeboten erhalten
+                    <span className="checkbox-text">
+                      Ja, ich möchte den Newsletter mit Web-Tipps und exklusiven Angeboten erhalten
+                      <small>Du kannst dich jederzeit wieder abmelden</small>
+                    </span>
                   </label>
                 </div>
 
                 <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  type="submit"
+                  disabled={isSubmitting || !formData.name || !formData.email || !formData.message}
                   className="submit-button"
+                  aria-describedby="submit-status"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="loading-spinner"></div>
+                      <div className="loading-spinner" aria-hidden="true"></div>
                       Wird gesendet...
                     </>
                   ) : (
                     <>
-                      <Send className="submit-icon" />
+                      <Send className="submit-icon" aria-hidden="true" />
                       Kostenlose Beratung anfragen
                     </>
                   )}
                 </button>
+                
+                {/* KORRIGIERT: Form Progress Indicator */}
+                <div className="form-progress">
+                  <div className="progress-text">
+                    Formular: {Math.round(((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100)}% ausgefüllt
+                  </div>
+                  <div className="progress-bar" role="progressbar" aria-valuenow={Math.round(((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100)} aria-valuemin={0} aria-valuemax={100}>
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </form>
           </div>
 
-          {/* SIDEBAR - 1/3 der Breite */}
+          {/* SIDEBAR - Unverändert da bereits gut lesbar */}
           <div className="contact-info-section">
             
             {/* Kontakt-Info */}
@@ -374,160 +670,54 @@ const KontaktIndex: React.FC = () => {
             </div>
 
             {/* Antwortzeit Info */}
-            <div className="cta-section">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-success)', marginBottom: '0.5rem' }}>
-                <Clock style={{ width: '1rem', height: '1rem' }} />
-                <span style={{ fontWeight: '600' }}>Antwortzeit</span>
+            <div className="response-time-info">
+              <div className="response-time-header">
+                <Clock className="clock-icon" />
+                <span className="response-time-label">Antwortzeit</span>
               </div>
-              <p style={{ color: 'var(--color-success)', fontSize: '0.9rem', margin: 0 }}>
+              <p className="response-time-text">
                 Normalerweise innerhalb von 24 Stunden
               </p>
             </div>
 
             {/* Testimonial */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1))', 
-              padding: '1.5rem', 
-              borderRadius: '1rem', 
-              border: '1px solid rgba(255, 193, 7, 0.3)',
-              marginBottom: '2rem'
-            }}>
-              <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.75rem' }}>
+            <div className="testimonial-card">
+              <div className="testimonial-stars">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} style={{ width: '1rem', height: '1rem', fill: '#ffc107', color: '#ffc107' }} />
+                  <Star key={i} className="star filled" />
                 ))}
               </div>
-              <p style={{ color: 'var(--color-text-primary)', fontWeight: '500', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+              <p className="testimonial-text">
                 "Chris hat unsere E-Commerce-Plattform nicht nur technisch perfekt umgesetzt, sondern auch wertvolle Business-Insights geliefert."
               </p>
-              <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>
+              <div className="testimonial-author">
                 - Maximilian Weber, CEO TechStart GmbH
               </div>
             </div>
 
-            {/* Empfohlene Tools - MONETARISIERUNG */}
-            <div style={{ marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-text-primary)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Gift style={{ width: '1.25rem', height: '1.25rem', color: '#e91e63' }} />
-                Empfohlene Tools
-              </h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {affiliateProducts.map((product, index) => (
-                  <div key={index} style={{ 
-                    padding: '1rem', 
-                    background: 'rgba(255, 255, 255, 0.05)', 
-                    borderRadius: '0.75rem', 
-                    border: '1px solid rgba(255, 255, 255, 0.1)' 
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                      <h4 style={{ color: 'var(--color-text-primary)', fontWeight: '500', fontSize: '0.9rem', margin: 0 }}>{product.title}</h4>
-                      <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.85rem' }}>{product.price}</span>
-                    </div>
-                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem', marginBottom: '0.75rem', margin: 0 }}>{product.description}</p>
-                    
-                    {product.discount && (
-                      <div style={{ 
-                        display: 'inline-block', 
-                        background: 'rgba(233, 30, 99, 0.2)', 
-                        color: '#f8bbd9', 
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '0.5rem', 
-                        fontSize: '0.75rem', 
-                        fontWeight: '500',
-                        marginBottom: '0.75rem' 
-                      }}>
-                        {product.discount}
-                      </div>
-                    )}
-                    
-                    <a 
-                      href={product.affiliate}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ 
-                        display: 'block', 
-                        width: '100%', 
-                        textAlign: 'center', 
-                        background: 'linear-gradient(135deg, #e91e63, #9c27b0)', 
-                        color: 'white', 
-                        padding: '0.5rem', 
-                        borderRadius: '0.5rem', 
-                        fontSize: '0.85rem', 
-                        fontWeight: '500', 
-                        textDecoration: 'none',
-                        marginBottom: '0.5rem',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      Jetzt entdecken
-                    </a>
-                    
-                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.7rem', margin: 0 }}>{product.commission}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div style={{ 
-                marginTop: '1rem', 
-                padding: '0.75rem', 
-                background: 'rgba(59, 130, 246, 0.2)', 
-                border: '1px solid rgba(59, 130, 246, 0.3)', 
-                borderRadius: '0.75rem' 
-              }}>
-                <p style={{ color: '#93c5fd', fontSize: '0.75rem', margin: 0 }}>
-                  💡 Diese Tools nutze ich täglich in meinen Projekten. Als Partner erhalte ich eine kleine Provision, ohne dass für dich Mehrkosten entstehen.
-                </p>
-              </div>
-            </div>
-
             {/* Newsletter Anmeldung */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.2), rgba(59, 130, 246, 0.2))', 
-              padding: '1.5rem', 
-              borderRadius: '1.5rem', 
-              border: '1px solid rgba(139, 69, 19, 0.3)' 
-            }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-text-primary)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Users style={{ width: '1.25rem', height: '1.25rem', color: '#8b4513' }} />
+            <div className="newsletter-card">
+              <h4 className="newsletter-title">
+                <Users className="newsletter-icon" />
                 Web-Entwickler Newsletter
-              </h3>
-              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+              </h4>
+              <p className="newsletter-description">
                 Exklusive Tipps, Tools und Trends direkt aus der Praxis
               </p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="newsletter-form">
                 <input
                   type="email"
                   placeholder="deine@email.de"
-                  style={{ 
-                    width: '100%', 
-                    padding: '0.75rem', 
-                    background: 'rgba(255, 255, 255, 0.1)', 
-                    border: '1px solid rgba(255, 255, 255, 0.2)', 
-                    borderRadius: '0.5rem', 
-                    color: 'var(--color-text-primary)', 
-                    fontSize: '0.9rem' 
-                  }}
+                  className="newsletter-input"
                 />
-                <button style={{ 
-                  width: '100%', 
-                  background: '#8b4513', 
-                  color: 'white', 
-                  padding: '0.5rem', 
-                  borderRadius: '0.5rem', 
-                  fontSize: '0.9rem', 
-                  fontWeight: '500', 
-                  border: 'none', 
-                  cursor: 'pointer',
-                  transition: 'background 0.3s ease'
-                }}>
+                <button className="newsletter-button">
                   Kostenlos abonnieren
                 </button>
               </div>
               
-              <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b4513', fontSize: '0.75rem' }}>
-                <Users style={{ width: '0.75rem', height: '0.75rem' }} />
+              <div className="newsletter-stats">
+                <Users className="stats-icon" />
                 <span>Bereits 1.247 Abonnenten</span>
               </div>
             </div>

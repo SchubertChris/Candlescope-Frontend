@@ -86,7 +86,7 @@
   .offer-container {
     position: relative;
     width: 100%;
-    min-height: 85vh;
+    min-height: 75vh;
     border: 3px solid var(--color-primary);
     border-radius: 24px;
     backdrop-filter: blur(15px);
@@ -99,11 +99,11 @@
 
     // OPTIMIERT: Intelligente Clip-Path mit Lesbarkeits-Zonen
     clip-path: polygon(
-      120px 0px,        // REDUZIERT: Weniger aggressiver Schnitt
+      70px 0px,        // REDUZIERT: Weniger aggressiver Schnitt
       100% 0,
-      100% 70%,         // GEÄNDERT: Sanfterer Übergang
-      20px 100%,        // ANGEPASST: Bessere Ecken-Behandlung
-      0 30%             // OPTIMIERT: Mehr Platz für Content
+      90% 70%,         // GEÄNDERT: Sanfterer Übergang
+      0px 90%,        // ANGEPASST: Bessere Ecken-Behandlung
+      0 40%             // OPTIMIERT: Mehr Platz für Content
     );
 
     // Hover-Effekte
@@ -133,11 +133,11 @@
     // OPTIMIERT: Spiegelverkehrte Variante mit besserer Lesbarkeit
     &.mirrored {
       clip-path: polygon(
-        calc(100% - 120px) 0px,  // REDUZIERT: Weniger aggressiver Schnitt
+        calc(100% - 70px) 0px,  // Spiegelung von 70px 0px
         0 0,
-        0 70%,                   // GEÄNDERT: Sanfterer Übergang
-        calc(100% - 20px) 100%,  // ANGEPASST: Bessere Ecken-Behandlung
-        100% 30%                 // OPTIMIERT: Mehr Platz für Content
+        10% 70%,                // Spiegelung von 90% 70%
+        calc(100% - 0px) 100%,   // Spiegelung von 0px 100%
+        100% 40%                // Spiegelung von 0 40%
       );
 
       .offer-content {
@@ -331,6 +331,7 @@
 
       // Customer Feedback
       .customer-feedback {
+        box-shadow: inset 0px 1px 15px var(--color-primary);
         background: rgba(0, 0, 0, 0.4); // VERDUNKELT: Bessere Lesbarkeit
         padding: 1.5rem;
         border-radius: 16px;
@@ -511,20 +512,20 @@
       min-height: 60vh;
       // OPTIMIERT: Sanftere Clip-Paths für Tablets
       clip-path: polygon(
-        80px 0px,           // REDUZIERT
+        80px 0px,           // REDUZIERT Oben Links
         100% 0,
-        100% 75%,           // SANFTER
-        15px 100%,
-        0 25%               // MEHR PLATZ
+        100% 92%,           // SANFTER Unten Rechts
+        0px 100%,
+        0 13%               // MEHR PLATZ Unten Links
       );
 
       &.mirrored {
         clip-path: polygon(
-          calc(100% - 80px) 0px, // REDUZIERT
+          calc(100% - 80px) 0px, // REDUZIERT Oben Rechts
           0 0,
-          0 75%,               // SANFTER
-          calc(100% - 15px) 100%,
-          100% 25%             // MEHR PLATZ
+          0 92%,               // SANFTER Unten Links
+          calc(100% - 0px) 100%,
+          100% 13%             // MEHR PLATZ Unten Rechts
         );
 
         .offer-content {
@@ -564,11 +565,11 @@
       min-height: 50vh;
       // OPTIMIERT: Sehr sanfte Clip-Paths für Mobile
       clip-path: polygon(
-        40px 0px,           // MINIMAL
+        40px 0px,           // MINIMAL Oben Links
         100% 0,
-        100% 80%,           // SEHR SANFT
-        10px 100%,
-        0 20%               // VIEL PLATZ
+        100% 100%,           // SEHR SANFT Unten Rechts
+        0px 100%,
+        0 20%               // VIEL PLATZ Unten Links
       );
       border-radius: 16px;
 
@@ -576,8 +577,8 @@
         clip-path: polygon(
           calc(100% - 40px) 0px, // MINIMAL
           0 0,
-          0 80%,               // SEHR SANFT
-          calc(100% - 10px) 100%,
+          0 100%,               // SEHR SANFT
+          calc(100% - 0px) 100%,
           100% 20%             // VIEL PLATZ
         );
 

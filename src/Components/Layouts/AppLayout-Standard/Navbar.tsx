@@ -81,6 +81,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     if (onNavigate) {
       onNavigate(section);
     }
+
+    // Prüfen, ob wir NICHT auf der Startseite sind
+    if (window.location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: section } });
+      return;
+    }
+
+    // Wenn schon auf der Startseite, direkt scrollen
     const element = document.querySelector(`#${section}`);
     if (element) {
       const offset = 80;
@@ -90,7 +98,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
         behavior: 'smooth'
       });
     }
-  }, [onNavigate]);
+  }, [onNavigate, navigate]);
 
   // Body scroll lock für Mobile
   useEffect(() => {
@@ -456,13 +464,14 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     onClick={(e) => {
                       e.preventDefault();
 
-                      if (item.id === 'contact') {
+                        if (item.id === 'contact') {
                         // ➜ Seite wechseln (Router Navigation)
                         navigate('/kontakt');
-                      } else {
+                        setIsMobileMenuOpen(false);
+                        } else {
                         // ➜ In-Page scrollen
                         handleNavigation(item.id);
-                      }
+                        }
                     }}
                   >
                     <IconComponent className="navbar-icon" />
