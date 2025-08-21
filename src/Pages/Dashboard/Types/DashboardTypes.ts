@@ -1,7 +1,8 @@
 // src/Pages/Dashboard/Types/DashboardTypes.ts
-// ANGEPASST: 2-Rollen-System (Admin/Kunde) ohne Fortschritt
+// ERWEITERT: Newsletter-Integration zu bestehenden Dashboard-Types
+// GEÄNDERT: Newsletter-View zu DashboardView hinzugefügt
 
-export type DashboardView = 'overview' | 'projects' | 'messages' | 'profile';
+export type DashboardView = 'overview' | 'projects' | 'messages' | 'profile' | 'newsletter'; // GEÄNDERT: newsletter hinzugefügt
 
 // GEÄNDERT: Nur noch 2 Rollen
 export type UserRole = 'admin' | 'kunde';
@@ -86,7 +87,7 @@ export interface ProjectFile {
   customerId: string; // Datenschutz
 }
 
-// Dashboard Component Props - ANGEPASST
+// Dashboard Component Props - ERWEITERT mit Newsletter
 export interface DashboardHeaderProps {
   user: User;
   notifications: number;
@@ -96,7 +97,9 @@ export interface DashboardHeaderProps {
 export interface DashboardNavigationProps {
   activeView: DashboardView;
   notifications: number;
+  userRole: UserRole; // HINZUGEFÜGT: Für Newsletter-Berechtigung
   onViewChange: (view: DashboardView) => void;
+  onLogout: () => void; // HINZUGEFÜGT: Logout-Handler
 }
 
 export interface DashboardOverviewProps {
@@ -124,6 +127,12 @@ export interface DashboardProfileProps {
   user: User;
   onLogout: () => void;
   onUserUpdate: (user: User) => void;
+}
+
+// NEU: Newsletter Dashboard Props
+export interface DashboardNewsletterProps {
+  userRole: UserRole;
+  onViewChange?: (view: DashboardView) => void;
 }
 
 // API Types - ERWEITERT
@@ -194,3 +203,178 @@ export interface UserService {
   updateProfile: (updates: UpdateUserForm) => Promise<ApiResponse<User>>;
   getCustomers: () => Promise<ApiResponse<User[]>>; // Nur für Admin
 }
+
+// NEU: Dashboard View Permissions - Welche Rollen können welche Views sehen
+export interface DashboardViewPermissions {
+  overview: UserRole[];
+  projects: UserRole[];
+  messages: UserRole[];
+  profile: UserRole[];
+  newsletter: UserRole[]; // Nur Admin
+}
+
+// NEU: Dashboard State Management
+export interface DashboardState {
+  activeView: DashboardView;
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  notifications: number;
+}
+
+// NEU: Dashboard Actions für State Management
+export type DashboardAction = 
+  | { type: 'SET_ACTIVE_VIEW'; payload: DashboardView }
+  | { type: 'SET_USER'; payload: User | null }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_NOTIFICATIONS'; payload: number }
+  | { type: 'CLEAR_ERROR' };
+
+// NEU: Dashboard Utility Functions
+export interface DashboardUtils {
+  canUserAccessView: (userRole: UserRole, view: DashboardView) => boolean;
+  getViewLabel: (view: DashboardView) => string;
+  getViewIcon: (view: DashboardView) => string;
+  formatUserName: (user: User) => string;
+  formatDate: (dateString: string) => string;
+  formatRelativeTime: (dateString: string) => string;
+}
+
+// KONSTANTEN für View-Berechtigungen
+export const DASHBOARD_VIEW_PERMISSIONS: DashboardViewPermissions = {
+  overview: ['admin', 'kunde'],
+  projects: ['admin', 'kunde'],
+  messages: ['admin', 'kunde'],
+  profile: ['admin', 'kunde'],
+  newsletter: ['admin'] // Nur Admin kann Newsletter verwalten
+};
+
+// KONSTANTEN für View-Labels
+export const DASHBOARD_VIEW_LABELS: Record<DashboardView, string> = {
+  overview: 'Übersicht',
+  projects: 'Projekte',
+  messages: 'Nachrichten',
+  profile: 'Profil',
+  newsletter: 'Newsletter'
+};
+
+// KONSTANTEN für View-Icons (Lucide React Icon Namen)
+export const DASHBOARD_VIEW_ICONS: Record<DashboardView, string> = {
+  overview: 'Home',
+  projects: 'FolderOpen', 
+  messages: 'MessageSquare',
+  profile: 'User',
+  newsletter: 'Mail'
+};
+
+// Utility Functions als Konstanten
+export const canUserAccessView = (userRole: UserRole, view: DashboardView): boolean => {
+  return DASHBOARD_VIEW_PERMISSIONS[view].includes(userRole);
+};
+
+export const getAvailableViews = (userRole: UserRole): DashboardView[] => {
+  return Object.keys(DASHBOARD_VIEW_PERMISSIONS).filter(view => 
+    canUserAccessView(userRole, view as DashboardView)
+  ) as DashboardView[];
+};
+
+export const formatUserName = (user: User): string => {
+  if (user.firstName && user.lastName) {
+    return `${user.firstName} ${user.lastName}`;
+  }
+  return user.firstName || user.lastName || user.email.split('@')[0];
+};
+
+export const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+export const formatRelativeTime = (dateString: string): string => {
+  const now = new Date();
+  const date = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) {
+    return 'gerade eben';
+  } else if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `vor ${minutes} Minute${minutes > 1 ? 'n' : ''}`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `vor ${hours} Stunde${hours > 1 ? 'n' : ''}`;
+  } else {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
+  }
+};
+
+// NEU: Dashboard Navigation Item Interface
+export interface DashboardNavigationItem {
+  id: DashboardView;
+  label: string;
+  icon: string;
+  allowedRoles: UserRole[];
+  badge?: number | null;
+  adminOnly?: boolean;
+}
+
+// NEU: Standard Navigation Items Konfiguration
+export const getDashboardNavigationItems = (notifications: number = 0): DashboardNavigationItem[] => [
+  {
+    id: 'overview',
+    label: DASHBOARD_VIEW_LABELS.overview,
+    icon: DASHBOARD_VIEW_ICONS.overview,
+    allowedRoles: ['admin', 'kunde']
+  },
+  {
+    id: 'projects',
+    label: DASHBOARD_VIEW_LABELS.projects,
+    icon: DASHBOARD_VIEW_ICONS.projects,
+    allowedRoles: ['admin', 'kunde']
+  },
+  {
+    id: 'messages',
+    label: DASHBOARD_VIEW_LABELS.messages,
+    icon: DASHBOARD_VIEW_ICONS.messages,
+    allowedRoles: ['admin', 'kunde'],
+    badge: notifications > 0 ? notifications : null
+  },
+  {
+    id: 'newsletter',
+    label: DASHBOARD_VIEW_LABELS.newsletter,
+    icon: DASHBOARD_VIEW_ICONS.newsletter,
+    allowedRoles: ['admin'],
+    adminOnly: true
+  },
+  {
+    id: 'profile',
+    label: DASHBOARD_VIEW_LABELS.profile,
+    icon: DASHBOARD_VIEW_ICONS.profile,
+    allowedRoles: ['admin', 'kunde']
+  }
+];
+
+// Export aller Types für einfache Verwendung
+export type {
+  DashboardView,
+  UserRole,
+  ProjectType,
+  ProjectStatus,
+  ProjectPriority,
+  MessageSenderRole,
+  User,
+  Project,
+  Message,
+  MessageAttachment,
+  ProjectFile,
+  DashboardViewPermissions,
+  DashboardState,
+  DashboardAction,
+  DashboardUtils,
+  DashboardNavigationItem
+};
