@@ -1,5 +1,5 @@
 // src/Pages/Kontakt/Kontakt-Index.tsx
-// VOLLSTÄNDIG ÜBERARBEITET: Bessere Dropdown-UX, Accessibility, Auto-Close
+// VOLLSTÄNDIG KORRIGIERT: Port-Fix, API-URL-Logik, Robuste Fehlerbehandlung
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Mail, Phone, MapPin, Star, X, Clock, CheckCircle, Gift, Users, ChevronDown } from 'lucide-react';
@@ -35,7 +35,7 @@ const KontaktIndex: React.FC = () => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [showPromoPopup, setShowPromoPopup] = useState(false);
   
-  // VERBESSERT: Dropdown States mit Refs für Auto-Close
+  // Dropdown States
   const [showBudgetDropdown, setShowBudgetDropdown] = useState(false);
   const [showTimelineDropdown, setShowTimelineDropdown] = useState(false);
   const budgetDropdownRef = useRef<HTMLDivElement>(null);
@@ -44,7 +44,7 @@ const KontaktIndex: React.FC = () => {
   // Field Focus States
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // HINZUGEFÜGT: Auto-Close Dropdown bei Klick außerhalb
+  // Auto-Close Dropdown bei Klick außerhalb
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (budgetDropdownRef.current && !budgetDropdownRef.current.contains(event.target as Node)) {
       setShowBudgetDropdown(false);
@@ -54,7 +54,7 @@ const KontaktIndex: React.FC = () => {
     }
   }, []);
 
-  // HINZUGEFÜGT: Keyboard Navigation für Dropdowns
+  // Keyboard Navigation für Dropdowns
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       setShowBudgetDropdown(false);
@@ -62,7 +62,7 @@ const KontaktIndex: React.FC = () => {
     }
   }, []);
 
-  // HINZUGEFÜGT: Event Listeners für bessere UX
+  // Event Listeners für bessere UX
   useEffect(() => {
     if (showBudgetDropdown || showTimelineDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
@@ -89,7 +89,7 @@ const KontaktIndex: React.FC = () => {
     }
   }, []);
 
-  // Backend-Integration
+  // KORRIGIERT: Backend-Integration mit korrektem Port
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -97,35 +97,82 @@ const KontaktIndex: React.FC = () => {
     
     try {
       console.log('📧 SENDING CONTACT REQUEST...');
+      console.log('📊 Form Data:', formData);
       
-      const apiUrl = import.meta.env.VITE_API_BASE_URL 
-        ? `${import.meta.env.VITE_API_BASE_URL}/contact`
-        : '/api/contact';
+      // KORRIGIERT: API URL mit richtigem Port (5000)
+      let apiUrl: string;
       
-      console.log('🔗 API URL:', apiUrl);
+      if (import.meta.env.VITE_API_BASE_URL) {
+        // Production oder explizit gesetzt
+        apiUrl = `${import.meta.env.VITE_API_BASE_URL}/contact`;
+        console.log('🔗 Using VITE_API_BASE_URL:', apiUrl);
+      } else if (import.meta.env.DEV) {
+        // Development: Backend läuft auf Port 5000 (aus deiner .env)
+        apiUrl = 'http://localhost:5000/api/contact';
+        console.log('🔗 Development URL (hardcoded):', apiUrl);
+      } else {
+        // Production Fallback
+        apiUrl = '/api/contact';
+        console.log('🔗 Production URL:', apiUrl);
+      }
       
+      console.log('🎯 Final API URL:', apiUrl);
+      
+      // KORRIGIERT: Request-Daten aufbereiten
+      const requestData = {
+        ...formData,
+        source: 'contact_page',
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+      };
+      
+      console.log('📤 Sending request data:', requestData);
+      
+      // KORRIGIERT: Fetch mit expliziten Headers
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          // HINZUGEFÜGT: Explicit CORS headers für Development
+          'Access-Control-Allow-Origin': '*'
         },
-        body: JSON.stringify({
-          ...formData,
-          source: 'contact_page',
-          timestamp: new Date().toISOString()
-        })
+        // HINZUGEFÜGT: Credentials für CORS
+        credentials: import.meta.env.DEV ? 'omit' : 'include',
+        body: JSON.stringify(requestData)
       });
       
-      console.log('📡 Response Status:', response.status);
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // KORRIGIERT: Response Text für besseres Debugging
+      const responseText = await response.text();
+      console.log('📄 Raw response:', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ JSON PARSE ERROR:', parseError);
+        console.error('📄 Response was:', responseText.substring(0, 200));
+        throw new Error(`Server returned invalid JSON: ${responseText.substring(0, 100)}...`);
       }
       
-      const result = await response.json();
-      console.log('📨 Response Data:', result);
+      console.log('📨 Parsed response:', result);
+      
+      if (!response.ok) {
+        console.error('❌ HTTP ERROR:', response.status, response.statusText);
+        console.error('📄 Error response:', result);
+        
+        throw new Error(
+          result?.message || 
+          `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
       
       if (result.success) {
+        console.log('✅ CONTACT FORM SUCCESS');
         setSubmitStatus('success');
         
         // Analytics-Tracking
@@ -137,9 +184,10 @@ const KontaktIndex: React.FC = () => {
               event_label: formData.projectType,
               value: 1
             });
+            console.log('📊 Analytics event sent');
           }
-        } catch (error) {
-          console.warn('⚠️ Analytics tracking failed:', error);
+        } catch (analyticsError) {
+          console.warn('⚠️ Analytics tracking failed:', analyticsError);
         }
         
         // Formular zurücksetzen
@@ -151,19 +199,49 @@ const KontaktIndex: React.FC = () => {
         
         // Scroll to success message
         setTimeout(() => {
-          document.querySelector('.success-message')?.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-          });
+          const successElement = document.querySelector('.success-message');
+          if (successElement) {
+            successElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
         }, 100);
         
       } else {
         console.error('❌ Backend returned error:', result.message);
-        throw new Error(result.message || 'Fehler beim Senden');
+        throw new Error(result.message || 'Unbekannter Serverfehler');
       }
+      
     } catch (error: any) {
-      console.error('❌ Contact form error:', error);
+      console.error('❌ CONTACT FORM ERROR:', error);
+      console.error('🔍 Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      
       setSubmitStatus('error');
+      
+      // KORRIGIERT: User-freundliche Fehlermeldung
+      let userMessage = 'Ein Fehler ist aufgetreten. ';
+      
+      if (error.message.includes('Failed to fetch')) {
+        userMessage += 'Bitte prüfe deine Internetverbindung und versuche es erneut.';
+      } else if (error.message.includes('JSON')) {
+        userMessage += 'Server-Antwort ungültig. Bitte versuche es erneut.';
+      } else if (error.message.includes('HTTP 404')) {
+        userMessage += 'Backend-Service nicht erreichbar. Ist der Server gestartet?';
+      } else if (error.message.includes('HTTP 500')) {
+        userMessage += 'Server-Fehler. Bitte kontaktiere mich direkt.';
+      } else if (error.message.includes('CORS')) {
+        userMessage += 'Verbindungsfehler. Bitte lade die Seite neu.';
+      } else {
+        userMessage += error.message;
+      }
+      
+      console.log('💬 User message:', userMessage);
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +257,7 @@ const KontaktIndex: React.FC = () => {
     }));
   };
 
-  // VERBESSERT: Custom Select Handler mit automatischem Schließen
+  // Custom Select Handler mit automatischem Schließen
   const handleSelectChange = (field: 'budget' | 'timeline', value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
@@ -187,7 +265,7 @@ const KontaktIndex: React.FC = () => {
     setShowBudgetDropdown(false);
     setShowTimelineDropdown(false);
     
-    // HINZUGEFÜGT: Kurzes Feedback für User
+    // Kurzes Feedback für User
     const button = field === 'budget' ? budgetDropdownRef.current : timelineDropdownRef.current;
     if (button) {
       button.style.transform = 'scale(0.98)';
@@ -197,7 +275,7 @@ const KontaktIndex: React.FC = () => {
     }
   };
 
-  // HINZUGEFÜGT: Toggle-Funktionen für bessere UX
+  // Toggle-Funktionen für bessere UX
   const toggleBudgetDropdown = () => {
     setShowBudgetDropdown(!showBudgetDropdown);
     setShowTimelineDropdown(false); // Anderen schließen
@@ -260,7 +338,7 @@ const KontaktIndex: React.FC = () => {
       {/* AnimatedBackground für Konsistenz */}
       <AnimatedBackground />
 
-      {/* KORRIGIERT: Promo Pop-up nur einmal pro Session */}
+      {/* Promo Pop-up nur einmal pro Session */}
       {showPromoPopup && (
         <div className="promo-popup-overlay" onClick={() => setShowPromoPopup(false)}>
           <div className="promo-popup" onClick={(e) => e.stopPropagation()}>
@@ -466,7 +544,7 @@ const KontaktIndex: React.FC = () => {
                 </div>
 
                 <div className="form-row">
-                  {/* VERBESSERT: Custom Budget Select mit Accessibility */}
+                  {/* Custom Budget Select mit Accessibility */}
                   <div className="form-group">
                     <label htmlFor="budget">Budget</label>
                     <div className="custom-select-wrapper" ref={budgetDropdownRef}>
@@ -509,7 +587,7 @@ const KontaktIndex: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* VERBESSERT: Custom Timeline Select mit Accessibility */}
+                  {/* Custom Timeline Select mit Accessibility */}
                   <div className="form-group">
                     <label htmlFor="timeline">Zeitrahmen</label>
                     <div className="custom-select-wrapper" ref={timelineDropdownRef}>
@@ -611,7 +689,7 @@ const KontaktIndex: React.FC = () => {
                   )}
                 </button>
                 
-                {/* KORRIGIERT: Form Progress Indicator */}
+                {/* Form Progress Indicator */}
                 <div className="form-progress">
                   <div className="progress-text">
                     Formular: {Math.round(((formData.name ? 1 : 0) + (formData.email ? 1 : 0) + (formData.message ? 1 : 0)) / 3 * 100)}% ausgefüllt
@@ -627,7 +705,7 @@ const KontaktIndex: React.FC = () => {
             </form>
           </div>
 
-          {/* SIDEBAR - Unverändert da bereits gut lesbar */}
+          {/* SIDEBAR - Kontaktinformationen */}
           <div className="contact-info-section">
             
             {/* Kontakt-Info */}

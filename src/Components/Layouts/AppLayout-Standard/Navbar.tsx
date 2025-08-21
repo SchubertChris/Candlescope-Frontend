@@ -10,11 +10,11 @@ import {
   HiCheckCircle,
   HiExclamationCircle,
   HiQuestionMarkCircle,
-  HiClock // HINZUGEFÜGT: Für Loading-Status
+  HiClock
 } from 'react-icons/hi';
 import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
 import './Style/Navbar.scss';
 import Logo from '@/assets/Images/Logo/CandleScopeLogo.png';
@@ -29,6 +29,7 @@ interface NavigationItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  isRoute?: boolean; // KORRIGIERT: Unterscheidet Router-Navigation vs. Scroll-Navigation
 }
 
 const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
@@ -46,23 +47,25 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
 
-  // HINZUGEFÜGT: Erweiterte Loading-States
+  // Loading-States
   const [loadingStep, setLoadingStep] = useState('');
   const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
-  // HINZUGEFÜGT: OAuth-Loading-States
+  // OAuth-Loading-States
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [oauthProvider, setOAuthProvider] = useState<'google' | 'github' | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation(); // KORRIGIERT: Aktuelle Route für Navigation-Logic
 
+  // KORRIGIERT: Navigation Items mit Route-Kennzeichnung
   const navigationItems: NavigationItem[] = useMemo(() => [
-    { id: 'home', label: 'Übersicht', href: '#home', icon: HiHome },
-    { id: 'about', label: 'Informationen', href: '#about', icon: HiUser },
-    { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase },
-    { id: 'contact', label: 'Kontakt', href: '/kontakt', icon: HiMail },
+    { id: 'home', label: 'Übersicht', href: '/', icon: HiHome, isRoute: false },
+    { id: 'about', label: 'Informationen', href: '#about', icon: HiUser, isRoute: false },
+    { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase, isRoute: false },
+    { id: 'contact', label: 'Kontakt', href: '/kontakt', icon: HiMail, isRoute: true }, // KORRIGIERT: Router-Navigation
   ], []);
 
   // Scroll Handler
@@ -74,31 +77,62 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation Handler
+  // KORRIGIERT: Navigation Handler mit Router + Scroll Logic
   const handleNavigation = useCallback((section: string) => {
-    setActiveSection(section);
-    setIsMobileMenuOpen(false);
-    if (onNavigate) {
-      onNavigate(section);
-    }
-
-    // Prüfen, ob wir NICHT auf der Startseite sind
-    if (window.location.pathname !== '/') {
-      navigate('/', { state: { scrollTo: section } });
+    const navItem = navigationItems.find(item => item.id === section);
+    
+    if (!navItem) {
+      console.warn(`❌ Navigation item not found: ${section}`);
       return;
     }
 
-    // Wenn schon auf der Startseite, direkt scrollen
-    const element = document.querySelector(`#${section}`);
+    console.log(`🧭 NAVIGATION: ${section} (${navItem.isRoute ? 'ROUTE' : 'SCROLL'})`);
+    
+    setActiveSection(section);
+    setIsMobileMenuOpen(false);
+    
+    if (navItem.isRoute) {
+      // ➜ Router-Navigation (zu anderer Seite)
+      console.log(`🔗 ROUTER NAVIGATION: ${navItem.href}`);
+      navigate(navItem.href);
+    } else {
+      // ➜ Scroll-Navigation (zu Section auf Landing Page)
+      console.log(`🎯 SCROLL NAVIGATION: ${section} on ${location.pathname}`);
+      
+      if (location.pathname !== '/') {
+        // Von anderer Seite zur Landing Page + Scroll
+        console.log(`📍 NOT ON LANDING PAGE - Navigate to / + scroll to ${section}`);
+        navigate('/', { state: { scrollTo: section } });
+      } else {
+        // Bereits auf Landing Page - direkt scrollen
+        console.log(`📍 ON LANDING PAGE - Direct scroll to ${section}`);
+        scrollToSection(section);
+      }
+    }
+
+    // Parent-Callback
+    if (onNavigate) {
+      onNavigate(section);
+    }
+  }, [navigationItems, navigate, location.pathname, onNavigate]);
+
+  // KORRIGIERT: Scroll-to-Section Helper
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.querySelector(`#${sectionId}`);
     if (element) {
-      const offset = 80;
+      const offset = 80; // Navbar-Höhe
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      
+      console.log(`⬇️ SCROLLING TO: ${sectionId} (Position: ${elementPosition - offset})`);
+      
       window.scrollTo({
         top: elementPosition - offset,
         behavior: 'smooth'
       });
+    } else {
+      console.warn(`❌ Element #${sectionId} not found for scrolling`);
     }
-  }, [onNavigate, navigate]);
+  }, []);
 
   // Body scroll lock für Mobile
   useEffect(() => {
@@ -120,18 +154,18 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     }
   }, [feedbackMessage]);
 
-  // ERWEITERT: Loading-States zurücksetzen
+  // Loading-States zurücksetzen
   const resetLoadingStates = () => {
     setIsLoggingIn(false);
     setIsCheckingUser(false);
     setIsCreatingAccount(false);
     setIsSendingEmail(false);
-    setIsOAuthLoading(false); // HINZUGEFÜGT: OAuth-Loading zurücksetzen
-    setOAuthProvider(null); // HINZUGEFÜGT: OAuth-Provider zurücksetzen
+    setIsOAuthLoading(false);
+    setOAuthProvider(null);
     setLoadingStep('');
   };
 
-  // ERWEITERT: Login-Handler mit detaillierten Loading-States
+  // Login-Handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -148,26 +182,21 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
 
       setIsCheckingUser(false);
 
-      // Check auf Bestätigungs-Anfrage
       if (result.requiresConfirmation) {
         setShowConfirmation(true);
-        // KORRIGIERT: Nullish coalescing operator für undefined-Schutz
         setPendingEmail(result.email ?? loginForm.email);
         setLoadingStep('');
         resetLoadingStates();
         return;
       }
 
-      // Account wurde erstellt
       if (result.accountCreated && result.emailSent) {
         setFeedbackType('info');
         setFeedbackMessage(`📧 Neuer Account wurde für ${loginForm.email} erstellt! Bitte prüfen Sie Ihre Emails für die Login-Daten.`);
         setLoginForm({ email: '', password: '' });
-
       } else if (result.accountCreated && !result.emailSent) {
         setFeedbackType('error');
         setFeedbackMessage(`⚠️ Account wurde erstellt, aber Email-Versand fehlgeschlagen. Bitte kontaktieren Sie den Support.`);
-
       } else {
         // Normaler Login erfolgreich
         setLoadingStep('Weiterleitung...');
@@ -184,7 +213,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     }
   };
 
-  // ERWEITERT: Account-Erstellung mit detailliertem Loading
+  // Account-Erstellung
   const handleConfirmAccountCreation = async () => {
     setIsLoggingIn(true);
     setIsCreatingAccount(true);
@@ -192,7 +221,6 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     setShowConfirmation(false);
 
     try {
-      // HINZUGEFÜGT: Simuliere Loading-Schritte für bessere UX
       await new Promise(resolve => setTimeout(resolve, 800));
 
       setLoadingStep('Generiere Passwort...');
@@ -216,7 +244,6 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
         setFeedbackMessage(`🎉 Account wurde für ${pendingEmail} erstellt! Login-Daten wurden per Email versendet.`);
         setLoginForm({ email: '', password: '' });
         setPendingEmail('');
-
       } else if (result.accountCreated && !result.emailSent) {
         setFeedbackType('error');
         setFeedbackMessage(`⚠️ Account wurde erstellt, aber Email-Versand fehlgeschlagen.`);
@@ -239,14 +266,13 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     resetLoadingStates();
   };
 
-  // HINZUGEFÜGT: OAuth-Handler für Google und GitHub
+  // OAuth-Handler
   const handleOAuthLogin = (provider: 'google' | 'github') => {
     setIsOAuthLoading(true);
     setOAuthProvider(provider);
     setLoadingStep(`Weiterleitung zu ${provider === 'google' ? 'Google' : 'GitHub'}...`);
 
     try {
-      // OAuth-Flow initiieren
       authService.initiateOAuth(provider);
       authService.setOAuthProvider(provider);
     } catch (error: any) {
@@ -257,7 +283,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     }
   };
 
-  // HINZUGEFÜGT: OAuth-Button-Rendering-Funktion
+  // OAuth-Button-Rendering
   const renderOAuthButton = (provider: 'google' | 'github') => {
     const isCurrentlyLoading = isOAuthLoading && oauthProvider === provider;
     const Icon = provider === 'google' ? FcGoogle : FaGithub;
@@ -312,7 +338,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
             </a>
           </div>
           <div className="navbar-mobile__login">
-            {/* ERWEITERT: Loading-Status Anzeige für OAuth und Standard-Login */}
+            {/* Loading-Status Anzeige */}
             {(isLoggingIn || isOAuthLoading) && loadingStep && (
               <div className="navbar-mobile__loading-status">
                 <div className="navbar-mobile__loading-icon">
@@ -383,7 +409,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
               </div>
             )}
 
-            {/* Info-Text für automatische Account-Erstellung */}
+            {/* Info-Text */}
             {!showConfirmation && !feedbackMessage && !isLoggingIn && !isOAuthLoading && (
               <div className="navbar-mobile__info">
                 <HiExclamationCircle />
@@ -391,7 +417,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
               </div>
             )}
 
-            {/* Login-Form (nur anzeigen wenn keine Bestätigung oder Loading läuft) */}
+            {/* Login-Form */}
             {!showConfirmation && !isLoggingIn && !isOAuthLoading && (
               <>
                 <form onSubmit={handleLogin} className="navbar-mobile__form">
@@ -442,7 +468,6 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                   <span>or continue with</span>
                 </div>
 
-                {/* ERWEITERT: OAuth-Buttons mit Loading-States */}
                 <div className="navbar-mobile__social">
                   {renderOAuthButton('google')}
                   {renderOAuthButton('github')}
@@ -463,15 +488,8 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                     className={`navbar-mobile__link ${isActive ? 'active' : ''}`}
                     onClick={(e) => {
                       e.preventDefault();
-
-                        if (item.id === 'contact') {
-                        // ➜ Seite wechseln (Router Navigation)
-                        navigate('/kontakt');
-                        setIsMobileMenuOpen(false);
-                        } else {
-                        // ➜ In-Page scrollen
-                        handleNavigation(item.id);
-                        }
+                      // KORRIGIERT: Verwende die reparierte Navigation-Logic
+                      handleNavigation(item.id);
                     }}
                   >
                     <IconComponent className="navbar-icon" />

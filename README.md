@@ -1,33 +1,57 @@
-### Erstellen einer Datei für die Projektstruktur-Auflistung
+### Erstellen einer Datei zur Projektstruktur-Auflistung
 
 ---
 
-```js
-find . -type d -name "node_modules" -prune -o -type d -name ".git" -prune -o -print | sort > Projektstruktur.txt
+```bash
+find Portfolio2.0 \
+  find . -type d \( -name node_modules -o -name .git \) -prune -o -print \
+| sed -e 's/[^-][^/]*\//   │/g' -e 's/│\([^│]\)$/└── \1/' \
+> Projektstruktur.txt
 
-```
 
-
----
-
-```js
-  // Futuristische Glasmorphismus-Basis
-  backdrop-filter: blur(25px) saturate(1.5);
-  filter: blur(0.5px) saturate(1.5);
-  -webkit-backdrop-filter: blur(25px) saturate(1.5);
 ```
 
 ---
 
-# Weitermachen
+#### Beispiel für Glasmorphismus-Stil (CSS)
 
-```js
-- Kontakt wenn auf anderen Linkj der LP direktes Scrollen zur jeweiligen Section
-- Kontakt auf telefon Welcom dann Formular dann werbung / werbung als Pop up zum wegdrücken nicht zu aufdringlich
-- Deployment Vercel Reparieren 🚀
-
-- - - Danach erstmal die Seiten anbinden und das Backend funktionsfähigmachen 
-- Profilsettings für PW 
-- 2 Fa und Push benachrichtigungen 
-
+```css
+/* Futuristische Glasmorphismus-Basis */
+----------------------------------------
+backdrop-filter: blur(25px) saturate(1.5);
+filter: blur(0.5px) saturate(1.5);
+-webkit-backdrop-filter: blur(25px) saturate(1.5);
 ```
+
+---
+
+# Nächste Schritte
+
+---
+
+**Kontakt-Section:**
+
+- Beim Klick auf einen Link der Landingpage direkt zur jeweiligen Sektion scrollen.
+- Kontakt: Zuerst Telefonnummer anzeigen, dann Formular, anschließend Werbung als dezentes, wegklickbares Pop-up.
+
+**Deployment:**
+
+- Vercel-Deployment reparieren.
+
+---
+
+**Weitere Aufgaben:**
+
+- Seiten anbinden und Backend funktionsfähig machen.
+- Profil-Einstellungen für Passwortverwaltung.
+- Zwei-Faktor-Authentifizierung und Push-Benachrichtigungen integrieren.
+
+---
+
+**OfferSection:**
+
+- Karten mit `clip-path` exakt 3 Pixel größer gestalten.
+- Animierten Farbverlauf als BG für die Karten hinzufügen.
+- Andere Hintergrundbilder für die Cards eventuell Texturen
+
+---
