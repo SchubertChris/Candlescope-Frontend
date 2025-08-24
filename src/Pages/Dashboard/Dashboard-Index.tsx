@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Dashboard-Index.tsx
-// KORRIGIERT: Alle TypeScript-Fehler vollständig behoben
+// KORRIGIERT: Newsletter-Integration vollständig hinzugefügt
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
@@ -14,6 +14,8 @@ import DashboardProjects from './Components/DashboardProjects';
 import DashboardMessages from './Components/DashboardMessages';
 import DashboardProfile from './Components/DashboardProfile';
 import DashboardLoading from './Components/DashboardLoading';
+// HINZUGEFÜGT: Newsletter-Import
+import DashboardNewsletter from './Components/DashboardNewsletter';
 
 // Types
 import { User, Project, Message, DashboardView } from './Types/DashboardTypes';
@@ -323,10 +325,13 @@ const Dashboard: React.FC = () => {
         onLogout={handleLogout}
       />
 
+      {/* KORRIGIERT: userRole und onLogout Props hinzugefügt */}
       <DashboardNavigation
         activeView={activeView}
         notifications={notifications}
+        userRole={userData.role}
         onViewChange={handleViewChange}
+        onLogout={handleLogout}
       />
 
       <main className="dashboard-professional__main">
@@ -362,6 +367,14 @@ const Dashboard: React.FC = () => {
               user={userData}
               onLogout={handleLogout}
               onUserUpdate={handleUserUpdate}
+            />
+          )}
+
+          {/* HINZUGEFÜGT: Newsletter-View */}
+          {activeView === 'newsletter' && (
+            <DashboardNewsletter
+              userRole={userData.role}
+              onViewChange={handleViewChange}
             />
           )}
         </div>
