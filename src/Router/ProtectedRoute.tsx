@@ -1,32 +1,50 @@
 // src/Router/ProtectedRoute.tsx
-// BEREINIGT: Import-Konflikte behoben
-import { type ReactNode } from 'react'; // KORRIGIERT: Nur ReactNode importiert, React kommt über JSX Transform
+// KORRIGIERT: Robuste Auth-Prüfung mit Debug-Logs
+import { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import authService from '../Services/Auth-Service';
 
-// Props-Interface für ProtectedRoute
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-// OPTIMIERT: ProtectedRoute mit verbesserter Fehlerbehandlung
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   try {
-    // Auth-Status prüfen
+    // KORRIGIERT: Detaillierte Auth-Prüfung
+    const token = authService.getToken();
+    const userData = authService.getCurrentUser();
     const isAuthenticated = authService.isAuthenticated();
     
-    // Falls nicht eingeloggt, zur Startseite weiterleiten
-    if (!isAuthenticated) {
-      console.warn('Zugriff auf geschützte Route ohne Authentifizierung verhindert');
+    // Debug-Logs für OAuth-Debug
+    console.log('🔐 PROTECTED ROUTE CHECK:');
+    console.log('  - Has Token:', !!token);
+    console.log('  - Has User Data:', !!userData);
+    console.log('  - Is Authenticated:', isAuthenticated);
+    
+    if (token) {
+      console.log('  - Token Preview:', token.substring(0, 20) + '...');
+    }
+    
+    if (userData) {
+      console.log('  - User Email:', userData.email);
+      console.log('  - User Name:', userData.name);
+    }
+    
+    // Falls nicht authentifiziert
+    if (!isAuthenticated || !token || !userData) {
+      console.warn('❌ PROTECTED ROUTE: Access denied - redirecting to home');
       return <Navigate to="/" replace />;
     }
     
-    // Falls eingeloggt, Kinder-Komponenten rendern
+    // Falls authentifiziert
+    console.log('✅ PROTECTED ROUTE: Access granted');
     return <>{children}</>;
     
   } catch (error) {
-    // HINZUGEFÜGT: Fehlerbehandlung für Auth-Service-Probleme
-    console.error('Fehler beim Prüfen der Authentifizierung:', error);
+    console.error('❌ PROTECTED ROUTE ERROR:', error);
+    
+    // Bei Fehlern: Cleanup und Redirect
+    authService.logout();
     return <Navigate to="/" replace />;
   }
 };

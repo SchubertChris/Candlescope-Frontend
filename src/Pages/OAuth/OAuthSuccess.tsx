@@ -1,5 +1,5 @@
 // src/Pages/OAuth/OAuthSuccess.tsx
-// ERSTELLT: OAuth Success Callback-Handler
+// KORRIGIERT: Direkter Dashboard-Redirect nach OAuth
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { HiCheckCircle, HiArrowRight, HiRefresh } from 'react-icons/hi';
@@ -19,6 +19,10 @@ const OAuthSuccess: React.FC = () => {
         const token = searchParams.get('token');
         const userDataString = searchParams.get('user');
 
+        console.log('🔄 OAUTH SUCCESS HANDLER START');
+        console.log('  - Token received:', !!token);
+        console.log('  - User data received:', !!userDataString);
+
         if (!token || !userDataString) {
           throw new Error('Fehlende OAuth-Parameter');
         }
@@ -26,19 +30,31 @@ const OAuthSuccess: React.FC = () => {
         // OAuth-Callback verarbeiten
         const result = await authService.handleOAuthCallback(token, userDataString);
         
+        console.log('✅ OAUTH SUCCESS: Auth data processed');
+        console.log('  - User Email:', result.user.email);
+        console.log('  - Token stored in localStorage');
+        
         setStatus('success');
         setMessage('OAuth-Authentifizierung erfolgreich!');
         setUserEmail(result.user.email);
 
-        // Nach 2 Sekunden zum Dashboard weiterleiten
+        // KORRIGIERT: Sofort zum Dashboard weiterleiten (ohne 2s Delay)
+        console.log('🚀 OAUTH SUCCESS: Redirecting to dashboard immediately');
+        
+        // Kurze Verzögerung nur für UX (User sieht "Success")
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
-        }, 2000);
+        }, 800);
 
       } catch (error: any) {
         console.error('❌ OAUTH SUCCESS HANDLER ERROR:', error);
         setStatus('error');
         setMessage(error.message || 'OAuth-Authentifizierung fehlgeschlagen');
+        
+        // Bei Fehler nach 3s zur Home-Seite
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 3000);
       }
     };
 
@@ -83,7 +99,7 @@ const OAuthSuccess: React.FC = () => {
                 Willkommen zurück, <strong>{userEmail}</strong>!
               </p>
               <p className="oauth-callback__sub-message">
-                Du wirst automatisch zum Dashboard weitergeleitet...
+                Du wirst zum Dashboard weitergeleitet...
               </p>
               <button 
                 onClick={handleGoToDashboard}

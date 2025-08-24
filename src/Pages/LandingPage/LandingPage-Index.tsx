@@ -1,8 +1,10 @@
-// ===========================
-// LANDING PAGE INDEX - KORRIGIERT mit Router State Handling
-// ===========================
+// src/Pages/LandingPage/LandingPage-Index.tsx
+// KORRIGIERT: Auto-Dashboard-Redirect für eingeloggte User
 import React, { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import authService from '@/Services/Auth-Service';
+
+// Components imports
 import HeroSection from '@/Components/PageComponents/LandingPage/LandingPage-HeroSection';
 import AboutSection from '@/Components/PageComponents/LandingPage/LandingPage-AboutSection';
 import WorkSection from '@/Components/PageComponents/LandingPage/LandingPage-WorkSection';
@@ -13,53 +15,70 @@ import CookieBanner from '@/Components/Ui/CookieBanner';
 
 const LandingPage: React.FC = () => {
   const location = useLocation();
-  const scrollHandledRef = useRef(false); // KORRIGIERT: Verhindert doppeltes Scrollen
+  const navigate = useNavigate();
+  const scrollHandledRef = useRef(false);
 
+  // HINZUGEFÜGT: Auth-Check für eingeloggte User
   useEffect(() => {
-    // Initialize scroll animations
-    const observer = createFadeInObserver();
+    const checkAuthAndRedirect = () => {
+      const isAuthenticated = authService.isAuthenticated();
+      const currentUser = authService.getCurrentUser();
+      
+      console.log('🏠 LANDING PAGE AUTH CHECK:');
+      console.log('  - Is Authenticated:', isAuthenticated);
+      console.log('  - Current User:', currentUser?.email);
+      
+      // Falls User eingeloggt ist, zum Dashboard weiterleiten
+      if (isAuthenticated && currentUser) {
+        console.log('✅ LANDING PAGE: User is logged in, redirecting to dashboard...');
+        
+        // Kurze Verzögerung für bessere UX
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 100);
+      } else {
+        console.log('ℹ️  LANDING PAGE: User not logged in, staying on landing page');
+      }
+    };
     
-    // Observe all reveal elements
-    observer.observeAll('.reveal');
+    // Auth-Check nur einmal ausführen
+    checkAuthAndRedirect();
+  }, []); // Leeres dependency array = nur beim Mount
 
+  // Bestehende scroll animations
+  useEffect(() => {
+    const observer = createFadeInObserver();
+    observer.observeAll('.reveal');
+    
     return () => {
       observer.destroy();
     };
   }, []);
 
-  // KORRIGIERT: Router State Scroll Handling
+  // Bestehende scroll handling
   useEffect(() => {
-    // Prüfen ob wir eine Scroll-Anfrage vom Router haben
     const scrollToSection = location.state?.scrollTo;
     
     if (scrollToSection && !scrollHandledRef.current) {
       console.log(`🎯 LANDING PAGE: Received scroll request for ${scrollToSection}`);
       
-      scrollHandledRef.current = true; // Markiere als behandelt
+      scrollHandledRef.current = true;
       
-      // Warten bis alle Komponenten gemountet sind
       setTimeout(() => {
         const element = document.querySelector(`#${scrollToSection}`);
         
         if (element) {
-          const offset = 80; // Navbar-Höhe
+          const offset = 80;
           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-          
-          console.log(`⬇️ LANDING PAGE: Scrolling to ${scrollToSection} at position ${elementPosition - offset}`);
           
           window.scrollTo({
             top: elementPosition - offset,
             behavior: 'smooth'
           });
           
-          // KORRIGIERT: State nach dem Scrollen clearen
           window.history.replaceState({}, document.title);
-          
-        } else {
-          console.warn(`❌ LANDING PAGE: Section #${scrollToSection} not found`);
         }
         
-        // Reset nach kurzer Zeit für zukünftige Navigationen
         setTimeout(() => {
           scrollHandledRef.current = false;
         }, 1000);
@@ -67,7 +86,6 @@ const LandingPage: React.FC = () => {
     }
   }, [location.state?.scrollTo]);
 
-  // KORRIGIERT: Cleanup bei Unmount
   useEffect(() => {
     return () => {
       scrollHandledRef.current = false;
