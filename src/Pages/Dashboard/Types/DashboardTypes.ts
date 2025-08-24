@@ -1,10 +1,9 @@
 // src/Pages/Dashboard/Types/DashboardTypes.ts
-// ERWEITERT: Newsletter-Integration zu bestehenden Dashboard-Types
-// GEÄNDERT: Newsletter-View zu DashboardView hinzugefügt
+// ERWEITERT: 6 Dashboard-Bereiche + neue Interfaces
 
-export type DashboardView = 'overview' | 'projects' | 'messages' | 'profile' | 'newsletter'; // GEÄNDERT: newsletter hinzugefügt
+// ERWEITERT: 6 Views statt 5
+export type DashboardView = 'overview' | 'projects' | 'messages' | 'invoices' | 'newsletter' | 'settings' | 'profile';
 
-// GEÄNDERT: Nur noch 2 Rollen
 export type UserRole = 'admin' | 'kunde';
 
 export type ProjectType = 'website' | 'newsletter' | 'bewerbung' | 'ecommerce' | 'custom';
@@ -15,6 +14,12 @@ export type ProjectPriority = 'low' | 'medium' | 'high';
 
 export type MessageSenderRole = 'admin' | 'kunde';
 
+// NEU: Invoice Types
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+
+export type PaymentMethod = 'bank_transfer' | 'paypal' | 'stripe' | 'cash';
+
+// Bestehende Interfaces...
 export interface User {
   id: string;
   email: string;
@@ -25,8 +30,26 @@ export interface User {
   avatar?: string;
   createdAt: string;
   lastLogin?: string;
-  // HINZUGEFÜGT: Für Kunde-Admin Zuordnung
-  assignedAdmin?: string; // Nur bei Kunden: welcher Admin zuständig ist
+  assignedAdmin?: string;
+  // NEU: Erweiterte Geschäftsdaten
+  businessData?: {
+    taxId?: string;
+    vatNumber?: string;
+    address?: {
+      street: string;
+      city: string;
+      postalCode: string;
+      country: string;
+    };
+    phone?: string;
+    website?: string;
+  };
+  // NEU: 2FA Settings
+  twoFactorAuth?: {
+    enabled: boolean;
+    backupCodes?: string[];
+    lastUsed?: string;
+  };
 }
 
 export interface Project {
@@ -34,21 +57,63 @@ export interface Project {
   name: string;
   type: ProjectType;
   status: ProjectStatus;
-  // GEÄNDERT: Admin statt Mitarbeiter
   assignedAdmin: string;
-  // HINZUGEFÜGT: Kunde-Zuordnung für Datenschutz
   customerId: string;
   deadline: string;
   createdAt: string;
   updatedAt: string;
   messagesCount: number;
   filesCount: number;
-  // ENTFERNT: progress (nicht mehr sichtbar)
   priority: ProjectPriority;
   description?: string;
   tags?: string[];
-  // HINZUGEFÜGT: Für bessere Organisation
   isActive: boolean;
+  // NEU: Unsichtbare Admin-Notizen
+  adminNotes?: string;
+  // NEU: Projektdateien mit Textanhängen
+  files?: ProjectFile[];
+}
+
+// NEU: Invoice Interface
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  customerId: string;
+  adminId: string;
+  projectId?: string; // Optional: Zuordnung zu Projekt
+  status: InvoiceStatus;
+  amount: number;
+  currency: string;
+  taxRate: number;
+  taxAmount: number;
+  totalAmount: number;
+  dueDate: string;
+  paidDate?: string;
+  paymentMethod?: PaymentMethod;
+  description: string;
+  items: InvoiceItem[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  // NEU: Zahlungsinformationen
+  paymentInfo?: {
+    transactionId?: string;
+    paymentReference?: string;
+    bankDetails?: {
+      accountNumber: string;
+      routingNumber: string;
+      bankName: string;
+    };
+  };
+}
+
+export interface InvoiceItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  category?: string;
 }
 
 export interface Message {
@@ -62,8 +127,10 @@ export interface Message {
   isRead: boolean;
   hasAttachment: boolean;
   attachments?: MessageAttachment[];
-  // HINZUGEFÜGT: Für Datenschutz
-  customerId: string; // Welcher Kunde darf diese Nachricht sehen
+  customerId: string;
+  // NEU: Unsichtbare Admin-Notizen
+  adminNote?: string;
+  isAdminNoteVisible?: boolean;
 }
 
 export interface MessageAttachment {
@@ -84,10 +151,14 @@ export interface ProjectFile {
   url: string;
   uploadedBy: string;
   uploadedAt: string;
-  customerId: string; // Datenschutz
+  customerId: string;
+  // NEU: Textanhang zu jeder Datei
+  description?: string;
+  category?: string;
+  version?: string;
 }
 
-// Dashboard Component Props - ERWEITERT mit Newsletter
+// Dashboard Component Props - ERWEITERT
 export interface DashboardHeaderProps {
   user: User;
   notifications: number;
@@ -97,9 +168,9 @@ export interface DashboardHeaderProps {
 export interface DashboardNavigationProps {
   activeView: DashboardView;
   notifications: number;
-  userRole: UserRole; // HINZUGEFÜGT: Für Newsletter-Berechtigung
+  userRole: UserRole;
   onViewChange: (view: DashboardView) => void;
-  onLogout: () => void; // HINZUGEFÜGT: Logout-Handler
+  onLogout: () => void;
 }
 
 export interface DashboardOverviewProps {
@@ -113,7 +184,7 @@ export interface DashboardProjectsProps {
   projects: Project[];
   userRole: UserRole;
   onProjectUpdate: (project: Project) => void;
-  onCreateProject?: () => void; // Nur für Admin
+  onCreateProject?: () => void;
 }
 
 export interface DashboardMessagesProps {
@@ -123,19 +194,36 @@ export interface DashboardMessagesProps {
   onSendMessage: (projectId: string, content: string) => void;
 }
 
+// NEU: Invoice Props
+export interface DashboardInvoicesProps {
+  invoices: Invoice[];
+  userRole: UserRole;
+  onInvoiceUpdate?: (invoice: Invoice) => void;
+  onCreateInvoice?: () => void;
+  onPayInvoice?: (invoiceId: string) => void;
+}
+
+// NEU: Settings Props
+export interface DashboardSettingsProps {
+  user: User;
+  userRole: UserRole;
+  onUserUpdate: (user: User) => void;
+  on2FAToggle?: (enabled: boolean) => void;
+  onPasswordChange?: (oldPassword: string, newPassword: string) => void;
+}
+
 export interface DashboardProfileProps {
   user: User;
   onLogout: () => void;
   onUserUpdate: (user: User) => void;
 }
 
-// NEU: Newsletter Dashboard Props
 export interface DashboardNewsletterProps {
   userRole: UserRole;
   onViewChange?: (view: DashboardView) => void;
 }
 
-// API Types - ERWEITERT
+// API Response Types
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -152,14 +240,14 @@ export interface PaginatedResponse<T> {
   hasPrev: boolean;
 }
 
-// Form Types - ANGEPASST
+// Form Types
 export interface CreateProjectForm {
   name: string;
   type: ProjectType;
   description: string;
   deadline: string;
   priority: ProjectPriority;
-  customerId: string; // Welcher Kunde bekommt das Projekt
+  customerId: string;
 }
 
 export interface UpdateUserForm {
@@ -167,12 +255,32 @@ export interface UpdateUserForm {
   lastName?: string;
   company?: string;
   email?: string;
+  businessData?: User['businessData'];
 }
 
 export interface SendMessageForm {
   projectId: string;
   content: string;
   attachments?: File[];
+  adminNote?: string; // NEU: Unsichtbare Admin-Notizen
+}
+
+// NEU: Invoice Forms
+export interface CreateInvoiceForm {
+  customerId: string;
+  projectId?: string;
+  description: string;
+  items: Omit<InvoiceItem, 'id' | 'totalPrice'>[];
+  dueDate: string;
+  notes?: string;
+  taxRate: number;
+}
+
+export interface UpdateInvoiceForm extends Partial<CreateInvoiceForm> {
+  id: string;
+  status?: InvoiceStatus;
+  paymentMethod?: PaymentMethod;
+  paymentInfo?: Invoice['paymentInfo'];
 }
 
 // Backend Service Interfaces
@@ -189,6 +297,7 @@ export interface ProjectService {
   createProject: (project: CreateProjectForm) => Promise<ApiResponse<Project>>;
   updateProject: (id: string, updates: Partial<Project>) => Promise<ApiResponse<Project>>;
   deleteProject: (id: string) => Promise<ApiResponse<void>>;
+  uploadFile: (projectId: string, file: File, description?: string) => Promise<ApiResponse<ProjectFile>>;
 }
 
 export interface MessageService {
@@ -198,22 +307,38 @@ export interface MessageService {
   getUnreadCount: () => Promise<ApiResponse<number>>;
 }
 
+// NEU: Invoice Service
+export interface InvoiceService {
+  getInvoices: (customerId?: string) => Promise<ApiResponse<Invoice[]>>;
+  getInvoice: (id: string) => Promise<ApiResponse<Invoice>>;
+  createInvoice: (invoice: CreateInvoiceForm) => Promise<ApiResponse<Invoice>>;
+  updateInvoice: (id: string, updates: UpdateInvoiceForm) => Promise<ApiResponse<Invoice>>;
+  markAsPaid: (id: string, paymentInfo: Invoice['paymentInfo']) => Promise<ApiResponse<Invoice>>;
+  generatePDF: (id: string) => Promise<ApiResponse<string>>; // Returns PDF URL
+}
+
 export interface UserService {
   getProfile: () => Promise<ApiResponse<User>>;
   updateProfile: (updates: UpdateUserForm) => Promise<ApiResponse<User>>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<ApiResponse<void>>;
+  enable2FA: () => Promise<ApiResponse<{ qrCode: string; backupCodes: string[] }>>;
+  verify2FA: (code: string) => Promise<ApiResponse<void>>;
+  disable2FA: (code: string) => Promise<ApiResponse<void>>;
   getCustomers: () => Promise<ApiResponse<User[]>>; // Nur für Admin
 }
 
-// NEU: Dashboard View Permissions - Welche Rollen können welche Views sehen
+// Dashboard View Permissions - ERWEITERT
 export interface DashboardViewPermissions {
   overview: UserRole[];
   projects: UserRole[];
   messages: UserRole[];
+  invoices: UserRole[];
+  newsletter: UserRole[];
+  settings: UserRole[];
   profile: UserRole[];
-  newsletter: UserRole[]; // Nur Admin
 }
 
-// NEU: Dashboard State Management
+// Dashboard State Management
 export interface DashboardState {
   activeView: DashboardView;
   user: User | null;
@@ -222,7 +347,6 @@ export interface DashboardState {
   notifications: number;
 }
 
-// NEU: Dashboard Actions für State Management
 export type DashboardAction = 
   | { type: 'SET_ACTIVE_VIEW'; payload: DashboardView }
   | { type: 'SET_USER'; payload: User | null }
@@ -231,44 +355,38 @@ export type DashboardAction =
   | { type: 'SET_NOTIFICATIONS'; payload: number }
   | { type: 'CLEAR_ERROR' };
 
-// NEU: Dashboard Utility Functions
-export interface DashboardUtils {
-  canUserAccessView: (userRole: UserRole, view: DashboardView) => boolean;
-  getViewLabel: (view: DashboardView) => string;
-  getViewIcon: (view: DashboardView) => string;
-  formatUserName: (user: User) => string;
-  formatDate: (dateString: string) => string;
-  formatRelativeTime: (dateString: string) => string;
-}
-
-// KONSTANTEN für View-Berechtigungen
+// ERWEITERTE KONSTANTEN
 export const DASHBOARD_VIEW_PERMISSIONS: DashboardViewPermissions = {
   overview: ['admin', 'kunde'],
   projects: ['admin', 'kunde'],
   messages: ['admin', 'kunde'],
-  profile: ['admin', 'kunde'],
-  newsletter: ['admin'] // Nur Admin kann Newsletter verwalten
+  invoices: ['admin', 'kunde'],
+  newsletter: ['admin'], // Nur Admin
+  settings: ['admin', 'kunde'],
+  profile: ['admin', 'kunde']
 };
 
-// KONSTANTEN für View-Labels
 export const DASHBOARD_VIEW_LABELS: Record<DashboardView, string> = {
   overview: 'Übersicht',
   projects: 'Projekte',
   messages: 'Nachrichten',
-  profile: 'Profil',
-  newsletter: 'Newsletter'
+  invoices: 'Rechnungen',
+  newsletter: 'Newsletter',
+  settings: 'Einstellungen',
+  profile: 'Profil'
 };
 
-// KONSTANTEN für View-Icons (Lucide React Icon Namen)
 export const DASHBOARD_VIEW_ICONS: Record<DashboardView, string> = {
   overview: 'Home',
-  projects: 'FolderOpen', 
+  projects: 'FolderOpen',
   messages: 'MessageSquare',
-  profile: 'User',
-  newsletter: 'Mail'
+  invoices: 'ReceiptTax',
+  newsletter: 'Mail',
+  settings: 'Settings',
+  profile: 'User'
 };
 
-// Utility Functions als Konstanten
+// Utility Functions
 export const canUserAccessView = (userRole: UserRole, view: DashboardView): boolean => {
   return DASHBOARD_VIEW_PERMISSIONS[view].includes(userRole);
 };
@@ -313,53 +431,19 @@ export const formatRelativeTime = (dateString: string): string => {
   }
 };
 
-// NEU: Dashboard Navigation Item Interface
-export interface DashboardNavigationItem {
-  id: DashboardView;
-  label: string;
-  icon: string;
-  allowedRoles: UserRole[];
-  badge?: number | null;
-  adminOnly?: boolean;
-}
+// NEU: Currency & Invoice Formatting
+export const formatCurrency = (amount: number, currency: string = 'EUR'): string => {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: currency
+  }).format(amount);
+};
 
-// NEU: Standard Navigation Items Konfiguration
-export const getDashboardNavigationItems = (notifications: number = 0): DashboardNavigationItem[] => [
-  {
-    id: 'overview',
-    label: DASHBOARD_VIEW_LABELS.overview,
-    icon: DASHBOARD_VIEW_ICONS.overview,
-    allowedRoles: ['admin', 'kunde']
-  },
-  {
-    id: 'projects',
-    label: DASHBOARD_VIEW_LABELS.projects,
-    icon: DASHBOARD_VIEW_ICONS.projects,
-    allowedRoles: ['admin', 'kunde']
-  },
-  {
-    id: 'messages',
-    label: DASHBOARD_VIEW_LABELS.messages,
-    icon: DASHBOARD_VIEW_ICONS.messages,
-    allowedRoles: ['admin', 'kunde'],
-    badge: notifications > 0 ? notifications : null
-  },
-  {
-    id: 'newsletter',
-    label: DASHBOARD_VIEW_LABELS.newsletter,
-    icon: DASHBOARD_VIEW_ICONS.newsletter,
-    allowedRoles: ['admin'],
-    adminOnly: true
-  },
-  {
-    id: 'profile',
-    label: DASHBOARD_VIEW_LABELS.profile,
-    icon: DASHBOARD_VIEW_ICONS.profile,
-    allowedRoles: ['admin', 'kunde']
-  }
-];
+export const formatInvoiceNumber = (number: string, prefix: string = 'INV'): string => {
+  return `${prefix}-${number.padStart(6, '0')}`;
+};
 
-// Export aller Types für einfache Verwendung
+// Export aller Types
 export type {
   DashboardView,
   UserRole,
@@ -367,14 +451,17 @@ export type {
   ProjectStatus,
   ProjectPriority,
   MessageSenderRole,
+  InvoiceStatus,
+  PaymentMethod,
   User,
   Project,
   Message,
+  Invoice,
+  InvoiceItem,
   MessageAttachment,
   ProjectFile,
   DashboardViewPermissions,
   DashboardState,
   DashboardAction,
-  DashboardUtils,
-  DashboardNavigationItem
+  InvoiceService
 };
