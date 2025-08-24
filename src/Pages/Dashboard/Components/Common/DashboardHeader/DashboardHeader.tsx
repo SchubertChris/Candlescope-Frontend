@@ -7,9 +7,9 @@ import {
   HiCode, 
   HiUserCircle 
 } from 'react-icons/hi';
-import { DashboardHeaderProps } from '../Types/DashboardTypes';
+import { DashboardHeaderProps } from '../../../Types/DashboardTypes';
 // Styles
-import "./Style/DashboardComponents.scss"
+import "./DashboardHeader.scss";
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   user,

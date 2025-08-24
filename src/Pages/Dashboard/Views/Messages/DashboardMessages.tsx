@@ -2,8 +2,8 @@
 // KORRIGIERT: onSendMessage Property hinzugefügt
 import React from 'react';
 import { HiPlus } from 'react-icons/hi';
-import { DashboardMessagesProps } from '../Types/DashboardTypes';
-import MessageCard from './MessageCard';
+import { DashboardMessagesProps } from '../../Types/DashboardTypes';
+import MessageCard from '../../Components/Cards/MessageCard/MessageCard';
 
 // ERWEITERT: Component Props um onSendMessage erweitert
 const DashboardMessages: React.FC<DashboardMessagesProps> = ({

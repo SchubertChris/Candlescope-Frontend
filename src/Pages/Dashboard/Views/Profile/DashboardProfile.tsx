@@ -11,7 +11,7 @@ import {
   HiChevronRight,
   HiUserCircle
 } from 'react-icons/hi';
-import { DashboardProfileProps } from '../Types/DashboardTypes';
+import { DashboardProfileProps } from '../../Types/DashboardTypes';
 
 const DashboardProfile: React.FC<DashboardProfileProps> = ({
   user,

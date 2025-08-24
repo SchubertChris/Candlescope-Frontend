@@ -17,7 +17,7 @@ import {
   HiClipboardCopy,
   HiCheck
 } from 'react-icons/hi';
-import { DashboardSettingsProps } from '../Types/DashboardTypes';
+import { DashboardSettingsProps } from '../../Types/DashboardTypes';
 
 const DashboardSettings: React.FC<DashboardSettingsProps> = ({
   user,

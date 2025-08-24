@@ -1,5 +1,5 @@
 // src/Router/Router.tsx
-// STABILISIERT: React 18 + Router 6 Kompatibilität
+// FIXED: Angepasste Import-Pfade für neue Dashboard-Struktur
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { lazy, Suspense, type ReactNode } from 'react';
 
@@ -52,8 +52,9 @@ const KontaktPage = lazy(() =>
   })
 );
 
+// ✅ FIXED: Korrigierter Import-Pfad für Dashboard
 const Dashboard = lazy(() => 
-  import('../Pages/Dashboard/Dashboard-Index').catch((err) => {
+  import('../Pages/Dashboard/Dashboard').catch((err) => {
     console.error('Fehler beim Laden des Dashboards:', err);
     return {
       default: () => (

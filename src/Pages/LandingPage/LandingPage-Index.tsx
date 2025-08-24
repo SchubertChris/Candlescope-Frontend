@@ -18,7 +18,7 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const scrollHandledRef = useRef(false);
 
-  // HINZUGEFÜGT: Auth-Check für eingeloggte User
+  // TEMPORÄR DEAKTIVIERT: Auth-Check für eingeloggte User
   useEffect(() => {
     const checkAuthAndRedirect = () => {
       const isAuthenticated = authService.isAuthenticated();

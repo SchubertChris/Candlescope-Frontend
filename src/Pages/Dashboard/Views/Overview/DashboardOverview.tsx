@@ -10,9 +10,9 @@ import {
   HiDownload,
   HiCog
 } from 'react-icons/hi';
-import { DashboardOverviewProps } from '../Types/DashboardTypes';
-import StatsSection from './StatsSection';
-import ProjectPreviewCard from './ProjectPreviewCard';
+import { DashboardOverviewProps } from '../../Types/DashboardTypes';
+import StatsSection from '../../Components/Common/StatsSection/StatsSection';
+import ProjectPreviewCard from '../../Components/Cards/ProjectPreviewCard/ProjectPreviewCard';
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   projects,

@@ -30,13 +30,13 @@ import {
   TemplateFilters,
   CreateTemplateForm,
   NewsletterDashboardProps
-} from '../Types/NewsletterTypes';
+} from '../../Types/DashboardTypes';
 
 // Services (werden später implementiert)
 import newsletterService from '@/Services/Newsletter-Service';
 
 // Styles
-import './Style/DashboardNewsletter.scss';
+import './DashboardNewsletter.scss';
 
 const DashboardNewsletter: React.FC<NewsletterDashboardProps> = ({ 
   userRole,

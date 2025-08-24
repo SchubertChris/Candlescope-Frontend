@@ -10,7 +10,8 @@ import {
   HiCog,
   HiReceiptTax
 } from 'react-icons/hi';
-import { DashboardNavigationProps, DashboardView } from '../Types/DashboardTypes';
+import { DashboardNavigationProps, DashboardView } from '../../../Types/DashboardTypes';
+
 
 const DashboardNavigation: React.FC<DashboardNavigationProps> = ({
   activeView,
