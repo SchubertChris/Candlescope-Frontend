@@ -1,96 +1,44 @@
-// src/Pages/Dashboard/Components/DashboardInvoices.tsx
-// NEU: Invoices-Component für Admin/Kunde Rechnungs-Management
+// src/Pages/Dashboard/Invoices/Invoices.tsx
+// Updated für neue SCSS-Struktur und Context
+
 import React, { useState, useMemo } from 'react';
 import { 
-  HiReceiptTax,
+  HiPlus, 
+  HiSearch, 
   HiEye,
-  HiDownload,
-  HiCreditCard,
-  HiCash,
-  HiCheck,
-  HiClock,
-  HiExclamation, // KORRIGIERT: HiExclamationTriangle → HiExclamation
-  HiX,
-  HiPlus,
-  HiFilter,
-  HiSearch,
-  HiChevronDown,
-  HiChevronUp,
-  HiBriefcase,
-  HiCalendar,
-  HiCurrencyEuro
+  HiPencil,
+  HiTrash,
+  HiDocumentDownload,
+  HiFilter
 } from 'react-icons/hi';
-import { DashboardInvoicesProps, Invoice, InvoiceStatus, formatCurrency, formatDate } from '@/Pages/Dashboard/Types/DashboardTypes';
+import { useDashboard } from '../Context/DashboardContext';
+import { Invoice } from '../Types/DashboardTypes';
+import './Invoices.scss';
 
-const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({
-  invoices,
-  userRole,
-  onInvoiceUpdate,
-  onCreateInvoice,
-  onPayInvoice
-}) => {
-  // Filter & Search States
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status' | 'dueDate'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+const Invoices: React.FC = () => {
+  const { invoices, userRole, onCreateInvoice, onInvoiceUpdate, onPayInvoice } = useDashboard();
   
-  // UI States
-  const [expandedInvoice, setExpandedInvoice] = useState<string | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
+  // Local state für Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'number'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Status-Konfigurationen
-  const statusConfig = {
-    draft: { 
-      label: 'Entwurf', 
-      color: '#6B7280', 
-      icon: HiClock,
-      description: 'Noch nicht versendet'
-    },
-    sent: { 
-      label: 'Versendet', 
-      color: '#3B82F6', 
-      icon: HiClock,
-      description: 'Wartet auf Zahlung'
-    },
-    paid: { 
-      label: 'Bezahlt', 
-      color: '#10B981', 
-      icon: HiCheck,
-      description: 'Vollständig bezahlt'
-    },
-    overdue: { 
-      label: 'Überfällig', 
-      color: '#EF4444', 
-      icon: HiExclamation, // KORRIGIERT
-      description: 'Zahlungsziel überschritten'
-    },
-    cancelled: { 
-      label: 'Storniert', 
-      color: '#6B7280', 
-      icon: HiX,
-      description: 'Rechnung storniert'
-    }
-  };
-
-  // Filter & Sort Logic
-  const filteredAndSortedInvoices = useMemo(() => {
-    let filtered = invoices;
-
-    // Search Filter
-    if (searchTerm) {
-      filtered = filtered.filter(invoice =>
+  // Filtered and sorted invoices
+  const filteredInvoices = useMemo(() => {
+    let filtered = invoices.filter(invoice => {
+      const matchesSearch = 
         invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+        invoice.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
 
-    // Status Filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(invoice => invoice.status === statusFilter);
-    }
-
-    // Sort
+    // Sortierung
     filtered.sort((a, b) => {
       let aValue, bValue;
       
@@ -99,19 +47,17 @@ const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({
           aValue = a.totalAmount;
           bValue = b.totalAmount;
           break;
-        case 'dueDate':
-          aValue = new Date(a.dueDate).getTime();
-          bValue = new Date(b.dueDate).getTime();
+        case 'number':
+          aValue = a.invoiceNumber;
+          bValue = b.invoiceNumber;
           break;
-        case 'status':
-          aValue = a.status;
-          bValue = b.status;
-          break;
-        default: // date
+        case 'date':
+        default:
           aValue = new Date(a.createdAt).getTime();
           bValue = new Date(b.createdAt).getTime();
+          break;
       }
-
+      
       if (sortOrder === 'asc') {
         return aValue > bValue ? 1 : -1;
       } else {
@@ -122,406 +68,281 @@ const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({
     return filtered;
   }, [invoices, searchTerm, statusFilter, sortBy, sortOrder]);
 
-  // Statistics
-  const statistics = useMemo(() => {
-    const stats = {
-      total: invoices.length,
-      totalAmount: 0,
-      paid: 0,
-      paidAmount: 0,
-      pending: 0,
-      pendingAmount: 0,
-      overdue: 0,
-      overdueAmount: 0
-    };
+  // Pagination
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+  const paginatedInvoices = filteredInvoices.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-    invoices.forEach(invoice => {
-      stats.totalAmount += invoice.totalAmount;
-      
-      switch (invoice.status) {
-        case 'paid':
-          stats.paid += 1;
-          stats.paidAmount += invoice.totalAmount;
-          break;
-        case 'sent':
-          stats.pending += 1;
-          stats.pendingAmount += invoice.totalAmount;
-          break;
-        case 'overdue':
-          stats.overdue += 1;
-          stats.overdueAmount += invoice.totalAmount;
-          break;
-      }
-    });
-
-    return stats;
-  }, [invoices]);
-
-  const handleSort = (newSortBy: typeof sortBy) => {
-    if (sortBy === newSortBy) {
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  // Handlers
+  const handleSort = (column: 'date' | 'amount' | 'number') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortBy(newSortBy);
+      setSortBy(column);
       setSortOrder('desc');
     }
   };
 
-  const handleViewInvoice = (invoiceId: string) => {
-    console.log('👁️ VIEW INVOICE:', invoiceId);
-    // TODO: Implement invoice view modal
+  const handleViewInvoice = (invoice: Invoice) => {
+    console.log('View invoice:', invoice.id);
+    // TODO: Implement view modal
   };
 
-  const handleDownloadInvoice = (invoiceId: string) => {
-    console.log('📄 DOWNLOAD INVOICE:', invoiceId);
-    // TODO: Implement PDF download
+  const handleEditInvoice = (invoice: Invoice) => {
+    console.log('Edit invoice:', invoice.id);
+    // TODO: Implement edit modal
   };
 
-  const handlePayInvoice = (invoiceId: string) => {
-    if (onPayInvoice) {
-      onPayInvoice(invoiceId);
+  const handleDeleteInvoice = (invoice: Invoice) => {
+    if (confirm(`Rechnung ${invoice.invoiceNumber} löschen?`)) {
+      console.log('Delete invoice:', invoice.id);
+      // TODO: Implement delete
     }
   };
 
-  const toggleInvoiceExpansion = (invoiceId: string) => {
-    setExpandedInvoice(prev => prev === invoiceId ? null : invoiceId);
+  const handleDownloadPDF = (invoice: Invoice) => {
+    console.log('Download PDF:', invoice.id);
+    // TODO: Implement PDF download
   };
 
-  const isOverdue = (dueDate: string) => {
-    return new Date(dueDate) < new Date();
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(amount);
   };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('de-DE');
+  };
+
+  const getStatusClass = (status: Invoice['status']) => {
+    return `invoice-status invoice-status--${status}`;
+  };
+
+  const getStatusLabel = (status: Invoice['status']) => {
+    const labels = {
+      draft: 'Entwurf',
+      sent: 'Versendet',
+      paid: 'Bezahlt',
+      overdue: 'Überfällig',
+      cancelled: 'Storniert'
+    };
+    return labels[status] || status;
+  };
+
+  const getDueDateClass = (dueDate: string, status: Invoice['status']) => {
+    if (status === 'paid') return '';
+    
+    const due = new Date(dueDate);
+    const now = new Date();
+    const diffTime = due.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return 'overdue';
+    if (diffDays <= 7) return 'due-soon';
+    return '';
+  };
+
+  if (filteredInvoices.length === 0 && searchTerm === '' && statusFilter === 'all') {
+    return (
+      <div className="invoices-page">
+        <div className="invoices-empty">
+          <div className="empty-icon">
+            <HiReceiptTax />
+          </div>
+          <h3>Noch keine Rechnungen</h3>
+          <p>Erstellen Sie Ihre erste Rechnung, um loszulegen.</p>
+          <button className="create-first-btn" onClick={onCreateInvoice}>
+            <HiPlus /> Erste Rechnung erstellen
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="view-content">
-      <div className="view-header">
-        <div className="view-title">
-          <h1>
-            <HiReceiptTax className="icon icon--action" />
-            Rechnungen
-          </h1>
-          <p>
-            {userRole === 'admin' 
-              ? 'Verwalten Sie alle Kundenrechnungen' 
-              : 'Übersicht Ihrer Rechnungen und Zahlungen'
-            }
+    <div className="invoices-page">
+      {/* Page Header */}
+      <div className="invoices-header">
+        <div className="header-title">
+          <h1>Rechnungen</h1>
+          <p className="subtitle">
+            {filteredInvoices.length} von {invoices.length} Rechnungen
           </p>
         </div>
-        
-        {userRole === 'admin' && onCreateInvoice && (
+        <div className="header-actions">
           <button className="btn btn--primary" onClick={onCreateInvoice}>
-            <HiPlus className="icon icon--btn" />
+            <HiPlus className="icon--btn" />
             Neue Rechnung
           </button>
-        )}
-      </div>
-
-      {/* Statistiken */}
-      <div className="invoice-stats">
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <HiReceiptTax className="icon icon--stat" />
-            </div>
-            <div className="stat-content">
-              <h3>Gesamt</h3>
-              <div className="stat-value">{statistics.total}</div>
-              <div className="stat-secondary">{formatCurrency(statistics.totalAmount)}</div>
-            </div>
-          </div>
-          
-          <div className="stat-card success">
-            <div className="stat-icon">
-              <HiCheck className="icon icon--stat" />
-            </div>
-            <div className="stat-content">
-              <h3>Bezahlt</h3>
-              <div className="stat-value">{statistics.paid}</div>
-              <div className="stat-secondary">{formatCurrency(statistics.paidAmount)}</div>
-            </div>
-          </div>
-          
-          <div className="stat-card warning">
-            <div className="stat-icon">
-              <HiClock className="icon icon--stat" />
-            </div>
-            <div className="stat-content">
-              <h3>Ausstehend</h3>
-              <div className="stat-value">{statistics.pending}</div>
-              <div className="stat-secondary">{formatCurrency(statistics.pendingAmount)}</div>
-            </div>
-          </div>
-          
-          <div className="stat-card danger">
-            <div className="stat-icon">
-              <HiExclamation className="icon icon--stat" />
-            </div>
-            <div className="stat-content">
-              <h3>Überfällig</h3>
-              <div className="stat-value">{statistics.overdue}</div>
-              <div className="stat-secondary">{formatCurrency(statistics.overdueAmount)}</div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Filter & Search */}
-      <div className="invoice-controls">
-        <div className="search-section">
-          <div className="search-input">
-            <HiSearch className="icon icon--detail" />
-            <input
-              type="text"
-              placeholder="Rechnungsnummer oder Beschreibung suchen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <button 
-            className={`filter-toggle ${showFilters ? 'active' : ''}`}
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <HiFilter className="icon icon--btn" />
-            Filter
-            {showFilters ? <HiChevronUp /> : <HiChevronDown />}
-          </button>
+      {/* Filters */}
+      <div className="invoices-filters">
+        <div className="search-box">
+          <HiSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Rechnungsnummer oder Beschreibung suchen..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         
-        {showFilters && (
-          <div className="filter-section">
-            <div className="filter-group">
-              <label>Status</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as InvoiceStatus | 'all')}
-              >
-                <option value="all">Alle Status</option>
-                <option value="draft">Entwurf</option>
-                <option value="sent">Versendet</option>
-                <option value="paid">Bezahlt</option>
-                <option value="overdue">Überfällig</option>
-                <option value="cancelled">Storniert</option>
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>Sortierung</label>
-              <select
-                value={`${sortBy}-${sortOrder}`}
-                onChange={(e) => {
-                  const [newSortBy, newSortOrder] = e.target.value.split('-');
-                  setSortBy(newSortBy as typeof sortBy);
-                  setSortOrder(newSortOrder as 'asc' | 'desc');
-                }}
-              >
-                <option value="date-desc">Neueste zuerst</option>
-                <option value="date-asc">Älteste zuerst</option>
-                <option value="amount-desc">Höchster Betrag</option>
-                <option value="amount-asc">Niedrigster Betrag</option>
-                <option value="dueDate-asc">Fälligkeitsdatum</option>
-                <option value="status-asc">Status A-Z</option>
-              </select>
-            </div>
+        <div className="filter-group">
+          <div className="filter-select">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">Alle Status</option>
+              <option value="draft">Entwurf</option>
+              <option value="sent">Versendet</option>
+              <option value="paid">Bezahlt</option>
+              <option value="overdue">Überfällig</option>
+              <option value="cancelled">Storniert</option>
+            </select>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Rechnungsliste */}
-      <div className="invoice-list">
-        {filteredAndSortedInvoices.length === 0 ? (
-          <div className="empty-state">
-            <HiReceiptTax className="icon icon--project-type" />
-            <h3>Keine Rechnungen gefunden</h3>
-            <p>
-              {searchTerm || statusFilter !== 'all'
-                ? 'Keine Rechnungen entsprechen den aktuellen Filterkriterien.'
-                : 'Es sind noch keine Rechnungen vorhanden.'
-              }
-            </p>
-            {userRole === 'admin' && onCreateInvoice && (
-              <button className="btn btn--primary" onClick={onCreateInvoice}>
-                <HiPlus className="icon icon--btn" />
-                Erste Rechnung erstellen
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="invoice-cards">
-            {filteredAndSortedInvoices.map((invoice) => {
-              const config = statusConfig[invoice.status];
-              const StatusIcon = config.icon;
-              const isExpanded = expandedInvoice === invoice.id;
-              const isDue = isOverdue(invoice.dueDate) && invoice.status === 'sent';
-              
-              return (
-                <div 
-                  key={invoice.id} 
-                  className={`invoice-card ${isDue ? 'overdue' : ''} ${isExpanded ? 'expanded' : ''}`}
+      {/* Invoices Table */}
+      <div className="invoices-table-container">
+        <div className="table-wrapper">
+          <table className="invoices-table">
+            <thead>
+              <tr>
+                <th 
+                  className={`sortable ${sortBy === 'number' ? `sort-${sortOrder}` : ''}`}
+                  onClick={() => handleSort('number')}
                 >
-                  {/* Header */}
-                  <div className="invoice-header" onClick={() => toggleInvoiceExpansion(invoice.id)}>
-                    <div className="invoice-main-info">
-                      <div className="invoice-number">
-                        <h3>{invoice.invoiceNumber}</h3>
-                        <span className={`status-badge status-${invoice.status}`}>
-                          <StatusIcon className="icon icon--detail" />
-                          {config.label}
-                        </span>
-                      </div>
-                      
-                      <div className="invoice-description">
-                        <p>{invoice.description}</p>
-                        {userRole === 'admin' && (
-                          <small>Kunde-ID: {invoice.customerId}</small>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="invoice-amount-info">
-                      <div className="amount-display">
-                        <span className="total-amount">{formatCurrency(invoice.totalAmount)}</span>
-                        <span className="net-amount">Netto: {formatCurrency(invoice.amount)}</span>
-                      </div>
-                      
-                      <div className="date-info">
-                        <span className="created-date">
-                          <HiCalendar className="icon icon--detail" />
-                          {formatDate(invoice.createdAt)}
-                        </span>
-                        <span className={`due-date ${isDue ? 'overdue' : ''}`}>
-                          Fällig: {formatDate(invoice.dueDate)}
-                        </span>
-                      </div>
-                      
-                      <button className="expand-button">
-                        {isExpanded ? <HiChevronUp /> : <HiChevronDown />}
+                  Rechnungsnummer
+                </th>
+                <th>Kunde</th>
+                <th 
+                  className={`sortable ${sortBy === 'amount' ? `sort-${sortOrder}` : ''}`}
+                  onClick={() => handleSort('amount')}
+                >
+                  Betrag
+                </th>
+                <th>Status</th>
+                <th>Fälligkeitsdatum</th>
+                <th 
+                  className={`sortable ${sortBy === 'date' ? `sort-${sortOrder}` : ''}`}
+                  onClick={() => handleSort('date')}
+                >
+                  Erstellt
+                </th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedInvoices.map((invoice) => (
+                <tr key={invoice.id}>
+                  <td className="invoice-number" onClick={() => handleViewInvoice(invoice)}>
+                    {invoice.invoiceNumber}
+                  </td>
+                  <td>
+                    {/* TODO: Customer name from customerId */}
+                    Kunde #{invoice.customerId.substring(0, 8)}
+                  </td>
+                  <td className="amount">
+                    {formatCurrency(invoice.totalAmount)}
+                  </td>
+                  <td>
+                    <span className={getStatusClass(invoice.status)}>
+                      {getStatusLabel(invoice.status)}
+                    </span>
+                  </td>
+                  <td className={`due-date ${getDueDateClass(invoice.dueDate, invoice.status)}`}>
+                    {formatDate(invoice.dueDate)}
+                  </td>
+                  <td>{formatDate(invoice.createdAt)}</td>
+                  <td>
+                    <div className="table-actions">
+                      <button 
+                        className="action-btn view-btn"
+                        onClick={() => handleViewInvoice(invoice)}
+                        title="Anzeigen"
+                      >
+                        <HiEye />
                       </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Content */}
-                  {isExpanded && (
-                    <div className="invoice-details">
-                      {/* Rechnungsposten */}
-                      <div className="invoice-items">
-                        <h4>Rechnungsposten</h4>
-                        <div className="items-table">
-                          <div className="items-header">
-                            <span>Beschreibung</span>
-                            <span>Menge</span>
-                            <span>Einzelpreis</span>
-                            <span>Gesamt</span>
-                          </div>
-                          {invoice.items.map((item) => (
-                            <div key={item.id} className="item-row">
-                              <span className="item-description">{item.description}</span>
-                              <span className="item-quantity">{item.quantity}</span>
-                              <span className="item-price">{formatCurrency(item.unitPrice)}</span>
-                              <span className="item-total">{formatCurrency(item.totalPrice)}</span>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {/* Summen */}
-                        <div className="invoice-totals">
-                          <div className="total-row">
-                            <span>Nettobetrag:</span>
-                            <span>{formatCurrency(invoice.amount)}</span>
-                          </div>
-                          <div className="total-row">
-                            <span>MwSt. ({invoice.taxRate}%):</span>
-                            <span>{formatCurrency(invoice.taxAmount)}</span>
-                          </div>
-                          <div className="total-row final">
-                            <span>Gesamtbetrag:</span>
-                            <span>{formatCurrency(invoice.totalAmount)}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Zahlungsinformationen */}
-                      {invoice.status === 'paid' && invoice.paidDate && (
-                        <div className="payment-info">
-                          <h4>Zahlungsinformationen</h4>
-                          <div className="payment-details">
-                            <span className="payment-date">
-                              Bezahlt am: {formatDate(invoice.paidDate)}
-                            </span>
-                            {invoice.paymentMethod && (
-                              <span className="payment-method">
-                                Zahlungsart: {invoice.paymentMethod === 'bank_transfer' ? 'Überweisung' : 
-                                              invoice.paymentMethod === 'paypal' ? 'PayPal' : 
-                                              invoice.paymentMethod === 'stripe' ? 'Kreditkarte' : 'Bar'}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Notizen */}
-                      {invoice.notes && (
-                        <div className="invoice-notes">
-                          <h4>Notizen</h4>
-                          <p>{invoice.notes}</p>
-                        </div>
-                      )}
-
-                      {/* Aktionen */}
-                      <div className="invoice-actions">
+                      {userRole === 'admin' && (
                         <button 
-                          className="btn btn--secondary"
-                          onClick={() => handleViewInvoice(invoice.id)}
+                          className="action-btn edit-btn"
+                          onClick={() => handleEditInvoice(invoice)}
+                          title="Bearbeiten"
                         >
-                          <HiEye className="icon icon--btn" />
-                          Anzeigen
+                          <HiPencil />
                         </button>
-                        
+                      )}
+                      <button 
+                        className="action-btn pdf-btn"
+                        onClick={() => handleDownloadPDF(invoice)}
+                        title="PDF herunterladen"
+                      >
+                        <HiDocumentDownload />
+                      </button>
+                      {userRole === 'admin' && (
                         <button 
-                          className="btn btn--secondary"
-                          onClick={() => handleDownloadInvoice(invoice.id)}
+                          className="action-btn delete-btn"
+                          onClick={() => handleDeleteInvoice(invoice)}
+                          title="Löschen"
                         >
-                          <HiDownload className="icon icon--btn" />
-                          PDF
+                          <HiTrash />
                         </button>
-                        
-                        {userRole === 'kunde' && (invoice.status === 'sent' || invoice.status === 'overdue') && (
-                          <button 
-                            className="btn btn--primary"
-                            onClick={() => handlePayInvoice(invoice.id)}
-                          >
-                            <HiCreditCard className="icon icon--btn" />
-                            Jetzt bezahlen
-                          </button>
-                        )}
-                        
-                        {userRole === 'admin' && invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
-                          <button 
-                            className="btn btn--success"
-                            onClick={() => {
-                              if (onInvoiceUpdate) {
-                                onInvoiceUpdate({
-                                  ...invoice,
-                                  status: 'paid',
-                                  paidDate: new Date().toISOString(),
-                                  paymentMethod: 'bank_transfer'
-                                });
-                              }
-                            }}
-                          >
-                            <HiCheck className="icon icon--btn" />
-                            Als bezahlt markieren
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="invoices-pagination">
+          <div className="pagination-info">
+            Zeige {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} von {filteredInvoices.length} Einträgen
+          </div>
+          
+          <div className="pagination-controls">
+            <button 
+              className="page-btn"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Zurück
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            ))}
+            
+            <button 
+              className="page-btn"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Weiter
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default DashboardInvoices;
+export default Invoices;

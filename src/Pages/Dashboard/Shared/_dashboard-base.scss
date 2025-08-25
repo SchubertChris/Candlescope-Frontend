@@ -1,0 +1,241 @@
+// src/Pages/Dashboard/Shared/_dashboard-base.scss
+// PROFESSIONAL: Base Layout & Container Styles - Clean Foundation
+
+@use '../../../Styles/Base/_VARIABLES' as *;
+@use '../../../Styles/Base/_MIXINS' as *;
+
+// ===========================
+// DASHBOARD BASE LAYOUT
+// ===========================
+.dashboard-professional {
+  // Grid System für komplexe Layouts
+  &.grid-layout {
+    display: grid;
+    grid-template-areas:
+      "header header"
+      "nav main"
+      "nav main";
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto auto 1fr;
+    
+    @media (max-width: 768px) {
+      grid-template-areas:
+        "header"
+        "main"
+        "nav";
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr auto;
+    }
+    
+    .dashboard-professional__header {
+      grid-area: header;
+    }
+    
+    .dashboard-professional__nav {
+      grid-area: nav;
+    }
+    
+    .dashboard-professional__main {
+      grid-area: main;
+      margin-left: 0;
+    }
+  }
+  
+  // Fullscreen Modus
+  &.fullscreen {
+    .dashboard-professional__header,
+    .dashboard-professional__nav {
+      display: none;
+    }
+    
+    .dashboard-professional__main {
+      margin-left: 0;
+      padding-top: 0;
+    }
+  }
+  
+  // Compact Modus
+  &.compact {
+    .dashboard-professional__header {
+      padding: 0.5rem 0;
+      
+      .header-brand {
+        .brand-info p {
+          display: none;
+        }
+      }
+    }
+    
+    .dashboard-professional__main {
+      padding: 1rem 0;
+    }
+  }
+}
+
+// ===========================
+// CONTAINER SYSTEM
+// ===========================
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  &--xs {
+    max-width: 480px;
+  }
+  
+  &--sm {
+    max-width: 640px;
+  }
+  
+  &--md {
+    max-width: 768px;
+  }
+  
+  &--lg {
+    max-width: 1024px;
+  }
+  
+  &--xl {
+    max-width: 1280px;
+  }
+  
+  &--2xl {
+    max-width: 1400px;
+  }
+  
+  &--fluid {
+    max-width: none;
+  }
+  
+  @media (min-width: 640px) {
+    padding: 0 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    padding: 0 2rem;
+  }
+}
+
+// ===========================
+// RESPONSIVE GRID SYSTEM
+// ===========================
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.75rem;
+  
+  &--no-gutters {
+    margin: 0;
+    
+    .col {
+      padding: 0;
+    }
+  }
+}
+
+.col {
+  flex: 1;
+  padding: 0 0.75rem;
+  
+  // Column Sizes
+  @for $i from 1 through 12 {
+    &--#{$i} {
+      flex: 0 0 calc(#{$i} / 12 * 100%);
+      max-width: calc(#{$i} / 12 * 100%);
+    }
+  }
+  
+  // Responsive Columns
+  @media (min-width: 640px) {
+    @for $i from 1 through 12 {
+      &--sm-#{$i} {
+        flex: 0 0 calc(#{$i} / 12 * 100%);
+        max-width: calc(#{$i} / 12 * 100%);
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    @for $i from 1 through 12 {
+      &--md-#{$i} {
+        flex: 0 0 calc(#{$i} / 12 * 100%);
+        max-width: calc(#{$i} / 12 * 100%);
+      }
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    @for $i from 1 through 12 {
+      &--lg-#{$i} {
+        flex: 0 0 calc(#{$i} / 12 * 100%);
+        max-width: calc(#{$i} / 12 * 100%);
+      }
+    }
+  }
+}
+
+// ===========================
+// LAYOUT UTILITIES
+// ===========================
+.layout {
+  &--centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  &--sidebar-left {
+    display: flex;
+    
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+    }
+    
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      
+      .sidebar {
+        width: 100%;
+        order: 2;
+      }
+      
+      .main-content {
+        order: 1;
+      }
+    }
+  }
+  
+  &--two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  
+  &--three-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+}

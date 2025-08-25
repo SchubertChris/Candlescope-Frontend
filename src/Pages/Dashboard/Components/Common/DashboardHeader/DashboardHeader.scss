@@ -1,1 +1,438 @@
-// CODE VON COMPONENTS
+// src/Pages/Dashboard/Components/Common/DashboardHeader/DashboardHeader.scss
+// PROFESSIONAL: Header Styling für Dashboard - Aus Dashboard.scss extrahiert
+
+@use '../../../../../Styles/Base/_VARIABLES' as *;
+@use '../../../../../Styles/Base/_MIXINS' as *;
+
+// ===========================
+// DASHBOARD HEADER
+// ===========================
+.dashboard-professional__header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(20, 19, 29, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(162, 89, 255, 0.1);
+  padding: 1rem 0;
+  
+  @media (max-width: 768px) {
+    padding: 0.75rem 0;
+  }
+
+  // Header Container
+  .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    @media (max-width: 768px) {
+      padding: 0 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  }
+
+  // Header Brand Section
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 15px rgba(162, 89, 255, 0.3);
+      
+      @media (max-width: 768px) {
+        width: 40px;
+        height: 40px;
+      }
+    }
+    
+    .brand-info {
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--color-text-primary);
+        line-height: 1.2;
+        
+        @media (max-width: 768px) {
+          font-size: 1.25rem;
+        }
+      }
+      
+      p {
+        font-size: 0.875rem;
+        margin: 0;
+        color: var(--color-text-secondary);
+        opacity: 0.8;
+        
+        @media (max-width: 768px) {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  // Header User Section
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    
+    @media (max-width: 768px) {
+      gap: 1rem;
+      width: 100%;
+      justify-content: space-between;
+      order: 1;
+    }
+  }
+
+  // User Info Display
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .user-details {
+      text-align: right;
+      
+      @media (max-width: 768px) {
+        text-align: left;
+      }
+      
+      .user-name {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        line-height: 1.2;
+        
+        @media (max-width: 768px) {
+          font-size: 0.9rem;
+        }
+      }
+      
+      .user-role {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+        opacity: 0.8;
+      }
+    }
+    
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+      border: 2px solid rgba(162, 89, 255, 0.3);
+      
+      @media (max-width: 768px) {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  }
+
+  // Header Action Buttons
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .action-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+      padding: 0.75rem;
+      
+      .action-label {
+        display: none;
+      }
+    }
+    
+    // Notification Button
+    &.notification-btn {
+      .notification-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: var(--color-error);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 18px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+        animation: pulse-notification 2s infinite;
+      }
+    }
+    
+    // Logout Button
+    &.logout-btn {
+      color: var(--color-error);
+      border-color: rgba(239, 68, 68, 0.3);
+      
+      &:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+    }
+
+    // Settings Button
+    &.settings-btn {
+      &:hover {
+        .icon--action {
+          transform: rotate(45deg);
+        }
+      }
+    }
+
+    // Profile Button
+    &.profile-btn {
+      &:hover {
+        border-color: var(--color-primary);
+        background: rgba(162, 89, 255, 0.1);
+      }
+    }
+  }
+}
+
+// ===========================
+// HEADER ANIMATIONS
+// ===========================
+@keyframes pulse-notification {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes header-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Header Animation beim Laden
+.dashboard-professional__header {
+  animation: header-slide-down 0.5s ease-out;
+}
+
+// ===========================
+// RESPONSIVE BREAKPOINTS
+// ===========================
+
+// Tablet Landscape (768px - 1024px)
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-professional__header {
+    .header-container {
+      padding: 0 1.5rem;
+    }
+    
+    .header-brand {
+      .brand-info {
+        h1 {
+          font-size: 1.375rem;
+        }
+      }
+    }
+    
+    .action-btn {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Mobile Portrait (up to 480px)
+@media (max-width: 480px) {
+  .dashboard-professional__header {
+    .header-container {
+      padding: 0 0.75rem;
+    }
+    
+    .header-brand {
+      .brand-logo {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .brand-info {
+        h1 {
+          font-size: 1.125rem;
+        }
+        
+        p {
+          font-size: 0.75rem;
+        }
+      }
+    }
+    
+    .user-info {
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .user-details {
+        .user-name {
+          font-size: 0.85rem;
+        }
+        
+        .user-role {
+          font-size: 0.75rem;
+        }
+      }
+    }
+    
+    .action-btn {
+      padding: 0.625rem;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// ===========================
+// ACCESSIBILITY & PERFORMANCE
+// ===========================
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-professional__header {
+    animation: none;
+  }
+  
+  .action-btn,
+  .notification-badge {
+    animation: none;
+    transition: none;
+  }
+}
+
+// High Contrast
+@media (prefers-contrast: high) {
+  .dashboard-professional__header {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--color-primary);
+    
+    .action-btn {
+      border-width: 2px;
+    }
+    
+    .user-avatar {
+      border-width: 3px;
+    }
+  }
+}
+
+// Focus States für Accessibility
+.action-btn {
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ===========================
+// BROWSER-SPEZIFISCHE ANPASSUNGEN
+// ===========================
+
+// Safari-spezifische Fixes
+@supports (-webkit-backdrop-filter: blur(20px)) {
+  .dashboard-professional__header {
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  
+  .action-btn {
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+// Fallback für ältere Browser ohne backdrop-filter
+@supports not (backdrop-filter: blur(20px)) {
+  .dashboard-professional__header {
+    background: rgba(20, 19, 29, 0.98);
+  }
+  
+  .action-btn {
+    background: rgba(26, 12, 64, 0.7);
+  }
+}
+
+// ===========================
+// PERFORMANCE OPTIMIERUNGEN
+// ===========================
+
+// GPU-Beschleunigung für Animationen
+.action-btn,
+.brand-logo,
+.user-avatar,
+.notification-badge {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+// Touch-optimierte Interactions
+@media (hover: none) and (pointer: coarse) {
+  .action-btn {
+    &:hover {
+      transform: none;
+    }
+    
+    &:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+  }
+}

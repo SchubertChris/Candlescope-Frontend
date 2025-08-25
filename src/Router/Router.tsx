@@ -1,5 +1,5 @@
 // src/Router/Router.tsx
-// FIXED: Angepasste Import-Pfade für neue Dashboard-Struktur
+// UPDATED: Angepasst für neue Dashboard-Layout-Struktur
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { lazy, Suspense, type ReactNode } from 'react';
 
@@ -52,7 +52,7 @@ const KontaktPage = lazy(() =>
   })
 );
 
-// ✅ FIXED: Korrigierter Import-Pfad für Dashboard
+// ✅ DASHBOARD: Layout-Container (mit Outlet)
 const Dashboard = lazy(() => 
   import('../Pages/Dashboard/Dashboard').catch((err) => {
     console.error('Fehler beim Laden des Dashboards:', err);
@@ -75,6 +75,50 @@ const Dashboard = lazy(() =>
   })
 );
 
+// ✅ DASHBOARD PAGES: Einzelne Views
+const Overview = lazy(() => 
+  import('../Pages/Dashboard/Overview/Overview').catch(() => ({
+    default: () => <div>Fehler beim Laden der Übersicht</div>
+  }))
+);
+
+const Projects = lazy(() => 
+  import('../Pages/Dashboard/Projects/Projects').catch(() => ({
+    default: () => <div>Fehler beim Laden der Projekte</div>
+  }))
+);
+
+const Messages = lazy(() => 
+  import('../Pages/Dashboard/Messages/Messages').catch(() => ({
+    default: () => <div>Fehler beim Laden der Nachrichten</div>
+  }))
+);
+
+const Invoices = lazy(() => 
+  import('../Pages/Dashboard/Invoices/Invoices').catch(() => ({
+    default: () => <div>Fehler beim Laden der Rechnungen</div>
+  }))
+);
+
+const Newsletter = lazy(() => 
+  import('../Pages/Dashboard/Newsletter/Newsletter').catch(() => ({
+    default: () => <div>Fehler beim Laden des Newsletters</div>
+  }))
+);
+
+const Settings = lazy(() => 
+  import('../Pages/Dashboard/Settings/Settings').catch(() => ({
+    default: () => <div>Fehler beim Laden der Einstellungen</div>
+  }))
+);
+
+const Profile = lazy(() => 
+  import('../Pages/Dashboard/Profile/Profile').catch(() => ({
+    default: () => <div>Fehler beim Laden des Profils</div>
+  }))
+);
+
+// OAuth Pages
 const OAuthSuccess = lazy(() => 
   import('../Pages/OAuth/OAuthSuccess').catch(() => ({
     default: () => <div>OAuth Success - Fehler beim Laden</div>
@@ -125,7 +169,7 @@ const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   </Suspense>
 );
 
-// BEREINIGT: Route Konfiguration
+// ✅ NEUE ROUTE KONFIGURATION: Mit Dashboard Nested Routes
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -150,7 +194,7 @@ export const routes: RouteObject[] = [
     ],
   },
   
-  // Dashboard-Route (Protected)
+  // ✅ DASHBOARD-ROUTES: Nested Structure mit Layout
   {
     path: '/dashboard',
     element: (
@@ -160,6 +204,64 @@ export const routes: RouteObject[] = [
         </SuspenseWrapper>
       </ProtectedRoute>
     ),
+    children: [
+      {
+        index: true, // /dashboard -> Overview
+        element: (
+          <SuspenseWrapper>
+            <Overview />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'projects', // /dashboard/projects
+        element: (
+          <SuspenseWrapper>
+            <Projects />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'messages', // /dashboard/messages  
+        element: (
+          <SuspenseWrapper>
+            <Messages />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'invoices', // /dashboard/invoices
+        element: (
+          <SuspenseWrapper>
+            <Invoices />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'newsletter', // /dashboard/newsletter (nur Admin)
+        element: (
+          <SuspenseWrapper>
+            <Newsletter />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'settings', // /dashboard/settings
+        element: (
+          <SuspenseWrapper>
+            <Settings />
+          </SuspenseWrapper>
+        ),
+      },
+      {
+        path: 'profile', // /dashboard/profile
+        element: (
+          <SuspenseWrapper>
+            <Profile />
+          </SuspenseWrapper>
+        ),
+      },
+    ],
   },
   
   // OAuth-Callback-Routes

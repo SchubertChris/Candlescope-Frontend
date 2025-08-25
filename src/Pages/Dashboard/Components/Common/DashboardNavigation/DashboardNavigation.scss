@@ -1,0 +1,621 @@
+// src/Pages/Dashboard/Components/Common/DashboardNavigation/DashboardNavigation.scss
+// PROFESSIONAL: Navigation Styling für Dashboard - ERWEITERT aus Dashboard.scss
+
+@use '../../../../../Styles/Base/_VARIABLES' as *;
+@use '../../../../../Styles/Base/_MIXINS' as *;
+
+// ===========================
+// DASHBOARD NAVIGATION
+// ===========================
+.dashboard-professional__nav {
+  background: rgba(26, 12, 64, 0.4);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(162, 89, 255, 0.1);
+  padding: 0;
+  
+  @media (max-width: 768px) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border-top: 1px solid rgba(162, 89, 255, 0.1);
+    border-bottom: none;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  // Navigation Container
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    
+    @media (max-width: 768px) {
+      padding: 0.5rem 1rem;
+      justify-content: space-around;
+    }
+  }
+
+  // Navigation Items
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 0;
+    
+    &:hover {
+      color: var(--color-text-primary);
+      background: rgba(255, 255, 255, 0.05);
+      
+      .icon--nav {
+        color: var(--color-primary);
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 10px rgba(162, 89, 255, 0.5));
+      }
+    }
+    
+    &.active {
+      color: var(--color-primary);
+      background: rgba(162, 89, 255, 0.1);
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--color-primary);
+        box-shadow: 0 0 10px var(--color-primary);
+        
+        @media (max-width: 768px) {
+          bottom: auto;
+          top: 0;
+          height: 2px;
+        }
+      }
+      
+      .icon--nav {
+        color: var(--color-primary);
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 15px rgba(162, 89, 255, 0.7));
+      }
+    }
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.7rem;
+      min-width: 60px;
+      text-align: center;
+    }
+    
+    // Navigation Badge (Notifications)
+    .nav-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--color-error);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 8px;
+      min-width: 16px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+      animation: pulse-badge 2s infinite;
+      
+      @media (max-width: 768px) {
+        top: 4px;
+        right: 4px;
+      }
+    }
+
+    // Admin-only Navigation Items
+    &.admin-only {
+      position: relative;
+
+      &::before {
+        content: '👑';
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        font-size: 0.7rem;
+        opacity: 0.6;
+        
+        @media (max-width: 768px) {
+          top: 0.1rem;
+          right: 0.1rem;
+          font-size: 0.6rem;
+        }
+      }
+    }
+
+    // Kunde-only Restrictions
+    &.kunde-restricted {
+      opacity: 0.6;
+      cursor: not-allowed;
+      
+      &:hover {
+        color: var(--color-text-secondary);
+        background: transparent;
+        
+        .icon--nav {
+          transform: none;
+          filter: none;
+        }
+      }
+    }
+  }
+}
+
+// ===========================
+// MOBILE SIDEBAR NAVIGATION (Alternative Layout)
+// ===========================
+.dashboard-navigation-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+  padding: 2rem 0;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  transform: translateX(0);
+
+  // Hidden State (Mobile)
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+
+  // Sidebar Header
+  &__header {
+    padding: 0 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--color-primary);
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-decoration: none;
+
+      .brand-icon {
+        font-size: 2rem;
+        filter: drop-shadow(0 0 10px currentColor);
+      }
+
+      .brand-text {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+  }
+
+  // Sidebar Menu
+  &__menu {
+    list-style: none;
+    margin: 0;
+    padding: 0 1rem;
+  }
+
+  // Sidebar Navigation Items
+  &__item {
+    margin-bottom: 0.5rem;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid transparent;
+
+    // Icon
+    .nav-icon {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    // Text
+    .nav-text {
+      flex: 1;
+      font-size: 1rem;
+    }
+
+    // Badge for notifications
+    .nav-badge {
+      background: var(--color-primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 0.25rem 0.5rem;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+      animation: pulse-badge 2s infinite;
+    }
+
+    // States
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+
+      .nav-icon {
+        color: var(--color-primary);
+        filter: drop-shadow(0 0 10px currentColor);
+        transform: scale(1.1);
+      }
+    }
+
+    &.active {
+      background: linear-gradient(135deg, 
+        var(--color-primary) 0%, 
+        #8b5cf6 100%);
+      color: white;
+      border-color: var(--color-primary);
+      box-shadow: 
+        0 4px 15px rgba(162, 89, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+      .nav-icon {
+        color: white;
+        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+        transform: scale(1.1);
+      }
+    }
+
+    // Admin-only items
+    &.admin-only {
+      position: relative;
+
+      &::after {
+        content: '👑';
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.75rem;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  // Sidebar Footer
+  &__footer {
+    padding: 2rem 1.5rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-radius: 12px;
+      color: #ef4444;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      .logout-icon {
+        font-size: 1.25rem;
+      }
+
+      &:hover {
+        background: rgba(220, 38, 38, 0.1);
+        border-color: #ef4444;
+        transform: translateX(5px);
+
+        .logout-icon {
+          filter: drop-shadow(0 0 10px currentColor);
+        }
+      }
+    }
+  }
+}
+
+// ===========================
+// NAVIGATION OVERLAY & MOBILE CONTROLS
+// ===========================
+.nav-overlay {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+
+    &.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+}
+
+.mobile-menu-btn {
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 101;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(162, 89, 255, 0.2);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+  }
+}
+
+// ===========================
+// ANIMATIONS
+// ===========================
+@keyframes pulse-badge {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes nav-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(162, 89, 255, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(162, 89, 255, 0.8));
+  }
+}
+
+// Item Animation beim Laden
+.dashboard-navigation-sidebar__item,
+.dashboard-professional__nav .nav-item {
+  animation: slideIn 0.3s ease forwards;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+
+// Active Item Glow Effect
+.nav-item.active .icon--nav,
+.dashboard-navigation-sidebar__link.active .nav-icon {
+  animation: nav-glow 3s ease-in-out infinite;
+}
+
+// ===========================
+// SCROLLBAR STYLING
+// ===========================
+.dashboard-navigation-sidebar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+// ===========================
+// MAIN CONTENT OFFSET
+// ===========================
+.dashboard-professional__main {
+  transition: margin-left 0.3s ease;
+
+  // Wenn Sidebar aktiv ist
+  &.with-sidebar {
+    margin-left: 280px;
+    
+    @media (max-width: 768px) {
+      margin-left: 0;
+    }
+  }
+
+  // Standard Layout ohne Sidebar
+  &.standard-nav {
+    margin-left: 0;
+    
+    @media (max-width: 768px) {
+      padding-bottom: 80px; // Platz für Bottom Navigation
+    }
+  }
+}
+
+// ===========================
+// RESPONSIVE BREAKPOINTS
+// ===========================
+
+// Tablet Landscape (768px - 1024px)
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-professional__nav {
+    .nav-container {
+      padding: 0 1.5rem;
+    }
+    
+    .nav-item {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// Mobile Portrait (up to 480px)
+@media (max-width: 480px) {
+  .dashboard-professional__nav {
+    .nav-container {
+      padding: 0.5rem 0.75rem;
+    }
+    
+    .nav-item {
+      padding: 0.625rem 0.375rem;
+      font-size: 0.65rem;
+      min-width: 50px;
+      
+      .nav-badge {
+        font-size: 0.55rem;
+        padding: 1px 4px;
+        min-width: 14px;
+      }
+    }
+  }
+  
+  .mobile-menu-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.375rem;
+  }
+}
+
+// ===========================
+// ACCESSIBILITY & PERFORMANCE
+// ===========================
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .nav-item,
+  .dashboard-navigation-sidebar__link,
+  .nav-badge,
+  .nav-icon {
+    animation: none;
+    transition: none;
+  }
+}
+
+// High Contrast
+@media (prefers-contrast: high) {
+  .dashboard-professional__nav,
+  .dashboard-navigation-sidebar {
+    border-color: var(--color-primary);
+    border-width: 2px;
+  }
+  
+  .nav-item.active,
+  .dashboard-navigation-sidebar__link.active {
+    border: 2px solid var(--color-primary);
+  }
+}
+
+// Focus States für Accessibility
+.nav-item,
+.dashboard-navigation-sidebar__link,
+.mobile-menu-btn {
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ===========================
+// PERFORMANCE OPTIMIERUNGEN
+// ===========================
+
+// GPU-Beschleunigung für Animationen
+.nav-item,
+.dashboard-navigation-sidebar__link,
+.nav-badge,
+.nav-icon {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+// Touch-optimierte Interactions
+@media (hover: none) and (pointer: coarse) {
+  .nav-item,
+  .dashboard-navigation-sidebar__link {
+    &:hover {
+      transform: none;
+    }
+    
+    &:active {
+      transform: scale(0.95);
+      transition: transform 0.1s ease;
+    }
+  }
+}
