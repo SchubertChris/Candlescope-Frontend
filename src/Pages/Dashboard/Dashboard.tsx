@@ -20,7 +20,14 @@ import Invoices from './Invoices/Invoices';
 import Newsletter from './Newsletter/Newsletter';
 
 // Types
-import { User, DashboardView, canUserAccessView } from './Types/DashboardTypes';
+import { 
+  User, 
+  DashboardView, 
+  canUserAccessView,
+  Project,
+  Message,
+  Invoice
+} from './Types/DashboardTypes';
 
 import './Dashboard.scss';
 
@@ -30,6 +37,73 @@ const Dashboard: React.FC = () => {
   const [activeView, setActiveView] = useState<DashboardView>('overview');
   const [error, setError] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<number>(3); // Mock
+
+  // ✅ MOCK-DATEN für das Dashboard
+  const [mockProjects] = useState<Project[]>([
+    {
+      id: '1',
+      name: 'Portfolio Website',
+      description: 'Neue Portfolio-Website für Kunde',
+      type: 'website',
+      status: 'inProgress',
+      priority: 'high',
+      assignedAdmin: 'admin1',
+      customerId: 'client1',
+      deadline: '2024-02-15T23:59:59Z',
+      createdAt: '2024-01-15T10:00:00Z',
+      updatedAt: '2024-01-20T14:30:00Z',
+      messagesCount: 3,
+      filesCount: 5,
+      isActive: true,
+      tags: ['React', 'TypeScript', 'SCSS']
+    }
+  ]);
+
+  const [mockMessages] = useState<Message[]>([
+    {
+      id: '1',
+      projectId: '1',
+      senderId: 'client1',
+      senderName: 'Max Mustermann',
+      senderRole: 'kunde',
+      content: 'Können wir das Logo noch anpassen?',
+      timestamp: '2024-01-20T09:30:00Z',
+      isRead: false,
+      hasAttachment: false,
+      customerId: 'client1',
+      attachments: []
+    }
+  ]);
+
+  const [mockInvoices] = useState<Invoice[]>([
+    {
+      id: '1',
+      invoiceNumber: 'INV-2024-001',
+      customerId: 'client1',
+      adminId: 'admin1',
+      projectId: '1',
+      status: 'sent',
+      amount: 1500,
+      currency: 'EUR',
+      taxRate: 19,
+      taxAmount: 285,
+      totalAmount: 1785,
+      dueDate: '2024-02-19T23:59:59Z',
+      description: 'Frontend Entwicklung Portfolio',
+      items: [
+        {
+          id: 'item1',
+          description: 'Frontend Entwicklung',
+          quantity: 25,
+          unitPrice: 70,
+          totalPrice: 1750
+        }
+      ],
+      createdAt: '2024-01-20T00:00:00Z',
+      updatedAt: '2024-01-20T00:00:00Z',
+      paymentMethod: 'bank_transfer'
+    }
+  ]);
 
   const navigate = useNavigate();
 
@@ -50,8 +124,20 @@ const Dashboard: React.FC = () => {
           return;
         }
         
-        console.log('✅ User data loaded:', currentUser.email, currentUser.role);
-        setUserData(currentUser);
+        // ✅ FIXED: User-Daten an Dashboard-Format anpassen
+        const dashboardUser: User = {
+          id: currentUser.id,
+          email: currentUser.email,
+          role: 'admin', // Default für jetzt - später aus Backend
+          firstName: currentUser.name?.split(' ')[0],
+          lastName: currentUser.name?.split(' ')[1],
+          avatar: currentUser.avatar,
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        };
+        
+        console.log('✅ User data loaded:', dashboardUser.email, dashboardUser.role);
+        setUserData(dashboardUser);
         setIsLoading(false);
 
         console.log('✅ DASHBOARD INITIALIZATION COMPLETED');
@@ -64,6 +150,37 @@ const Dashboard: React.FC = () => {
 
     initializeDashboard();
   }, [navigate]);
+
+  // Event Handlers
+  const handleProjectUpdate = (project: Project) => {
+    console.log('📋 PROJECT UPDATE:', project.id, project);
+    // Hier würde normalerweise eine API-Anfrage gemacht
+  };
+
+  const handleMessageRead = (messageId: string) => {
+    console.log('📩 MESSAGE READ:', messageId);
+    // Hier würde normalerweise eine API-Anfrage gemacht
+  };
+
+  const handleSendMessage = (projectId: string, content: string) => {
+    console.log('📤 SEND MESSAGE:', projectId, content);
+    // Hier würde normalerweise eine API-Anfrage gemacht
+  };
+
+  const handleInvoiceUpdate = (invoice: Invoice) => {
+    console.log('🧾 INVOICE UPDATE:', invoice.id, invoice);
+    // Hier würde normalerweise eine API-Anfrage gemacht
+  };
+
+  const handlePayInvoice = (invoiceId: string) => {
+    console.log('💳 PAY INVOICE:', invoiceId);
+    // Hier würde normalerweise eine API-Anfrage gemacht
+  };
+
+  const handleCreateInvoice = () => {
+    console.log('📄 CREATE INVOICE');
+    // Hier würde normalerweise ein Modal geöffnet oder zur Erstellungsseite navigiert
+  };
 
   // View Change Handler
   const handleViewChange = (view: DashboardView) => {
@@ -141,11 +258,43 @@ const Dashboard: React.FC = () => {
       <main className="dashboard-professional__main">
         <div className="main-container">
           
-          {/* ✅ EINFACHE View-Rendering ohne komplexe Props */}
-          {activeView === 'overview' && <Overview />}
-          {activeView === 'projects' && <Projects />}
-          {activeView === 'messages' && <Messages />}
-          {activeView === 'invoices' && <Invoices />}
+          {/* ✅ ERWEITERTE View-Rendering mit korrekten Props */}
+          {activeView === 'overview' && (
+            <Overview 
+              projects={mockProjects}
+              messages={mockMessages}
+              notifications={notifications}
+              onViewChange={handleViewChange}
+            />
+          )}
+          
+          {activeView === 'projects' && (
+            <Projects 
+              projects={mockProjects}
+              userRole={userData.role}
+              onProjectUpdate={handleProjectUpdate}
+            />
+          )}
+          
+          {activeView === 'messages' && (
+            <Messages 
+              messages={mockMessages}
+              projects={mockProjects}
+              onMessageRead={handleMessageRead}
+              onSendMessage={handleSendMessage}
+            />
+          )}
+          
+          {activeView === 'invoices' && (
+            <Invoices 
+              invoices={mockInvoices}
+              userRole={userData.role}
+              onInvoiceUpdate={handleInvoiceUpdate}
+              onCreateInvoice={handleCreateInvoice}
+              onPayInvoice={handlePayInvoice}
+            />
+          )}
+          
           {activeView === 'settings' && <Settings />}
           {activeView === 'profile' && <Profile />}
           
