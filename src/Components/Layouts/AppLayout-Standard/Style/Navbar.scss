@@ -55,11 +55,11 @@
     &::after {
       content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
       transform: translate(-50%, -50%);
-      width: 150%;
-      height: 150%;
+      inline-size: 150%;
+      block-size: 150%;
       background: radial-gradient(
         circle,
         var(--color-primary) 0%,
@@ -83,13 +83,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  inline-size: 48px;
+  block-size: 48px;
   position: fixed;
-  top: 5.5rem !important;
-  top: calc(1rem + env(safe-area-inset-top));
-  right: 3rem !important;
-  right: calc(1rem + env(safe-area-inset-right));
+  inset-block-start: 5.5rem !important;
+  inset-block-start: calc(1rem + env(safe-area-inset-top));
+  inset-inline-end: 3rem !important;
+  inset-inline-end: calc(1rem + env(safe-area-inset-right));
   z-index: 1002;
   background: rgba(20, 19, 29, 0.8);
   backdrop-filter: blur(10px);
@@ -98,33 +98,33 @@
   border-radius: 50%;
 
   .hamburger {
-    width: 24px;
-    height: 20px;
+    inline-size: 24px;
+    block-size: 20px;
     position: relative;
     @include icon-glow-effect; // NEU: Icon Glow Effekt
 
     &__line {
       display: block;
       position: absolute;
-      height: 2px;
-      width: 100%;
+      block-size: 2px;
+      inline-size: 100%;
       background: var(--color-primary);
       border-radius: 2px;
       opacity: 1;
-      left: 0;
+      inset-inline-start: 0;
       transform: rotate(0deg);
       transition: all 0.25s ease;
 
       &:nth-child(1) {
-        top: 0;
+        inset-block-start: 0;
       }
 
       &:nth-child(2) {
-        top: 9px;
+        inset-block-start: 9px;
       }
 
       &:nth-child(3) {
-        top: 18px;
+        inset-block-start: 18px;
       }
     }
   }
@@ -141,17 +141,17 @@
 
     .hamburger__line {
       &:nth-child(1) {
-        top: 9px;
+        inset-block-start: 9px;
         transform: rotate(135deg);
       }
 
       &:nth-child(2) {
         opacity: 0;
-        left: -60px;
+        inset-inline-start: -60px;
       }
 
       &:nth-child(3) {
-        top: 9px;
+        inset-block-start: 9px;
         transform: rotate(-135deg);
       }
     }
@@ -160,11 +160,11 @@
 
 .navbar-mobile {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  min-height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100vw;
+  min-block-size: 100vh;
+  block-size: calc(var(--vh, 1vh) * 100);
   background: rgba(3, 0, 21, 0.2);
   backdrop-filter: blur(20px);
   opacity: 0;
@@ -173,7 +173,7 @@
   z-index: 1000;
 
   @supports (-webkit-touch-callout: none) {
-    height: -webkit-fill-available;
+    block-size: -webkit-fill-available;
   }
 
   &.active {
@@ -194,17 +194,17 @@
     position: absolute;
     background-color: rgba(0, 0, 0, 0.61);
     backdrop-filter: blur(5px) saturate(150%);
-    right: 0;
-    top: 0rem;
-    min-height: 100vh;
-    height: calc(var(--vh, 1vh) * 100);
-    width: 100%;
+    inset-inline-end: 0;
+    inset-block-start: 0rem;
+    min-block-size: 100vh;
+    block-size: calc(var(--vh, 1vh) * 100);
+    inline-size: 100%;
     transform: translateX(100%);
     transition: transform 0.3s ease;
     overflow-y: auto; // KORRIGIERT: Immer scrollbar
     -webkit-overflow-scrolling: touch;
-    border-left: 1px solid var(--color-glow);
-    border-right: 2px solid var(--color-glow);
+    border-inline-start: 1px solid var(--color-glow);
+    border-inline-end: 2px solid var(--color-glow);
     box-shadow: 0 0 40px rgba(162, 89, 255, 0.3);
     
     // GEÄNDERT: Flexbox-Layout für adaptive Anordnung
@@ -214,37 +214,37 @@
     
     // KORRIGIERT: Responsive Padding ohne feste Bottom-Navigation
     padding: 2rem 1rem 3rem 1rem;
-    padding-top: calc(2rem + env(safe-area-inset-top));
-    padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+    padding-block-start: calc(2rem + env(safe-area-inset-top));
+    padding-block-end: calc(3rem + env(safe-area-inset-bottom));
 
     @supports (-webkit-touch-callout: none) {
-      height: -webkit-fill-available;
+      block-size: -webkit-fill-available;
     }
 
     @include breakpoint("lg") {
-      max-width: 400px;
+      max-inline-size: 400px;
     }
   }
 
   &__header {
     position: relative;
-    margin-bottom: 2rem;
-    margin-top: 1rem;
+    margin-block-end: 2rem;
+    margin-block-start: 1rem;
     flex-shrink: 0; // NEU: Header soll nicht schrumpfen
   }
 
   &__logo {
-    height: 60px;
-    width: auto;
+    block-size: 60px;
+    inline-size: auto;
     filter: drop-shadow(0 0 20px rgba(162, 89, 255, 0.5));
   }
 
   &__logo-glow {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 150%;
-    height: 150%;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    inline-size: 150%;
+    block-size: 150%;
     background: radial-gradient(
       circle,
       var(--color-primary) 0%,
@@ -257,25 +257,25 @@
   }
 
   &__login {
-    width: 100%;
-    max-width: 320px;
-    margin-bottom: 2rem; // REDUZIERT: Von 3rem auf 2rem
+    inline-size: 100%;
+    max-inline-size: 320px;
+    margin-block-end: 2rem; // REDUZIERT: Von 3rem auf 2rem
     flex-shrink: 0; // NEU: Login-Bereich soll nicht schrumpfen
     z-index: 1;
   }
 
   // HINZUGEFÜGT: Spacer zwischen Login und Navigation
   &__spacer {
-    height: 2rem;
+    block-size: 2rem;
     flex-shrink: 0;
     
     // RESPONSIVE: Mehr Platz bei mittleren Bildschirmgrößen
-    @media (min-height: 600px) and (max-height: 800px) {
-      height: 3rem;
+    @media (min-block-size: 600px) and (max-block-size: 800px) {
+      block-size: 3rem;
     }
     
-    @media (min-height: 500px) and (max-height: 600px) {
-      height: 1rem;
+    @media (min-block-size: 500px) and (max-block-size: 600px) {
+      block-size: 1rem;
     }
   }
 
@@ -290,7 +290,7 @@
   }
 
   &__input {
-    width: 100%;
+    inline-size: 100%;
     padding: 1rem 1.25rem;
     background: rgba(26, 12, 64, 0.4);
     border: 1px solid rgba(162, 89, 255, 0.2);
@@ -333,8 +333,8 @@
 
   &__password-toggle {
     position: absolute;
-    right: 1rem;
-    top: 50%;
+    inset-inline-end: 1rem;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
@@ -356,8 +356,8 @@
   &__submit {
     @include button-style("primary", "lg");
     @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
-    width: 100%;
-    margin-top: 0.5rem;
+    inline-size: 100%;
+    margin-block-start: 0.5rem;
     position: relative;
     overflow: hidden;
 
@@ -370,10 +370,10 @@
     &::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
+      inset-block-start: 0;
+      inset-inline-start: -100%;
+      inline-size: 100%;
+      block-size: 100%;
       background: linear-gradient(
         90deg,
         transparent,
@@ -384,7 +384,7 @@
     }
 
     &:hover::before {
-      left: 100%;
+      inset-inline-start: 100%;
     }
 
     &:disabled {
@@ -401,13 +401,13 @@
 
   &__spinner {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
     transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
+    inline-size: 20px;
+    block-size: 20px;
     border: 2px solid transparent;
-    border-top-color: var(--color-text-primary);
+    border-block-start-color: var(--color-text-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -430,10 +430,10 @@
     &::before {
       content: "";
       position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
+      inset-block-start: 50%;
+      inset-inline-start: 0;
+      inset-inline-end: 0;
+      block-size: 1px;
       background: linear-gradient(
         90deg,
         transparent,
@@ -466,8 +466,8 @@
     position: relative; // NEU: Für Icon-Positionierung
 
     svg {
-      width: 20px;
-      height: 20px;
+      inline-size: 20px;
+      block-size: 20px;
       @include icon-glow-effect; // NEU: Icon Glow Effekt
       position: relative; // NEU: Für ::after Pseudo-Element
     }
@@ -529,10 +529,10 @@
 
   // HINZUGEFÜGT: OAuth-Spinner für Buttons
   &__oauth-spinner {
-    width: 20px;
-    height: 20px;
+    inline-size: 20px;
+    block-size: 20px;
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-top-color: currentColor;
+    border-block-start-color: currentColor;
     border-radius: 50%;
     display: inline-block;
   }
@@ -542,8 +542,8 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    width: 100%;
-    max-width: 320px;
+    inline-size: 100%;
+    max-inline-size: 320px;
     z-index: 1;
     display: flex;
     flex-direction: column;
@@ -551,19 +551,19 @@
     
     // ENTFERNT: Absolute Positionierung für bessere Responsivität
     // position: absolute;
-    // bottom: 8%;
+    // inset-block-end: 8%;
     
     // NEU: Adaptive Margins für verschiedene Bildschirmgrößen
-    margin-top: auto; // Schiebt Navigation nach unten, aber ohne Überlappung
-    margin-bottom: 1rem;
+    margin-block-start: auto; // Schiebt Navigation nach unten, aber ohne Überlappung
+    margin-block-end: 1rem;
     
     // RESPONSIVE: Anpassungen für verschiedene Bildschirmhöhen
-    @media (min-height: 700px) {
-      margin-top: 2rem; // Mehr Abstand bei großen Bildschirmen
+    @media (min-block-size: 700px) {
+      margin-block-start: 2rem; // Mehr Abstand bei großen Bildschirmen
     }
     
-    @media (max-height: 600px) {
-      margin-top: 1rem; // Weniger Abstand bei kleinen Bildschirmen
+    @media (max-block-size: 600px) {
+      margin-block-start: 1rem; // Weniger Abstand bei kleinen Bildschirmen
     }
 
     transition: all 0.3s ease-out;
@@ -572,11 +572,11 @@
       opacity: 0;
       transform: translateX(50px);
       transition: all 0.3s ease;
-      margin-bottom: 1rem;
+      margin-block-end: 1rem;
       
       // RESPONSIVE: Kleinere Margins bei wenig Platz
-      @media (max-height: 600px) {
-        margin-bottom: 0.75rem;
+      @media (max-block-size: 600px) {
+        margin-block-end: 0.75rem;
       }
     }
   }
@@ -584,7 +584,7 @@
   &__link {
     @include button-style("ghost", "lg");
     @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
-    width: 100%;
+    inline-size: 100%;
     justify-content: flex-start;
     padding: 1rem 1.5rem;
     font-size: 1.125rem;
@@ -593,22 +593,22 @@
     transition: all 0.3s ease-out;
     
     // RESPONSIVE: Kleineres Padding bei wenig Platz
-    @media (max-height: 600px) {
+    @media (max-block-size: 600px) {
       padding: 0.75rem 1.25rem;
       font-size: 1rem;
     }
 
     .navbar-icon {
-      margin-right: 1rem;
+      margin-inline-end: 1rem;
       transition: all 0.3s ease-out;
       font-size: 1.5rem;
       @include icon-glow-effect; // NEU: Icon Glow Effekt
       position: relative; // NEU: Für ::after Pseudo-Element
       
       // RESPONSIVE: Kleinere Icons bei wenig Platz
-      @media (max-height: 600px) {
+      @media (max-block-size: 600px) {
         font-size: 1.25rem;
-        margin-right: 0.75rem;
+        margin-inline-end: 0.75rem;
       }
     }
 
@@ -635,10 +635,10 @@
     &::before {
       content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      inline-size: 0;
+      block-size: 0;
       border-radius: 50%;
       background: rgba(162, 89, 255, 0.3);
       transform: translate(-50%, -50%);
@@ -646,18 +646,18 @@
     }
 
     &:active::before {
-      width: 300px;
-      height: 300px;
+      inline-size: 300px;
+      block-size: 300px;
     }
   }
 
   &__active-dot {
     position: absolute;
-    right: 1.5rem;
-    top: 45%;
+    inset-inline-end: 1.5rem;
+    inset-block-start: 45%;
     transform: translateY(-50%) scale(0);
-    width: 8px;
-    height: 8px;
+    inline-size: 8px;
+    block-size: 8px;
     background: var(--color-primary);
     border-radius: 50%;
     opacity: 0;
@@ -667,11 +667,11 @@
     &::before {
       content: "";
       position: absolute;
-      top: -70%;
-      left: -70%;
+      inset-block-start: -70%;
+      inset-inline-start: -70%;
       transform: translate(-50%, -50%);
-      width: 20px;
-      height: 20px;
+      inline-size: 20px;
+      block-size: 20px;
       border: 2px solid var(--color-primary);
       border-radius: 50%;
       animation: pulse 2s infinite; // NEU: Pulsierender Effekt
@@ -734,6 +734,7 @@
   }
 }
 
+
 // =============================================================================
 // FEEDBACK & INFO MESSAGES
 // =============================================================================
@@ -744,7 +745,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   border-radius: var(--border-radius-lg);
   backdrop-filter: blur(10px);
   border: 1px solid;
@@ -771,11 +772,11 @@
 
   &-icon {
     flex-shrink: 0;
-    margin-top: 0.125rem;
+    margin-block-start: 0.125rem;
 
     svg {
-      width: 18px;
-      height: 18px;
+      inline-size: 18px;
+      block-size: 18px;
     }
   }
 
@@ -790,7 +791,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   background: rgba(162, 89, 255, 0.1);
   border: 1px solid rgba(162, 89, 255, 0.3);
   border-radius: var(--border-radius-lg);
@@ -801,9 +802,9 @@
 
   svg {
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin-top: 0.125rem;
+    inline-size: 18px;
+    block-size: 18px;
+    margin-block-start: 0.125rem;
     color: var(--color-primary);
   }
 
@@ -818,7 +819,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: var(--border-radius-lg);
@@ -830,9 +831,9 @@
 // Toggle Mode Button Styling erweitert
 .navbar-mobile__toggle-mode {
   @include reset-button;
-  width: 100%;
+  inline-size: 100%;
   padding: 0.75rem;
-  margin-top: 1rem;
+  margin-block-start: 1rem;
   background: rgba(26, 12, 64, 0.2);
   border: 1px solid rgba(162, 89, 255, 0.2);
   border-radius: var(--border-radius-lg);
@@ -858,7 +859,7 @@
   border: 1px solid rgba(162, 89, 255, 0.4);
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   backdrop-filter: blur(15px);
   animation: slideIn 0.3s ease-out;
 
@@ -866,12 +867,12 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 1rem;
+    margin-block-end: 1rem;
     color: var(--color-primary);
 
     svg {
-      width: 24px;
-      height: 24px;
+      inline-size: 24px;
+      block-size: 24px;
       filter: drop-shadow(0 0 8px var(--color-primary));
     }
 
@@ -884,7 +885,7 @@
   }
 
   &-content {
-    margin-bottom: 1.5rem;
+    margin-block-end: 1.5rem;
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.875rem;
     line-height: 1.5;
@@ -893,7 +894,7 @@
       margin: 0 0 0.75rem;
 
       &:last-child {
-        margin-bottom: 0;
+        margin-block-end: 0;
       }
     }
 
@@ -949,8 +950,8 @@
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    inline-size: 18px;
+    block-size: 18px;
   }
 }
 
@@ -1001,7 +1002,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
   background: rgba(59, 130, 246, 0.15);
   border: 1px solid rgba(59, 130, 246, 0.3);
   border-radius: var(--border-radius-lg);
@@ -1013,13 +1014,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    inline-size: 40px;
+    block-size: 40px;
     flex-shrink: 0;
 
     svg {
-      width: 24px;
-      height: 24px;
+      inline-size: 24px;
+      block-size: 24px;
       color: white;
       z-index: 2;
     }
@@ -1027,12 +1028,12 @@
 
   &-spinner {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 40px;
+    block-size: 40px;
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-top: 2px solid white;
+    border-block-start: 2px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -1100,7 +1101,7 @@
   
   .navbar-mobile__loading-spinner {
     border-color: rgba(255, 255, 255, 0.2) !important;
-    border-top-color: white !important;
+    border-block-start-color: white !important;
   }
 }
 
@@ -1116,20 +1117,20 @@
     }
     
     &__header {
-      margin-bottom: 1rem;
-      margin-top: 0.5rem;
+      margin-block-end: 1rem;
+      margin-block-start: 0.5rem;
     }
     
     &__logo {
-      height: 50px;
+      block-size: 50px;
     }
     
     &__login {
-      margin-bottom: 1rem;
+      margin-block-end: 1rem;
     }
     
     &__links li {
-      margin-bottom: 0.5rem;
+      margin-block-end: 0.5rem;
     }
     
     &__link {
@@ -1138,7 +1139,7 @@
       
       .navbar-icon {
         font-size: 1rem;
-        margin-right: 0.5rem;
+        margin-inline-end: 0.5rem;
       }
     }
   }
@@ -1148,11 +1149,11 @@
 @media (min-height: 500px) and (max-height: 700px) {
   .navbar-mobile {
     &__spacer {
-      height: 1.5rem;
+      block-size: 1.5rem;
     }
     
     &__links {
-      margin-top: 1.5rem;
+      margin-block-start: 1.5rem;
     }
   }
 }
@@ -1165,24 +1166,24 @@
     }
     
     &__header {
-      margin-bottom: 2.5rem;
-      margin-top: 1.5rem;
+      margin-block-end: 2.5rem;
+      margin-block-start: 1.5rem;
     }
     
     &__login {
-      margin-bottom: 3rem;
+      margin-block-end: 3rem;
     }
     
     &__spacer {
-      height: 3rem;
+      block-size: 3rem;
     }
     
     &__links {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
+      margin-block-start: 2rem;
+      margin-block-end: 2rem;
       
       li {
-        margin-bottom: 1.25rem;
+        margin-block-end: 1.25rem;
       }
     }
   }
