@@ -2,7 +2,7 @@
 // KORRIGIERT: sender → senderId, Role-System angepasst
 import React from 'react';
 import { HiUserCircle, HiDocument, HiFolder } from 'react-icons/hi';
-import { Message, Project } from '../Types/DashboardTypes';
+import { Message, Project } from '@/Pages/Dashboard/Types/DashboardTypes';
 
 interface MessageCardProps {
   message: Message;
@@ -65,4 +65,5 @@ const MessageCard: React.FC<MessageCardProps> = ({
   );
 };
 
+// Am Ende der MessageCard.tsx:
 export default MessageCard;

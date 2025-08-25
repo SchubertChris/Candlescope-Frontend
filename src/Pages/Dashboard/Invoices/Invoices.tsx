@@ -20,7 +20,7 @@ import {
   HiCalendar,
   HiCurrencyEuro
 } from 'react-icons/hi';
-import { DashboardInvoicesProps, Invoice, InvoiceStatus, formatCurrency, formatDate } from '../../Types/DashboardTypes';
+import { DashboardInvoicesProps, Invoice, InvoiceStatus, formatCurrency, formatDate } from '@/Pages/Dashboard/Types/DashboardTypes';
 
 const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({
   invoices,

@@ -36,7 +36,7 @@ import {
 import newsletterService from '@/Services/Newsletter-Service';
 
 // Styles
-import './DashboardNewsletter.scss';
+import './Newsletter.scss';
 
 const DashboardNewsletter: React.FC<NewsletterDashboardProps> = ({ 
   userRole,
