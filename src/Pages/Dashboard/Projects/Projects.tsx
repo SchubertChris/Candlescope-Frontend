@@ -2,8 +2,8 @@
 // KORRIGIERT: Syntax-Fehler behoben
 import React from 'react';
 import { HiPlus } from 'react-icons/hi';
-import { DashboardProjectsProps } from '@pages/dashboard/Types/DashboardTypes';
-import ProjectCard from '@pages/dashboard/Components/Cards/ProjectCard/ProjectCard';
+import { DashboardProjectsProps } from '@/Pages/Dashboard/Types/DashboardTypes';
+import ProjectCard from '../Components/Cards/ProjectCard/ProjectCard';
 
 const DashboardProjects: React.FC<DashboardProjectsProps> = ({
   projects,

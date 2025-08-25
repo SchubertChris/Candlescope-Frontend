@@ -3,7 +3,7 @@
 import React from 'react';
 import { HiPlus } from 'react-icons/hi';
 import { DashboardMessagesProps } from '@/Pages/Dashboard/Types/DashboardTypes';
-import MessageCard from '@pages/dashboard/Components/Cards/MessageCard/MessageCard';
+import MessageCard from '@/Pages/Dashboard/Components/Cards/MessageCard/MessageCard';
 
 // ERWEITERT: Component Props um onSendMessage erweitert
 const DashboardMessages: React.FC<DashboardMessagesProps> = ({

@@ -14,7 +14,7 @@ import {
   HiChatAlt2,
   HiEye
 } from 'react-icons/hi';
-import { Project, ProjectType } from '../Types/DashboardTypes';
+import { Project, ProjectType } from '@/Pages/Dashboard/Types/DashboardTypes';
 
 interface ProjectCardProps {
   project: Project;

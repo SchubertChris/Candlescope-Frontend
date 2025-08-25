@@ -30,7 +30,7 @@ import {
   TemplateFilters,
   CreateTemplateForm,
   NewsletterDashboardProps
-} from '../../Types/DashboardTypes';
+} from '@/Pages/Dashboard/Types/DashboardTypes';
 
 // Services (werden später implementiert)
 import newsletterService from '@/Services/Newsletter-Service';
