@@ -19,13 +19,14 @@ import {
   HiTrash,
   HiDownload,
   HiUpload,
-  HiExclamationTriangle,
+  HiExclamationCircle,
   HiCheckCircle,
   HiRefresh
 } from 'react-icons/hi';
 import { useDashboard } from '../Context/DashboardContext';
 import { Project, ProjectStatus, ProjectPriority, ProjectType } from '../Types/DashboardTypes';
 import './Projects.scss';
+import { HiExclamationTriangle } from 'react-icons/hi2';
 
 type ViewMode = 'grid' | 'list';
 type SortField = 'name' | 'status' | 'priority' | 'deadline' | 'createdAt';

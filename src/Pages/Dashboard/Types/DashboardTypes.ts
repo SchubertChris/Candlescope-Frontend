@@ -444,24 +444,4 @@ export const formatInvoiceNumber = (number: string, prefix: string = 'INV'): str
 };
 
 // Export aller Types
-export type {
-  DashboardView,
-  UserRole,
-  ProjectType,
-  ProjectStatus,
-  ProjectPriority,
-  MessageSenderRole,
-  InvoiceStatus,
-  PaymentMethod,
-  User,
-  Project,
-  Message,
-  Invoice,
-  InvoiceItem,
-  MessageAttachment,
-  ProjectFile,
-  DashboardViewPermissions,
-  DashboardState,
-  DashboardAction,
-  InvoiceService
-};
+// (Alle Typen und Interfaces werden bereits oben exportiert)

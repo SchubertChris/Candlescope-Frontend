@@ -14,13 +14,14 @@ import {
   HiPhone,
   HiOfficeBuilding,
   HiKey,
-  HiExclamationTriangle
+  HiExclamationCircle
 } from 'react-icons/hi';
 import { useDashboard } from '../Context/DashboardContext';
 import './Profile.scss';
 
 // Import Types
 import { DashboardProfileProps } from '../Types/DashboardTypes';
+import { HiExclamationTriangle } from 'react-icons/hi2';
 
 interface MenuSection {
   title: string;
@@ -87,7 +88,9 @@ const Profile: React.FC = () => {
           // TODO: Account löschen mit Bestätigung
           break;
         case 'logout':
-          onLogout();
+          if (onLogout) {
+            onLogout();
+          }
           break;
         default:
           setError(`Unbekannte Aktion: ${action}`);

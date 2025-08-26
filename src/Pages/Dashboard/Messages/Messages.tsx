@@ -11,7 +11,7 @@ import {
   HiUser,
   HiClock,
   HiCheckCircle,
-  HiExclamationTriangle,
+  HiExclamationCircle,
   HiRefresh,
   HiFilter,
   HiEye,
@@ -20,6 +20,7 @@ import {
 import { useDashboard } from '../Context/DashboardContext';
 import { Project, Message, MessageSenderRole } from '../Types/DashboardTypes';
 import './Messages.scss';
+import { HiExclamationTriangle } from 'react-icons/hi2';
 
 interface MessageWithProject extends Message {
   project?: Project;

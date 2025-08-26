@@ -12,7 +12,7 @@ import {
   HiKey,
   HiEye,
   HiEyeOff,
-  HiExclamationTriangle,
+  HiExclamationCircle,
   HiCheckCircle,
   HiRefresh,
   HiDownload,
@@ -25,6 +25,7 @@ import {
 import { useDashboard } from '../Context/DashboardContext';
 import { User } from '../Types/DashboardTypes';
 import './Settings.scss';
+import { HiExclamationTriangle } from 'react-icons/hi2';
 
 interface PasswordFormData {
   currentPassword: string;

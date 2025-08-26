@@ -21,16 +21,16 @@ import {
 } from 'lucide-react';
 
 // Types
-import { 
-  NewsletterSubscriber, 
-  NewsletterTemplate, 
+import {
+  NewsletterSubscriber,
+  NewsletterTemplate,
   NewsletterStats,
   NewsletterView,
   SubscriberFilters,
   TemplateFilters,
   CreateTemplateForm,
   NewsletterDashboardProps
-} from '@/Pages/Dashboard/Types/DashboardTypes';
+} from '@/Pages/Dashboard/Types/NewsletterTypes';
 
 // Services (werden später implementiert)
 import newsletterService from '@/Services/Newsletter-Service';
@@ -196,11 +196,16 @@ const DashboardNewsletter: React.FC<NewsletterDashboardProps> = ({
       // Erst Bestätigung anfordern
       const result = await newsletterService.sendTemplate(template._id, false);
       
-      if (result.success && result.data.requiresConfirmation) {
+      if (
+        result.success &&
+        'requiresConfirmation' in result.data &&
+        result.data.requiresConfirmation
+      ) {
         setConfirmSendModal({
           show: true,
           template,
-          subscriberCount: result.data.subscriberCount
+          subscriberCount:
+            'subscriberCount' in result.data ? result.data.subscriberCount : 0
         });
       } else if (result.success) {
         // Newsletter wurde gesendet
@@ -806,7 +811,7 @@ const DashboardNewsletter: React.FC<NewsletterDashboardProps> = ({
                   <li>✅ Bild-Upload über externe URLs</li>
                   <li>✅ Template-Vorschau</li>
                   <li>✅ Zeitgesteuerte Versendung</li>
-                  <li>✅ Personalisierung ({{firstName}}, {{email}})</li>
+                  <li>✅ Personalisierung (&#123;&#123;firstName&#125;&#125;, &#123;&#123;Mail&#125;&#125;)</li>
                 </ul>
               </div>
             </div>

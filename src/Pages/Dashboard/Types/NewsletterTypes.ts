@@ -386,9 +386,3 @@ export interface NewsletterErrorBoundaryState {
 // ===========================
 // EXPORT ALL TYPES
 // ===========================
-export type {
-  NewsletterStatus,
-  NewsletterTemplateCategory,
-  SubscriberStatus,
-  NewsletterView
-};
