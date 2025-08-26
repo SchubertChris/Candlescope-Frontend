@@ -30,6 +30,16 @@ const getBackendURL = (): string => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 };
 
+// Funktion zum Starten des OAuth-Prozesses (außerhalb der Klasse)
+const initiateOAuth = (provider: 'google' | 'github') => {
+  let url = '';
+  if (provider === 'google') url = import.meta.env.VITE_GOOGLE_OAUTH_URL;
+  if (provider === 'github') url = import.meta.env.VITE_GITHUB_OAUTH_URL;
+  
+  // Direkt auf Backend weiterleiten
+  window.location.href = url;
+};
+
 class AuthService {
   
   async login(loginData: LoginData): Promise<AuthResponse> {
@@ -51,19 +61,6 @@ class AuthService {
       }
       throw new Error('Login fehlgeschlagen. Bitte versuche es erneut.');
     }
-  }
-
-  // KORRIGIERT: OAuth-URLs verwenden jetzt /oauth statt /auth
-  initiateOAuth(provider: OAuthProvider): void {
-    const baseURL = getBackendURL();
-    // GEÄNDERT: Verwende /oauth statt /auth für OAuth-Routen
-    const oauthURL = `${baseURL}/oauth/${provider}`;
-    
-    console.log(`🔗 INITIATING ${provider.toUpperCase()} OAUTH:`, oauthURL);
-    console.log('🌐 BACKEND URL:', baseURL);
-    
-    // KORRIGIERT: Direkte Weiterleitung zur OAuth-Route
-    window.location.href = oauthURL;
   }
 
   async handleOAuthCallback(token: string, userDataString: string): Promise<AuthResponse> {
@@ -192,4 +189,5 @@ if (import.meta.env.DEV) {
   (window as any).authService = authService;
 }
 
+export { initiateOAuth };
 export default authService;
