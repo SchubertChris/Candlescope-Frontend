@@ -11,7 +11,7 @@ import {
   HiChatAlt2,
   HiCalendar
 } from 'react-icons/hi';
-import { Project, ProjectType } from '../Types/DashboardTypes';
+import { Project, ProjectType } from '../../../Types/DashboardTypes';
 
 interface ProjectPreviewCardProps {
   project: Project;
