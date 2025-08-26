@@ -1,706 +1,845 @@
-// src/Pages/Dashboard/Components/DashboardSettings.tsx
-// NEU: Settings-Component mit 2FA + Geschäftsdaten (Mockup)
-import React, { useState } from 'react';
-import { 
+// src/Pages/Dashboard/Settings/Settings.tsx
+// Dashboard Settings - Vollständige Einstellungsseite mit Admin/User Features
+
+import React, { useState, useEffect } from 'react';
+import {
   HiUser,
-  HiBriefcase,
   HiShieldCheck,
-  HiKey,
+  HiBell,
   HiMail,
-  HiPhone,
-  HiLocationMarker,
-  HiCog,
-  HiSave,
+  HiGlobe,
+  HiServer,
+  HiKey,
   HiEye,
   HiEyeOff,
-  HiQrcode,
-  HiClipboardCopy,
-  HiCheck
+  HiExclamationTriangle,
+  HiCheckCircle,
+  HiRefresh,
+  HiDownload,
+  HiTrash,
+  HiCog,
+  HiUserGroup,
+  HiChartBar,
+  HiDatabase
 } from 'react-icons/hi';
-import { DashboardSettingsProps } from '../../Types/DashboardTypes';
+import { useDashboard } from '../Context/DashboardContext';
+import { User } from '../Types/DashboardTypes';
+import './Settings.scss';
 
-const DashboardSettings: React.FC<DashboardSettingsProps> = ({
-  user,
-  userRole,
-  onUserUpdate
-}) => {
+interface PasswordFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+interface ProfileFormData {
+  firstName: string;
+  lastName: string;
+  company: string;
+  phone: string;
+  website: string;
+}
+
+interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  projectUpdates: boolean;
+  messageNotifications: boolean;
+  invoiceReminders: boolean;
+  newsletterSubscription: boolean;
+}
+
+const Settings: React.FC = () => {
+  const { user, onUserUpdate } = useDashboard();
+  
   // Form States
-  const [personalData, setPersonalData] = useState({
+  const [profileData, setProfileData] = useState<ProfileFormData>({
     firstName: user.firstName || '',
     lastName: user.lastName || '',
-    email: user.email,
-    company: user.company || ''
-  });
-
-  const [businessData, setBusinessData] = useState({
-    taxId: user.businessData?.taxId || '',
-    vatNumber: user.businessData?.vatNumber || '',
+    company: user.company || '',
     phone: user.businessData?.phone || '',
-    website: user.businessData?.website || '',
-    address: {
-      street: user.businessData?.address?.street || '',
-      city: user.businessData?.address?.city || '',
-      postalCode: user.businessData?.address?.postalCode || '',
-      country: user.businessData?.address?.country || 'Deutschland'
-    }
+    website: user.businessData?.website || ''
   });
-
-  const [passwordData, setPasswordData] = useState({
+  
+  const [passwordData, setPasswordData] = useState<PasswordFormData>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false
+  
+  const [notifications, setNotifications] = useState<NotificationSettings>({
+    emailNotifications: true,
+    pushNotifications: true,
+    projectUpdates: true,
+    messageNotifications: true,
+    invoiceReminders: true,
+    newsletterSubscription: false
   });
 
-  // 2FA States
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(user.twoFactorAuth?.enabled || false);
-  const [showQRCode, setShowQRCode] = useState(false);
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [copied, setCopied] = useState<string | null>(null);
-
   // UI States
-  const [activeTab, setActiveTab] = useState<'personal' | 'business' | 'security' | 'system'>('personal');
+  const [activeTab, setActiveTab] = useState<string>('profile');
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'fair' | 'good' | 'strong'>('weak');
 
-  // Mock Backup Codes für 2FA
-  const mockBackupCodes = [
-    'A1B2-C3D4-E5F6',
-    'G7H8-I9J0-K1L2',
-    'M3N4-O5P6-Q7R8',
-    'S9T0-U1V2-W3X4',
-    'Y5Z6-A7B8-C9D0',
-    'E1F2-G3H4-I5J6',
-    'K7L8-M9N0-O1P2',
-    'Q3R4-S5T6-U7V8'
-  ];
+  // Password Strength Calculation
+  const calculatePasswordStrength = (password: string): 'weak' | 'fair' | 'good' | 'strong' => {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    if (score <= 2) return 'weak';
+    if (score === 3) return 'fair';
+    if (score === 4) return 'good';
+    return 'strong';
+  };
 
-  const handleSavePersonalData = async () => {
+  // Update password strength when new password changes
+  useEffect(() => {
+    if (passwordData.newPassword) {
+      setPasswordStrength(calculatePasswordStrength(passwordData.newPassword));
+    }
+  }, [passwordData.newPassword]);
+
+  // Show success/error messages temporarily
+  useEffect(() => {
+    if (successMessage || errorMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+        setErrorMessage('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, errorMessage]);
+
+  // Save Profile
+  const handleSaveProfile = async () => {
     setIsSaving(true);
-    setSaveMessage('');
+    setErrorMessage('');
     
     try {
-      console.log('💾 SAVING PERSONAL DATA:', personalData);
-      
-      // TODO: Implement real API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update user data
-      onUserUpdate({
+      const updatedUser: User = {
         ...user,
-        firstName: personalData.firstName,
-        lastName: personalData.lastName,
-        email: personalData.email,
-        company: personalData.company
-      });
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        company: profileData.company,
+        businessData: {
+          ...user.businessData,
+          phone: profileData.phone,
+          website: profileData.website
+        }
+      };
       
-      setSaveMessage('Persönliche Daten erfolgreich gespeichert!');
-      
+      await onUserUpdate(updatedUser);
+      setSuccessMessage('Profil erfolgreich aktualisiert');
     } catch (error) {
-      setSaveMessage('Fehler beim Speichern der Daten.');
-      console.error('❌ Save personal data error:', error);
+      setErrorMessage('Fehler beim Speichern des Profils');
+      console.error('Profile update error:', error);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSaveBusinessData = async () => {
-    setIsSaving(true);
-    setSaveMessage('');
-    
-    try {
-      console.log('🏢 SAVING BUSINESS DATA:', businessData);
-      
-      // TODO: Implement real API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Update user data
-      onUserUpdate({
-        ...user,
-        businessData: businessData
-      });
-      
-      setSaveMessage('Geschäftsdaten erfolgreich gespeichert!');
-      
-    } catch (error) {
-      setSaveMessage('Fehler beim Speichern der Geschäftsdaten.');
-      console.error('❌ Save business data error:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handlePasswordChange = async () => {
+  // Change Password
+  const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setSaveMessage('Neue Passwörter stimmen nicht überein.');
+      setErrorMessage('Passwörter stimmen nicht überein');
       return;
     }
     
     if (passwordData.newPassword.length < 8) {
-      setSaveMessage('Neues Passwort muss mindestens 8 Zeichen lang sein.');
+      setErrorMessage('Passwort muss mindestens 8 Zeichen lang sein');
       return;
     }
     
     setIsSaving(true);
-    setSaveMessage('');
+    setErrorMessage('');
     
     try {
-      console.log('🔑 CHANGING PASSWORD');
+      // TODO: API Call für Passwort-Änderung
+      console.log('Change password:', passwordData);
       
-      // TODO: Implement real API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSaveMessage('Passwort erfolgreich geändert!');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      
-    } catch (error) {
-      setSaveMessage('Fehler beim Ändern des Passworts.');
-      console.error('❌ Password change error:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleToggle2FA = async () => {
-    setIsSaving(true);
-    setSaveMessage('');
-    
-    try {
-      if (!twoFactorEnabled) {
-        // 2FA aktivieren
-        console.log('🔐 ENABLING 2FA');
-        setShowQRCode(true);
-        setBackupCodes(mockBackupCodes);
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setTwoFactorEnabled(true);
-        setSaveMessage('2FA wurde erfolgreich aktiviert!');
-        
-      } else {
-        // 2FA deaktivieren
-        console.log('🔓 DISABLING 2FA');
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setTwoFactorEnabled(false);
-        setShowQRCode(false);
-        setBackupCodes([]);
-        setSaveMessage('2FA wurde deaktiviert.');
-      }
-      
-      // Update user data
-      onUserUpdate({
-        ...user,
-        twoFactorAuth: {
-          enabled: !twoFactorEnabled,
-          backupCodes: !twoFactorEnabled ? mockBackupCodes : [],
-          lastUsed: new Date().toISOString()
-        }
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
       });
-      
+      setSuccessMessage('Passwort erfolgreich geändert');
     } catch (error) {
-      setSaveMessage('Fehler beim Ändern der 2FA-Einstellungen.');
-      console.error('❌ 2FA toggle error:', error);
+      setErrorMessage('Fehler beim Ändern des Passworts');
+      console.error('Password change error:', error);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const copyToClipboard = async (text: string, key: string) => {
+  // Save Notifications
+  const handleSaveNotifications = async () => {
+    setIsSaving(true);
+    
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(key);
-      setTimeout(() => setCopied(null), 2000);
+      console.log('Save notifications:', notifications);
+      setSuccessMessage('Benachrichtigungseinstellungen gespeichert');
     } catch (error) {
-      console.error('❌ Copy to clipboard failed:', error);
+      setErrorMessage('Fehler beim Speichern der Einstellungen');
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  // Toggle Notification Setting
+  const toggleNotification = (key: keyof NotificationSettings) => {
+    setNotifications(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Export Data
+  const handleExportData = () => {
+    const data = {
+      user: user,
+      settings: notifications,
+      exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `dashboard-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    setSuccessMessage('Daten erfolgreich exportiert');
+  };
+
+  // Delete Account
+  const handleDeleteAccount = () => {
+    if (confirm('Account wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      console.log('Delete account confirmed');
+      // TODO: Delete Account API Call
+    }
+  };
+
+  // Tab Configuration
   const tabs = [
-    { id: 'personal' as const, label: 'Persönliche Daten', icon: HiUser },
-    { id: 'business' as const, label: 'Geschäftsdaten', icon: HiBriefcase },
-    { id: 'security' as const, label: 'Sicherheit', icon: HiShieldCheck },
-    ...(userRole === 'admin' ? [{ id: 'system' as const, label: 'System', icon: HiCog }] : [])
+    { id: 'profile', label: 'Profil', icon: HiUser },
+    { id: 'security', label: 'Sicherheit', icon: HiShieldCheck },
+    { id: 'notifications', label: 'Benachrichtigungen', icon: HiBell },
+    ...(user.role === 'admin' ? [
+      { id: 'system', label: 'System', icon: HiServer },
+      { id: 'users', label: 'Benutzer', icon: HiUserGroup }
+    ] : [])
   ];
 
   return (
-    <div className="view-content">
-      <div className="view-header">
-        <h1>Einstellungen</h1>
-        <p>Verwalten Sie Ihre Konto- und Sicherheitseinstellungen</p>
+    <div className="settings-page">
+      {/* Page Header */}
+      <div className="page-header">
+        <h1 className="page-title">Einstellungen</h1>
+        <p className="page-subtitle">Verwalte deine Account- und Systemeinstellungen</p>
       </div>
 
-      <div className="settings-container">
-        {/* Tab Navigation */}
-        <div className="settings-tabs">
-          {tabs.map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                <IconComponent className="icon icon--btn" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="alert alert--success">
+          <HiCheckCircle className="alert-icon" />
+          <div className="alert-content">
+            <div className="alert-message">{successMessage}</div>
+          </div>
         </div>
+      )}
+      
+      {errorMessage && (
+        <div className="alert alert--error">
+          <HiExclamationTriangle className="alert-icon" />
+          <div className="alert-content">
+            <div className="alert-message">{errorMessage}</div>
+          </div>
+        </div>
+      )}
 
-        {/* Save Message */}
-        {saveMessage && (
-          <div className={`save-message ${saveMessage.includes('Fehler') ? 'error' : 'success'}`}>
-            {saveMessage}
+      {/* Settings Navigation Tabs */}
+      <div className="settings-tabs">
+        {tabs.map((tab) => {
+          const IconComponent = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <IconComponent />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Settings Content */}
+      <div className="settings-sections">
+        
+        {/* Profile Settings */}
+        {activeTab === 'profile' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h3>Profil-Einstellungen</h3>
+              <p className="section-description">
+                Verwalte deine persönlichen Informationen und Geschäftsdaten
+              </p>
+            </div>
+            
+            <div className="section-content">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Vorname</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={profileData.firstName}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="Dein Vorname"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nachname</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={profileData.lastName}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Dein Nachname"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">E-Mail-Adresse</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={user.email}
+                  disabled
+                />
+                <div className="form-help">
+                  E-Mail kann nicht hier geändert werden. Kontaktiere den Support.
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Unternehmen</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={profileData.company}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, company: e.target.value }))}
+                  placeholder="Dein Unternehmen (optional)"
+                />
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Telefon</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="+49 123 456 789"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Website</label>
+                  <input
+                    type="url"
+                    className="form-input"
+                    value={profileData.website}
+                    onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-actions">
+                <button
+                  className="btn btn--primary"
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <HiRefresh className="spinning" /> : null}
+                  Profil speichern
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Tab Contents */}
-        <div className="settings-content">
-          
-          {/* PERSÖNLICHE DATEN */}
-          {activeTab === 'personal' && (
-            <div className="settings-section">
-              <h2>
-                <HiUser className="icon icon--action" />
-                Persönliche Daten
-              </h2>
-              
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Vorname</label>
-                  <input
-                    type="text"
-                    value={personalData.firstName}
-                    onChange={(e) => setPersonalData(prev => ({ ...prev, firstName: e.target.value }))}
-                    placeholder="Ihr Vorname"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Nachname</label>
-                  <input
-                    type="text"
-                    value={personalData.lastName}
-                    onChange={(e) => setPersonalData(prev => ({ ...prev, lastName: e.target.value }))}
-                    placeholder="Ihr Nachname"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>E-Mail-Adresse</label>
-                  <input
-                    type="email"
-                    value={personalData.email}
-                    onChange={(e) => setPersonalData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="ihre@email.com"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Unternehmen</label>
-                  <input
-                    type="text"
-                    value={personalData.company}
-                    onChange={(e) => setPersonalData(prev => ({ ...prev, company: e.target.value }))}
-                    placeholder="Ihr Unternehmen (optional)"
-                  />
-                </div>
-              </div>
-              
-              <button 
-                className="btn btn--primary"
-                onClick={handleSavePersonalData}
-                disabled={isSaving}
-              >
-                <HiSave className="icon icon--btn" />
-                {isSaving ? 'Speichere...' : 'Änderungen speichern'}
-              </button>
-            </div>
-          )}
-
-          {/* GESCHÄFTSDATEN */}
-          {activeTab === 'business' && (
-            <div className="settings-section">
-              <h2>
-                <HiBriefcase className="icon icon--action" />
-                Geschäftsdaten
-              </h2>
+        {/* Security Settings */}
+        {activeTab === 'security' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h3>Sicherheits-Einstellungen</h3>
               <p className="section-description">
-                Diese Daten werden für Rechnungen und steuerliche Zwecke verwendet.
+                Passwort ändern und Sicherheitsoptionen verwalten
               </p>
-              
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Steuer-ID</label>
-                  <input
-                    type="text"
-                    value={businessData.taxId}
-                    onChange={(e) => setBusinessData(prev => ({ ...prev, taxId: e.target.value }))}
-                    placeholder="12345/67890"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>USt-IdNr.</label>
-                  <input
-                    type="text"
-                    value={businessData.vatNumber}
-                    onChange={(e) => setBusinessData(prev => ({ ...prev, vatNumber: e.target.value }))}
-                    placeholder="DE123456789"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Telefon</label>
-                  <input
-                    type="tel"
-                    value={businessData.phone}
-                    onChange={(e) => setBusinessData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+49 123 456789"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Website</label>
-                  <input
-                    type="url"
-                    value={businessData.website}
-                    onChange={(e) => setBusinessData(prev => ({ ...prev, website: e.target.value }))}
-                    placeholder="https://ihre-website.de"
-                  />
-                </div>
-              </div>
-              
-              <h3>Geschäftsadresse</h3>
-              <div className="form-grid">
-                <div className="form-group full-width">
-                  <label>Straße und Hausnummer</label>
-                  <input
-                    type="text"
-                    value={businessData.address.street}
-                    onChange={(e) => setBusinessData(prev => ({ 
-                      ...prev, 
-                      address: { ...prev.address, street: e.target.value }
-                    }))}
-                    placeholder="Musterstraße 123"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>PLZ</label>
-                  <input
-                    type="text"
-                    value={businessData.address.postalCode}
-                    onChange={(e) => setBusinessData(prev => ({ 
-                      ...prev, 
-                      address: { ...prev.address, postalCode: e.target.value }
-                    }))}
-                    placeholder="12345"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Stadt</label>
-                  <input
-                    type="text"
-                    value={businessData.address.city}
-                    onChange={(e) => setBusinessData(prev => ({ 
-                      ...prev, 
-                      address: { ...prev.address, city: e.target.value }
-                    }))}
-                    placeholder="Musterstadt"
-                  />
-                </div>
-                
-                <div className="form-group full-width">
-                  <label>Land</label>
-                  <select
-                    value={businessData.address.country}
-                    onChange={(e) => setBusinessData(prev => ({ 
-                      ...prev, 
-                      address: { ...prev.address, country: e.target.value }
-                    }))}
-                  >
-                    <option value="Deutschland">Deutschland</option>
-                    <option value="Österreich">Österreich</option>
-                    <option value="Schweiz">Schweiz</option>
-                  </select>
-                </div>
-              </div>
-              
-              <button 
-                className="btn btn--primary"
-                onClick={handleSaveBusinessData}
-                disabled={isSaving}
-              >
-                <HiSave className="icon icon--btn" />
-                {isSaving ? 'Speichere...' : 'Geschäftsdaten speichern'}
-              </button>
             </div>
-          )}
-
-          {/* SICHERHEIT */}
-          {activeTab === 'security' && (
-            <div className="settings-section">
-              <h2>
-                <HiShieldCheck className="icon icon--action" />
-                Sicherheitseinstellungen
-              </h2>
-              
-              {/* Passwort ändern */}
-              <div className="security-subsection">
-                <h3>
-                  <HiKey className="icon icon--detail" />
-                  Passwort ändern
-                </h3>
-                
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Aktuelles Passwort</label>
-                    <div className="password-input">
-                      <input
-                        type={showPasswords.current ? 'text' : 'password'}
-                        value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                        placeholder="Aktuelles Passwort"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
-                        className="password-toggle"
-                      >
-                        {showPasswords.current ? <HiEyeOff /> : <HiEye />}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Neues Passwort</label>
-                    <div className="password-input">
-                      <input
-                        type={showPasswords.new ? 'text' : 'password'}
-                        value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                        placeholder="Neues Passwort"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                        className="password-toggle"
-                      >
-                        {showPasswords.new ? <HiEyeOff /> : <HiEye />}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Neues Passwort bestätigen</label>
-                    <div className="password-input">
-                      <input
-                        type={showPasswords.confirm ? 'text' : 'password'}
-                        value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        placeholder="Neues Passwort bestätigen"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                        className="password-toggle"
-                      >
-                        {showPasswords.confirm ? <HiEyeOff /> : <HiEye />}
-                      </button>
-                    </div>
-                  </div>
+            
+            <div className="section-content">
+              <div className="form-group">
+                <label className="form-label">Aktuelles Passwort</label>
+                <div className="password-input">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-input"
+                    value={passwordData.currentPassword}
+                    onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                    placeholder="Aktuelles Passwort eingeben"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <HiEyeOff /> : <HiEye />}
+                  </button>
                 </div>
-                
-                <button 
-                  className="btn btn--secondary"
-                  onClick={handlePasswordChange}
-                  disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword}
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Neues Passwort</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Neues Passwort (min. 8 Zeichen)"
+                />
+                {passwordData.newPassword && (
+                  <div className="password-strength">
+                    <div className="strength-bar">
+                      <div className={`strength-fill ${passwordStrength}`}></div>
+                    </div>
+                    <div className={`strength-text ${passwordStrength}`}>
+                      Passwort-Stärke: {passwordStrength === 'weak' ? 'Schwach' : 
+                                       passwordStrength === 'fair' ? 'Ausreichend' :
+                                       passwordStrength === 'good' ? 'Gut' : 'Stark'}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Passwort bestätigen</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Neues Passwort wiederholen"
+                />
+                {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
+                  <div className="form-error">Passwörter stimmen nicht überein</div>
+                )}
+              </div>
+              
+              <div className="form-actions">
+                <button
+                  className="btn btn--primary"
+                  onClick={handleChangePassword}
+                  disabled={isSaving || !passwordData.currentPassword || !passwordData.newPassword || passwordData.newPassword !== passwordData.confirmPassword}
                 >
-                  <HiKey className="icon icon--btn" />
-                  {isSaving ? 'Ändere...' : 'Passwort ändern'}
+                  {isSaving ? <HiRefresh className="spinning" /> : <HiKey />}
+                  Passwort ändern
                 </button>
               </div>
               
-              {/* 2FA Einstellungen */}
-              <div className="security-subsection">
-                <h3>
-                  <HiShieldCheck className="icon icon--detail" />
-                  Zwei-Faktor-Authentifizierung (2FA)
-                </h3>
-                <p className="section-description">
-                  Zusätzliche Sicherheit durch einen zweiten Authentifizierungsschritt.
-                </p>
-                
-                <div className="twofa-status">
-                  <div className={`status-indicator ${twoFactorEnabled ? 'enabled' : 'disabled'}`}>
-                    <span className="status-dot"></span>
-                    <span>2FA ist {twoFactorEnabled ? 'aktiviert' : 'deaktiviert'}</span>
+              {/* Two-Factor Authentication */}
+              <div className="security-section">
+                <h4>Zwei-Faktor-Authentifizierung</h4>
+                <div className="security-item">
+                  <div className="security-info">
+                    <div className="security-title">2FA Status</div>
+                    <div className="security-description">
+                      Zusätzliche Sicherheitsschicht für deinen Account
+                    </div>
+                    <div className={`security-status ${user.twoFactorAuth?.enabled ? 'enabled' : 'disabled'}`}>
+                      {user.twoFactorAuth?.enabled ? 'Aktiviert' : 'Deaktiviert'}
+                    </div>
                   </div>
-                  
-                  <button 
-                    className={`btn ${twoFactorEnabled ? 'btn--secondary' : 'btn--primary'}`}
-                    onClick={handleToggle2FA}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? 'Verarbeite...' : (twoFactorEnabled ? '2FA deaktivieren' : '2FA aktivieren')}
-                  </button>
+                  <div className="security-action">
+                    <button className="btn btn--secondary">
+                      {user.twoFactorAuth?.enabled ? 'Deaktivieren' : 'Aktivieren'}
+                    </button>
+                  </div>
                 </div>
-                
-                {/* QR Code für 2FA Setup */}
-                {showQRCode && !twoFactorEnabled && (
-                  <div className="twofa-setup">
-                    <h4>2FA einrichten</h4>
-                    <div className="qr-code-section">
-                      <div className="qr-code-placeholder">
-                        <HiQrcode className="icon icon--project-type" />
-                        <p>QR-Code für Authenticator-App</p>
-                        <small>Scannen Sie diesen Code mit Google Authenticator, Authy oder einer ähnlichen App</small>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notification Settings */}
+        {activeTab === 'notifications' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h3>Benachrichtigungs-Einstellungen</h3>
+              <p className="section-description">
+                Kontrolliere, wann und wie du benachrichtigt werden möchtest
+              </p>
+            </div>
+            
+            <div className="section-content">
+              <div className="notification-preferences">
+                <div className="notification-category">
+                  <h4 className="category-title">E-Mail Benachrichtigungen</h4>
+                  <div className="notification-options">
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">E-Mail Benachrichtigungen</div>
+                        <div className="toggle-description">Allgemeine E-Mail Benachrichtigungen erhalten</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.emailNotifications ? 'active' : ''}`}
+                        onClick={() => toggleNotification('emailNotifications')}
+                      >
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">Projekt-Updates</div>
+                        <div className="toggle-description">Bei Änderungen an deinen Projekten benachrichtigen</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.projectUpdates ? 'active' : ''}`}
+                        onClick={() => toggleNotification('projectUpdates')}
+                      >
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">Neue Nachrichten</div>
+                        <div className="toggle-description">Bei neuen Chat-Nachrichten benachrichtigen</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.messageNotifications ? 'active' : ''}`}
+                        onClick={() => toggleNotification('messageNotifications')}
+                      >
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                    
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">Rechnungs-Erinnerungen</div>
+                        <div className="toggle-description">Erinnerungen für fällige Rechnungen</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.invoiceReminders ? 'active' : ''}`}
+                        onClick={() => toggleNotification('invoiceReminders')}
+                      >
+                        <div className="toggle-handle"></div>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
                 
-                {/* Backup Codes */}
-                {backupCodes.length > 0 && twoFactorEnabled && (
-                  <div className="backup-codes">
-                    <h4>Backup-Codes</h4>
-                    <p className="section-description">
-                      Speichern Sie diese Codes sicher. Sie können jeden Code nur einmal verwenden.
-                    </p>
-                    <div className="codes-grid">
-                      {backupCodes.map((code, index) => (
-                        <div key={index} className="backup-code">
-                          <span className="code">{code}</span>
-                          <button
-                            onClick={() => copyToClipboard(code, `code-${index}`)}
-                            className="copy-button"
-                            title="Code kopieren"
-                          >
-                            {copied === `code-${index}` ? <HiCheck /> : <HiClipboardCopy />}
-                          </button>
-                        </div>
-                      ))}
+                <div className="notification-category">
+                  <h4 className="category-title">Browser-Benachrichtigungen</h4>
+                  <div className="notification-options">
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">Push-Benachrichtigungen</div>
+                        <div className="toggle-description">Desktop-Benachrichtigungen im Browser</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.pushNotifications ? 'active' : ''}`}
+                        onClick={() => toggleNotification('pushNotifications')}
+                      >
+                        <div className="toggle-handle"></div>
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
+                
+                <div className="notification-category">
+                  <h4 className="category-title">Marketing</h4>
+                  <div className="notification-options">
+                    <div className="toggle-group">
+                      <div className="toggle-info">
+                        <div className="toggle-label">Newsletter-Abonnement</div>
+                        <div className="toggle-description">Updates und News per E-Mail</div>
+                      </div>
+                      <div 
+                        className={`toggle-switch ${notifications.newsletterSubscription ? 'active' : ''}`}
+                        onClick={() => toggleNotification('newsletterSubscription')}
+                      >
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="form-actions">
+                <button
+                  className="btn btn--primary"
+                  onClick={handleSaveNotifications}
+                  disabled={isSaving}
+                >
+                  {isSaving ? <HiRefresh className="spinning" /> : <HiBell />}
+                  Einstellungen speichern
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* SYSTEM (nur Admin) */}
-          {activeTab === 'system' && userRole === 'admin' && (
-            <div className="settings-section">
-              <h2>
-                <HiCog className="icon icon--action" />
-                System-Einstellungen
-              </h2>
+        {/* System Settings - Admin Only */}
+        {activeTab === 'system' && user.role === 'admin' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h3>System-Einstellungen</h3>
               <p className="section-description">
-                Administrator-Einstellungen für das gesamte System.
+                Erweiterte Systemkonfiguration und Wartung
               </p>
-              
-              <div className="system-settings">
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h4>Newsletter-Service</h4>
-                    <p>Status des E-Mail-Newsletter-Systems</p>
+            </div>
+            
+            <div className="section-content">
+              <div className="system-overview">
+                <h4>System-Status</h4>
+                <div className="status-grid">
+                  <div className="status-item">
+                    <div className="status-info">
+                      <div className="status-title">Database</div>
+                      <div className="status-description">PostgreSQL Verbindung</div>
+                    </div>
+                    <div className="status-indicator enabled">
+                      <span className="status-dot"></span>
+                      Online
+                    </div>
                   </div>
-                  <div className="setting-status">
-                    <span className="status-indicator enabled">
+                  
+                  <div className="status-item">
+                    <div className="status-info">
+                      <div className="status-title">E-Mail Service</div>
+                      <div className="status-description">SMTP Server</div>
+                    </div>
+                    <div className="status-indicator enabled">
                       <span className="status-dot"></span>
                       Aktiv
-                    </span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h4>Automatische Backups</h4>
-                    <p>Tägliche Sicherung der Datenbank</p>
-                  </div>
-                  <div className="setting-status">
-                    <span className="status-indicator enabled">
+                  
+                  <div className="status-item">
+                    <div className="status-info">
+                      <div className="status-title">File Storage</div>
+                      <div className="status-description">Cloud Storage</div>
+                    </div>
+                    <div className="status-indicator enabled">
                       <span className="status-dot"></span>
-                      Aktiv
-                    </span>
+                      Verfügbar
+                    </div>
                   </div>
-                </div>
-                
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h4>OAuth-Integration</h4>
-                    <p>Google und GitHub Anmeldung</p>
-                  </div>
-                  <div className="setting-status">
-                    <span className="status-indicator enabled">
-                      <span className="status-dot"></span>
-                      Aktiv
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h4>API-Rate Limiting</h4>
-                    <p>Schutz vor API-Missbrauch</p>
-                  </div>
-                  <div className="setting-status">
-                    <span className="status-indicator enabled">
-                      <span className="status-dot"></span>
-                      Aktiv
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="setting-item">
-                  <div className="setting-info">
-                    <h4>Debug-Modus</h4>
-                    <p>Erweiterte Protokollierung für Entwicklung</p>
-                  </div>
-                  <div className="setting-status">
-                    <span className="status-indicator disabled">
+                  
+                  <div className="status-item">
+                    <div className="status-info">
+                      <div className="status-title">Backup Service</div>
+                      <div className="status-description">Automatische Sicherung</div>
+                    </div>
+                    <div className="status-indicator disabled">
                       <span className="status-dot"></span>
                       Inaktiv
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
               
               <div className="system-stats">
-                <h3>System-Statistiken</h3>
+                <h4>System-Statistiken</h4>
                 <div className="stats-grid">
                   <div className="stat-card">
-                    <h4>Registrierte Benutzer</h4>
+                    <h5>Registrierte Benutzer</h5>
                     <span className="stat-value">42</span>
                   </div>
                   <div className="stat-card">
-                    <h4>Aktive Projekte</h4>
+                    <h5>Aktive Projekte</h5>
                     <span className="stat-value">18</span>
                   </div>
                   <div className="stat-card">
-                    <h4>Newsletter-Abonnenten</h4>
+                    <h5>Newsletter-Abonnenten</h5>
                     <span className="stat-value">156</span>
                   </div>
                   <div className="stat-card">
-                    <h4>API-Aufrufe (heute)</h4>
+                    <h5>API-Aufrufe (heute)</h5>
                     <span className="stat-value">1,247</span>
                   </div>
                 </div>
               </div>
+              
+              <div className="system-actions">
+                <h4>System-Aktionen</h4>
+                <div className="action-buttons">
+                  <button className="btn btn--secondary">
+                    <HiDatabase />
+                    Backup erstellen
+                  </button>
+                  <button className="btn btn--secondary">
+                    <HiRefresh />
+                    Cache leeren
+                  </button>
+                  <button className="btn btn--secondary">
+                    <HiDownload />
+                    Logs exportieren
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* User Management - Admin Only */}
+        {activeTab === 'users' && user.role === 'admin' && (
+          <div className="settings-section">
+            <div className="section-header">
+              <h3>Benutzer-Verwaltung</h3>
+              <p className="section-description">
+                Verwalte Benutzeraccounts und Berechtigungen
+              </p>
+            </div>
+            
+            <div className="section-content">
+              <div className="user-stats">
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-value">42</div>
+                    <div className="stat-label">Gesamt Benutzer</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">38</div>
+                    <div className="stat-label">Kunden</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">4</div>
+                    <div className="stat-label">Administratoren</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">12</div>
+                    <div className="stat-label">Aktiv heute</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="user-actions">
+                <div className="action-buttons">
+                  <button className="btn btn--primary">
+                    <HiUser />
+                    Neuen Benutzer hinzufügen
+                  </button>
+                  <button className="btn btn--secondary">
+                    <HiDownload />
+                    Benutzerliste exportieren
+                  </button>
+                  <button className="btn btn--secondary">
+                    <HiMail />
+                    Massen-E-Mail senden
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Data & Privacy */}
+        <div className="settings-section">
+          <div className="section-header">
+            <h3>Daten & Datenschutz</h3>
+            <p className="section-description">
+              Verwalte deine Daten und Datenschutzeinstellungen
+            </p>
+          </div>
+          
+          <div className="section-content">
+            <div className="data-actions">
+              <div className="action-item">
+                <div className="action-info">
+                  <div className="action-title">Daten exportieren</div>
+                  <div className="action-description">
+                    Lade eine Kopie aller deiner Daten herunter
+                  </div>
+                </div>
+                <button className="btn btn--secondary" onClick={handleExportData}>
+                  <HiDownload />
+                  Exportieren
+                </button>
+              </div>
+              
+              <div className="action-item">
+                <div className="action-info">
+                  <div className="action-title">Account-Informationen</div>
+                  <div className="action-description">
+                    Erstellt am: {new Date(user.createdAt).toLocaleDateString('de-DE')}
+                  </div>
+                </div>
+                <div className="info-badge">
+                  {Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))} Tage
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="settings-section danger-zone">
+          <div className="section-header">
+            <h3>Gefahrenzone</h3>
+            <p className="section-description">
+              Irreversible Aktionen - Vorsicht beim Verwenden
+            </p>
+          </div>
+          <div className="section-content">
+            <div className="danger-item">
+              <div className="danger-info">
+                <div className="danger-title">Account löschen</div>
+                <div className="danger-description">
+                  Lösche deinen Account und alle zugehörigen Daten permanent
+                </div>
+              </div>
+              <div className="danger-action">
+                <button 
+                  className="btn btn--danger"
+                  onClick={handleDeleteAccount}
+                >
+                  <HiTrash />
+                  Account löschen
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner">
+            <HiRefresh />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default DashboardSettings;
+export default Settings;

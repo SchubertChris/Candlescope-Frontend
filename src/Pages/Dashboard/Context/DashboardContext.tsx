@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Context/DashboardContext.tsx
-// Dashboard Data Provider für alle Child-Components
+// ERWEITERT: DashboardContext mit allen benötigten Handlers
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { User, Project, Message, Invoice } from '../Types/DashboardTypes';
@@ -16,6 +16,9 @@ interface DashboardContextType {
   onInvoiceUpdate: (invoice: Invoice) => void;
   onCreateInvoice: () => void;
   onPayInvoice: (invoiceId: string) => void;
+  // Erweitert für Settings/Profile Pages
+  onUserUpdate: (user: User) => void;
+  onLogout?: () => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -41,6 +44,8 @@ interface DashboardProviderProps {
   onInvoiceUpdate: (invoice: Invoice) => void;
   onCreateInvoice: () => void;
   onPayInvoice: (invoiceId: string) => void;
+  onUserUpdate: (user: User) => void;
+  onLogout?: () => void;
 }
 
 export const DashboardProvider: React.FC<DashboardProviderProps> = ({
@@ -55,7 +60,9 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
   onSendMessage,
   onInvoiceUpdate,
   onCreateInvoice,
-  onPayInvoice
+  onPayInvoice,
+  onUserUpdate,
+  onLogout
 }) => {
   const value = {
     user,
@@ -68,7 +75,9 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
     onSendMessage,
     onInvoiceUpdate,
     onCreateInvoice,
-    onPayInvoice
+    onPayInvoice,
+    onUserUpdate,
+    onLogout
   };
 
   return (

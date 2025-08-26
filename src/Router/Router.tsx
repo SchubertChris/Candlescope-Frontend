@@ -1,5 +1,5 @@
 // src/Router/Router.tsx
-// UPDATED: Angepasst für neue Dashboard-Layout-Struktur
+// KORRIGIERT: Dashboard-Subpages als separate Routes hinzugefügt
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { lazy, Suspense, type ReactNode } from 'react';
 
@@ -52,7 +52,7 @@ const KontaktPage = lazy(() =>
   })
 );
 
-// ✅ DASHBOARD: Layout-Container (mit Outlet)
+// ✅ FIXED: Dashboard Lazy Loading
 const Dashboard = lazy(() => 
   import('../Pages/Dashboard/Dashboard').catch((err) => {
     console.error('Fehler beim Laden des Dashboards:', err);
@@ -75,7 +75,7 @@ const Dashboard = lazy(() =>
   })
 );
 
-// ✅ DASHBOARD PAGES: Einzelne Views
+// ✅ NEU: Dashboard Subpages Lazy Loading
 const Overview = lazy(() => 
   import('../Pages/Dashboard/Overview/Overview').catch(() => ({
     default: () => <div>Fehler beim Laden der Übersicht</div>
@@ -169,7 +169,7 @@ const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   </Suspense>
 );
 
-// ✅ NEUE ROUTE KONFIGURATION: Mit Dashboard Nested Routes
+// ✅ KORRIGIERT: Route Konfiguration mit Dashboard Subpages
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -194,7 +194,7 @@ export const routes: RouteObject[] = [
     ],
   },
   
-  // ✅ DASHBOARD-ROUTES: Nested Structure mit Layout
+  // ✅ ERWEITERT: Dashboard-Routes mit Subpages
   {
     path: '/dashboard',
     element: (
@@ -238,7 +238,7 @@ export const routes: RouteObject[] = [
         ),
       },
       {
-        path: 'newsletter', // /dashboard/newsletter (nur Admin)
+        path: 'newsletter', // /dashboard/newsletter
         element: (
           <SuspenseWrapper>
             <Newsletter />
