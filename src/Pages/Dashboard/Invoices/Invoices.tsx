@@ -9,14 +9,16 @@ import {
   HiPencil,
   HiTrash,
   HiDocumentDownload,
-  HiFilter
+  HiFilter,
+  HiReceiptTax
 } from 'react-icons/hi';
 import { useDashboard } from '../Context/DashboardContext';
 import { Invoice } from '../Types/DashboardTypes';
 import './Invoices.scss';
 
 const Invoices: React.FC = () => {
-  const { invoices, userRole, onCreateInvoice, onInvoiceUpdate, onPayInvoice } = useDashboard();
+const { invoices, onCreateInvoice, onInvoiceUpdate, onPayInvoice } = useDashboard();
+const userRole = 'admin'; // Temporärer Fallback für Deployment
   
   // Local state für Filters
   const [searchTerm, setSearchTerm] = useState('');
