@@ -1,14 +1,19 @@
-// src/Components/Layouts/DashboardLayout/DashboardHeader.tsx
-// PROFESSIONAL: Dashboard Header Component
+// =============================================================================
+// DASHBOARD HEADER COMPONENT - VEREINFACHT FÜR BESTEHENDE STRUKTUR
+// Datei: DashboardHeader.tsx
+// =============================================================================
 
-import React from 'react';
-import { 
-  HiCode, 
-  HiUserCircle, 
-  HiBell, 
-  HiCog, 
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  HiCode,
+  HiUserCircle,
+  HiMail, // GEÄNDERT: Brief-Icon für Benachrichtigungen
+  HiCog, // Nur als Icon ohne Text
   HiLogout,
-  HiMenuAlt3 // ✅ KORRIGIERT: HiMenu → HiMenuAlt3
+  HiMenuAlt3,
+  HiSparkles,
+  HiLightningBolt
 } from 'react-icons/hi';
 import { User } from '@/Pages/Dashboard/Types/DashboardTypes';
 
@@ -23,31 +28,65 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   notifications,
   onLogout
 }) => {
+  const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Live-Zeit für futuristisches Feeling
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const handleMobileMenuToggle = () => {
-    // TODO: Implementieren für mobile Sidebar-Toggle
     console.log('Toggle mobile menu');
+  };
+
+  const handleNotifications = () => {
+    navigate('/dashboard/messages');
+  };
+
+  const handleSettings = () => {
+    navigate('/dashboard/settings');
+  };
+
+  const getUserDisplayName = () => {
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return user.email.split('@')[0];
+  };
+
+  const getRoleLabel = () => {
+    return user.role === 'admin' ? 'Administrator' : 'Kunde';
   };
 
   return (
     <header className="dashboard-header">
       <div className="header-container">
-        {/* Mobile Menu Button */}
-        <button 
-          className="mobile-menu-btn"
-          onClick={handleMobileMenuToggle}
-          aria-label="Toggle Menu"
-        >
-          <HiMenuAlt3 className="icon--menu" />
-        </button>
-
-        {/* Brand */}
-        <div className="header-brand">
-          <div className="brand-logo">
-            <HiCode className="icon--brand" />
+        {/* Brand Section - modernes rundes Logo mit flexibler Schriftpositionierung */}
+        <div className="header-brand modern-brand">
+          <div className="brand-logo-wrapper">
+            <a href="/" aria-label="Zur Startseite">
+              <img
+          src="/CandleScopeLogo.png"
+          alt="CandleScope Logo"
+          className="brand-logo-img"
+              />
+            </a>
           </div>
           <div className="brand-info">
-            <h1>Chris Schubert</h1>
-            <p>Web Development Dashboard</p>
+            <h1 className="brand-title">Candlescope</h1>
+            <p className="brand-subtitle">Chris Schubert We(B)Art</p>
+            <div className="brand-status">
+              <HiLightningBolt className="status-icon" />
+              <span className="status-text">Online</span>
+              <span className="status-time">
+          {currentTime.toLocaleTimeString('de-DE', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -55,42 +94,42 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         <div className="header-user">
           <div className="user-info">
             <div className="user-details">
-              <span className="user-name">
-                {user.firstName && user.lastName 
-                  ? `${user.firstName} ${user.lastName}`
-                  : user.email
-                }
-              </span>
-              <span className="user-role">
-                {user.role === 'admin' ? 'Administrator' : 'Kunde'}
-              </span>
+              <span className="user-name">{getUserDisplayName()}</span>
+              <span className="user-role">{getRoleLabel()}</span>
             </div>
             <div className="user-avatar">
               <HiUserCircle className="icon--avatar" />
             </div>
           </div>
 
-          {/* Header Actions */}
+          {/* Header Actions - NUR die 3 gewünschten Buttons */}
           <div className="header-actions">
-            {/* Notifications */}
-            <button className="action-btn notification-btn">
-              <HiBell className="icon--action" />
+            {/* Notifications - NUR ICON mit Brief */}
+            <button 
+              className="action-btn notification-btn"
+              onClick={handleNotifications}
+              title="Benachrichtigungen"
+            >
+              <HiMail className="icon--action" />
               {notifications > 0 && (
                 <span className="notification-badge">{notifications}</span>
               )}
-              <span className="action-label">Benachrichtigungen</span>
             </button>
 
-            {/* Settings */}
-            <button className="action-btn settings-btn">
+            {/* Settings - NUR ICON */}
+            <button 
+              className="action-btn settings-btn"
+              onClick={handleSettings}
+              title="Einstellungen"
+            >
               <HiCog className="icon--action" />
-              <span className="action-label">Einstellungen</span>
             </button>
 
             {/* Logout */}
-            <button 
+            <button
               className="action-btn logout-btn"
               onClick={onLogout}
+              title="Abmelden"
             >
               <HiLogout className="icon--action" />
               <span className="action-label">Abmelden</span>

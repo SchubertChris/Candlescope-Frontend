@@ -103,9 +103,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <div className="brand-icon">
-            <HiCode />
           </div>
-          <span className="brand-text">Dashboard</span>
         </div>
       </div>
 
@@ -138,13 +136,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
-        <button 
-          className="logout-btn"
-          onClick={onLogout}
-        >
-          <HiLogout className="logout-icon" />
-          <span>Abmelden</span>
-        </button>
+{/* Kann noch was rein [Werbung etc.] */}
       </div>
     </aside>
   );

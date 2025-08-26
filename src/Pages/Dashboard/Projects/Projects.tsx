@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Projects/Projects.tsx
-// Dashboard Projects - Vollständige Projekt-Verwaltung mit Grid/List View
+// KORRIGIERT: Verwendet ProjectCard-Komponente statt inline HTML
 
 import React, { useState, useMemo } from 'react';
 import {
@@ -23,10 +23,12 @@ import {
   HiCheckCircle,
   HiRefresh
 } from 'react-icons/hi';
+import { HiExclamationTriangle } from 'react-icons/hi2';
+
 import { useDashboard } from '../Context/DashboardContext';
+import ProjectCard from '../Components/Cards/ProjectCard/ProjectCard';
 import { Project, ProjectStatus, ProjectPriority, ProjectType } from '../Types/DashboardTypes';
 import './Projects.scss';
-import { HiExclamationTriangle } from 'react-icons/hi2';
 
 type ViewMode = 'grid' | 'list';
 type SortField = 'name' | 'status' | 'priority' | 'deadline' | 'createdAt';
@@ -49,7 +51,7 @@ const Projects: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Project Actions
+  // Project Actions - KORRIGIERT: Vereinfacht für ProjectCard
   const handleProjectAction = async (projectId: string, action: string) => {
     setIsLoading(true);
     setError(null);
@@ -62,6 +64,15 @@ const Projects: React.FC = () => {
         case 'view':
           setSelectedProjectId(projectId);
           break;
+        case 'message':
+          // Navigate to messages with this project
+          console.log('Navigate to messages for project:', projectId);
+          // TODO: Router navigation to /dashboard/messages?project=projectId
+          break;
+        case 'menu':
+          console.log('Show menu for project:', projectId);
+          // TODO: Show context menu
+          break;
         case 'edit':
           console.log('Edit project:', projectId);
           // TODO: Edit Modal öffnen
@@ -71,12 +82,6 @@ const Projects: React.FC = () => {
             console.log('Delete project:', projectId);
             // TODO: Delete API Call
           }
-          break;
-        case 'archive':
-          await onProjectUpdate({ ...project, isActive: false });
-          break;
-        case 'activate':
-          await onProjectUpdate({ ...project, isActive: true });
           break;
         case 'complete':
           await onProjectUpdate({ ...project, status: 'completed' });
@@ -116,13 +121,11 @@ const Projects: React.FC = () => {
       let aValue: any = a[sortField];
       let bValue: any = b[sortField];
       
-      // Datum-Felder als Date-Objekte behandeln
       if (sortField === 'deadline' || sortField === 'createdAt') {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       }
       
-      // String-Vergleich
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
@@ -135,62 +138,6 @@ const Projects: React.FC = () => {
     return filtered;
   }, [projects, searchQuery, statusFilter, priorityFilter, typeFilter, sortField, sortOrder]);
 
-  // Status Badge Styling
-  const getStatusBadge = (status: ProjectStatus) => {
-    const styles = {
-      planning: { class: 'status-planning', label: 'Planung' },
-      inProgress: { class: 'status-progress', label: 'In Arbeit' },
-      review: { class: 'status-review', label: 'Review' },
-      completed: { class: 'status-completed', label: 'Abgeschlossen' }
-    };
-    return styles[status] || { class: 'status-default', label: status };
-  };
-
-  // Priority Badge Styling
-  const getPriorityBadge = (priority: ProjectPriority) => {
-    const styles = {
-      low: { class: 'priority-low', label: 'Niedrig', icon: '🟢' },
-      medium: { class: 'priority-medium', label: 'Mittel', icon: '🟡' },
-      high: { class: 'priority-high', label: 'Hoch', icon: '🔴' }
-    };
-    return styles[priority] || { class: 'priority-default', label: priority, icon: '⚪' };
-  };
-
-  // Project Type Icon
-  const getProjectTypeIcon = (type: ProjectType) => {
-    const icons = {
-      website: '🌐',
-      newsletter: '📧',
-      bewerbung: '📄',
-      ecommerce: '🛒',
-      custom: '⚙️'
-    };
-    return icons[type] || '📁';
-  };
-
-  // Progress Calculation (Mock)
-  const getProjectProgress = (project: Project): number => {
-    switch (project.status) {
-      case 'planning': return 15;
-      case 'inProgress': return 60;
-      case 'review': return 85;
-      case 'completed': return 100;
-      default: return 0;
-    }
-  };
-
-  // Deadline Status
-  const getDeadlineStatus = (deadline: string) => {
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
-    
-    if (diffDays < 0) return { class: 'deadline-overdue', label: 'Überfällig' };
-    if (diffDays <= 3) return { class: 'deadline-urgent', label: 'Dringend' };
-    if (diffDays <= 7) return { class: 'deadline-soon', label: 'Bald fällig' };
-    return { class: 'deadline-normal', label: 'Normal' };
-  };
-
   // Format Date
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('de-DE', {
@@ -200,18 +147,135 @@ const Projects: React.FC = () => {
     });
   };
 
+  // List View Project Item Component
+  const ProjectListItem: React.FC<{ project: Project }> = ({ project }) => {
+    const getStatusBadge = (status: ProjectStatus) => {
+      const styles = {
+        planning: { class: 'projects-status-planning', label: 'Planung' },
+        inProgress: { class: 'projects-status-progress', label: 'In Arbeit' },
+        review: { class: 'projects-status-review', label: 'Review' },
+        completed: { class: 'projects-status-completed', label: 'Abgeschlossen' }
+      };
+      return styles[status] || { class: 'projects-status-default', label: status };
+    };
+
+    const getPriorityBadge = (priority: ProjectPriority) => {
+      const styles = {
+        low: { class: 'projects-priority-low', label: 'Niedrig', icon: '🟢' },
+        medium: { class: 'projects-priority-medium', label: 'Mittel', icon: '🟡' },
+        high: { class: 'projects-priority-high', label: 'Hoch', icon: '🔴' }
+      };
+      return styles[priority] || { class: 'projects-priority-default', label: priority, icon: '⚪' };
+    };
+
+    const getProjectTypeIcon = (type: ProjectType) => {
+      const icons = {
+        website: '🌐',
+        newsletter: '📧',
+        bewerbung: '📄',
+        ecommerce: '🛒',
+        custom: '⚙️'
+      };
+      return icons[type] || '📁';
+    };
+
+    const getProjectProgress = (project: Project): number => {
+      switch (project.status) {
+        case 'planning': return 15;
+        case 'inProgress': return 60;
+        case 'review': return 85;
+        case 'completed': return 100;
+        default: return 0;
+      }
+    };
+
+    const progress = getProjectProgress(project);
+    const statusBadge = getStatusBadge(project.status);
+    const priorityBadge = getPriorityBadge(project.priority);
+
+    return (
+      <div className="projects-list-item">
+        <div className="projects-list-item-info">
+          <div className="projects-list-item-icon">
+            <span>{getProjectTypeIcon(project.type)}</span>
+          </div>
+          <div className="projects-list-item-details">
+            <h3 className="projects-list-item-name">{project.name}</h3>
+            <p className="projects-list-item-description">
+              {project.description || 'Keine Beschreibung verfügbar'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="projects-list-item-status">
+          <span className={`projects-badge ${statusBadge.class}`}>
+            {statusBadge.label}
+          </span>
+        </div>
+        
+        <div className="projects-list-item-priority">
+          <span className={`projects-badge ${priorityBadge.class}`}>
+            {priorityBadge.icon} {priorityBadge.label}
+          </span>
+        </div>
+        
+        <div className="projects-list-item-deadline">
+          <span>{formatDate(project.deadline)}</span>
+        </div>
+        
+        <div className="projects-list-item-progress">
+          <div className="projects-progress-bar">
+            <div 
+              className="projects-progress-fill" 
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <span className="projects-progress-text">{progress}%</span>
+        </div>
+        
+        <div className="projects-list-item-actions">
+          <button
+            className="projects-action-btn projects-action-btn--view"
+            onClick={() => handleProjectAction(project.id, 'view')}
+            title="Projekt anzeigen"
+          >
+            <HiEye />
+          </button>
+          {user.role === 'admin' && (
+            <>
+              <button
+                className="projects-action-btn projects-action-btn--edit"
+                onClick={() => handleProjectAction(project.id, 'edit')}
+                title="Projekt bearbeiten"
+              >
+                <HiPencil />
+              </button>
+              <button
+                className="projects-action-btn projects-action-btn--delete"
+                onClick={() => handleProjectAction(project.id, 'delete')}
+                title="Projekt löschen"
+              >
+                <HiTrash />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="projects-page">
       {/* Page Header */}
-      <header className="projects-header">
-        <div className="header-content">
+      <header className="projects-page-header">
+        <div className="projects-header-content">
           <h1>Projekte</h1>
-          <p className="subtitle">
+          <p className="projects-subtitle">
             {filteredAndSortedProjects.length} von {projects.length} Projekten
           </p>
         </div>
         
-        <div className="header-actions">
+        <div className="projects-header-actions">
           {user.role === 'admin' && (
             <button className="btn btn--primary" onClick={handleCreateProject}>
               <HiPlus />
@@ -231,9 +295,8 @@ const Projects: React.FC = () => {
 
       {/* Filters & Search */}
       <section className="projects-filters">
-        {/* Search Box */}
-        <div className="search-box">
-          <HiSearch className="search-icon" />
+        <div className="projects-search-box">
+          <HiSearch className="projects-search-icon" />
           <input
             type="text"
             placeholder="Projekte durchsuchen..."
@@ -242,8 +305,7 @@ const Projects: React.FC = () => {
           />
         </div>
 
-        {/* Filter Selects */}
-        <div className="filter-select">
+        <div className="projects-filter-select">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'all')}
@@ -256,7 +318,7 @@ const Projects: React.FC = () => {
           </select>
         </div>
 
-        <div className="filter-select">
+        <div className="projects-filter-select">
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value as ProjectPriority | 'all')}
@@ -268,7 +330,7 @@ const Projects: React.FC = () => {
           </select>
         </div>
 
-        <div className="filter-select">
+        <div className="projects-filter-select">
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as ProjectType | 'all')}
@@ -282,16 +344,15 @@ const Projects: React.FC = () => {
           </select>
         </div>
 
-        {/* View Toggle */}
-        <div className="view-toggle">
+        <div className="projects-view-toggle">
           <button
-            className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            className={`projects-toggle-btn ${viewMode === 'grid' ? 'projects-toggle-btn--active' : ''}`}
             onClick={() => setViewMode('grid')}
           >
             <HiViewGrid />
           </button>
           <button
-            className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+            className={`projects-toggle-btn ${viewMode === 'list' ? 'projects-toggle-btn--active' : ''}`}
             onClick={() => setViewMode('list')}
           >
             <HiViewList />
@@ -301,7 +362,7 @@ const Projects: React.FC = () => {
 
       {/* Error Display */}
       {error && (
-        <div className="alert alert--error">
+        <div className="projects-alert projects-alert--error">
           <HiExclamationTriangle />
           <span>{error}</span>
           <button onClick={() => setError(null)}>×</button>
@@ -310,190 +371,35 @@ const Projects: React.FC = () => {
 
       {/* Projects Content */}
       {filteredAndSortedProjects.length > 0 ? (
-        <section className={`projects-content ${viewMode}-view`}>
+        <section className={`projects-content projects-content--${viewMode}`}>
           {viewMode === 'grid' ? (
+            /* Grid View - KORRIGIERT: Verwendet ProjectCard-Komponente */
             <div className="projects-grid">
-              {filteredAndSortedProjects.map((project) => {
-                const progress = getProjectProgress(project);
-                const statusBadge = getStatusBadge(project.status);
-                const priorityBadge = getPriorityBadge(project.priority);
-                const deadlineStatus = getDeadlineStatus(project.deadline);
-                
-                return (
-                  <article key={project.id} className="project-card">
-                    <header className="card-header">
-                      <div className="project-title-section">
-                        <div className="project-type-icon">
-                          <span>{getProjectTypeIcon(project.type)}</span>
-                        </div>
-                        <div className="title-info">
-                          <h3>{project.name}</h3>
-                          <span className="project-type">{project.type}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="project-menu">
-                        <button className="menu-btn">
-                          <HiDotsVertical />
-                        </button>
-                      </div>
-                    </header>
-
-                    <div className="card-content">
-                      {project.description && (
-                        <p className="project-description">{project.description}</p>
-                      )}
-
-                      <div className="project-badges">
-                        <span className={`badge ${statusBadge.class}`}>
-                          {statusBadge.label}
-                        </span>
-                        <span className={`badge ${priorityBadge.class}`}>
-                          {priorityBadge.icon} {priorityBadge.label}
-                        </span>
-                        <span className={`badge ${deadlineStatus.class}`}>
-                          {deadlineStatus.label}
-                        </span>
-                      </div>
-
-                      <div className="project-progress">
-                        <div className="progress-header">
-                          <span className="progress-label">Fortschritt</span>
-                          <span className="progress-value">{progress}%</span>
-                        </div>
-                        <div className="progress-bar">
-                          <div 
-                            className="progress-fill" 
-                            style={{ width: `${progress}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="project-meta">
-                        <div className="meta-item">
-                          <HiCalendar className="meta-icon" />
-                          <span>{formatDate(project.deadline)}</span>
-                        </div>
-                        <div className="meta-item">
-                          <HiUser className="meta-icon" />
-                          <span>{project.assignedAdmin}</span>
-                        </div>
-                        <div className="meta-item">
-                          <HiClock className="meta-icon" />
-                          <span>{formatDate(project.createdAt)}</span>
-                        </div>
-                        <div className="meta-item">
-                          <HiFlag className="meta-icon" />
-                          <span>{project.messagesCount} Nachr.</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <footer className="card-actions">
-                      <button
-                        className="action-btn"
-                        onClick={() => handleProjectAction(project.id, 'view')}
-                      >
-                        <HiEye /> Anzeigen
-                      </button>
-                      {user.role === 'admin' && (
-                        <button
-                          className="action-btn primary"
-                          onClick={() => handleProjectAction(project.id, 'edit')}
-                        >
-                          <HiPencil /> Bearbeiten
-                        </button>
-                      )}
-                    </footer>
-                  </article>
-                );
-              })}
+              {filteredAndSortedProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  userRole={user.role}
+                  onProjectAction={handleProjectAction}
+                />
+              ))}
             </div>
           ) : (
             /* List View */
             <div className="projects-list">
-              {filteredAndSortedProjects.map((project) => {
-                const progress = getProjectProgress(project);
-                const statusBadge = getStatusBadge(project.status);
-                const priorityBadge = getPriorityBadge(project.priority);
-                
-                return (
-                  <div key={project.id} className="project-row">
-                    <div className="project-info">
-                      <div className="project-icon">
-                        <span>{getProjectTypeIcon(project.type)}</span>
-                      </div>
-                      <div className="project-details">
-                        <h3 className="project-name">{project.name}</h3>
-                        <p className="project-description">
-                          {project.description || 'Keine Beschreibung verfügbar'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="project-status-col">
-                      <span className={`badge ${statusBadge.class}`}>
-                        {statusBadge.label}
-                      </span>
-                    </div>
-                    
-                    <div className="project-priority-col">
-                      <span className={`badge ${priorityBadge.class}`}>
-                        {priorityBadge.icon} {priorityBadge.label}
-                      </span>
-                    </div>
-                    
-                    <div className="project-deadline-col">
-                      <span>{formatDate(project.deadline)}</span>
-                    </div>
-                    
-                    <div className="project-progress-col">
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <span className="progress-text">{progress}%</span>
-                    </div>
-                    
-                    <div className="project-actions">
-                      <button
-                        className="action-btn view"
-                        onClick={() => handleProjectAction(project.id, 'view')}
-                        title="Projekt anzeigen"
-                      >
-                        <HiEye />
-                      </button>
-                      {user.role === 'admin' && (
-                        <>
-                          <button
-                            className="action-btn edit"
-                            onClick={() => handleProjectAction(project.id, 'edit')}
-                            title="Projekt bearbeiten"
-                          >
-                            <HiPencil />
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            onClick={() => handleProjectAction(project.id, 'delete')}
-                            title="Projekt löschen"
-                          >
-                            <HiTrash />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredAndSortedProjects.map((project) => (
+                <ProjectListItem
+                  key={project.id}
+                  project={project}
+                />
+              ))}
             </div>
           )}
         </section>
       ) : (
         /* Empty State */
         <section className="projects-empty">
-          <HiFolderOpen className="empty-icon" />
+          <HiFolderOpen className="projects-empty-icon" />
           <h3>Keine Projekte gefunden</h3>
           <p>
             {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || typeFilter !== 'all'
@@ -502,7 +408,7 @@ const Projects: React.FC = () => {
             }
           </p>
           {user.role === 'admin' && (
-            <button className="create-first-btn" onClick={handleCreateProject}>
+            <button className="projects-create-first-btn" onClick={handleCreateProject}>
               <HiPlus /> Erstes Projekt erstellen
             </button>
           )}
@@ -511,8 +417,8 @@ const Projects: React.FC = () => {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="loading-overlay">
-          <div className="spinner">
+        <div className="projects-loading-overlay">
+          <div className="projects-spinner">
             <HiRefresh />
           </div>
         </div>
@@ -520,95 +426,95 @@ const Projects: React.FC = () => {
 
       {/* Project Detail Panel (Sidebar) */}
       {selectedProjectId && (
-        <aside className={`project-detail-panel ${selectedProjectId ? 'open' : ''}`}>
-          <header className="panel-header">
-            <h3 className="panel-title">Projektdetails</h3>
+        <aside className={`projects-detail-panel ${selectedProjectId ? 'projects-detail-panel--open' : ''}`}>
+          <header className="projects-panel-header">
+            <h3 className="projects-panel-title">Projektdetails</h3>
             <button 
-              className="close-btn"
+              className="projects-close-btn"
               onClick={() => setSelectedProjectId(null)}
             >
               ×
             </button>
           </header>
           
-          <div className="panel-content">
+          <div className="projects-panel-content">
             {(() => {
               const project = projects.find(p => p.id === selectedProjectId);
               if (!project) return <p>Projekt nicht gefunden</p>;
               
               return (
                 <>
-                  <div className="detail-section">
+                  <div className="projects-detail-section">
                     <h4>Grundinformationen</h4>
-                    <div className="detail-grid">
-                      <div className="detail-item">
-                        <div className="label">Projektname</div>
-                        <div className="value">{project.name}</div>
+                    <div className="projects-detail-grid">
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Projektname</div>
+                        <div className="projects-detail-value">{project.name}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Typ</div>
-                        <div className="value">{project.type}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Typ</div>
+                        <div className="projects-detail-value">{project.type}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Status</div>
-                        <div className="value">{project.status}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Status</div>
+                        <div className="projects-detail-value">{project.status}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Priorität</div>
-                        <div className="value">{project.priority}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Priorität</div>
+                        <div className="projects-detail-value">{project.priority}</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="detail-section">
+                  <div className="projects-detail-section">
                     <h4>Zeitplan</h4>
-                    <div className="detail-grid">
-                      <div className="detail-item">
-                        <div className="label">Erstellt am</div>
-                        <div className="value">{formatDate(project.createdAt)}</div>
+                    <div className="projects-detail-grid">
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Erstellt am</div>
+                        <div className="projects-detail-value">{formatDate(project.createdAt)}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Deadline</div>
-                        <div className="value">{formatDate(project.deadline)}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Deadline</div>
+                        <div className="projects-detail-value">{formatDate(project.deadline)}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Letzte Aktualisierung</div>
-                        <div className="value">{formatDate(project.updatedAt)}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Letzte Aktualisierung</div>
+                        <div className="projects-detail-value">{formatDate(project.updatedAt)}</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="detail-section">
+                  <div className="projects-detail-section">
                     <h4>Aktivität</h4>
-                    <div className="detail-grid">
-                      <div className="detail-item">
-                        <div className="label">Nachrichten</div>
-                        <div className="value">{project.messagesCount}</div>
+                    <div className="projects-detail-grid">
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Nachrichten</div>
+                        <div className="projects-detail-value">{project.messagesCount}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Dateien</div>
-                        <div className="value">{project.filesCount}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Dateien</div>
+                        <div className="projects-detail-value">{project.filesCount}</div>
                       </div>
-                      <div className="detail-item">
-                        <div className="label">Zugewiesener Admin</div>
-                        <div className="value">{project.assignedAdmin}</div>
+                      <div className="projects-detail-item">
+                        <div className="projects-detail-label">Zugewiesener Admin</div>
+                        <div className="projects-detail-value">{project.assignedAdmin}</div>
                       </div>
                     </div>
                   </div>
                   
                   {project.description && (
-                    <div className="detail-section">
+                    <div className="projects-detail-section">
                       <h4>Beschreibung</h4>
                       <p>{project.description}</p>
                     </div>
                   )}
                   
                   {project.tags && project.tags.length > 0 && (
-                    <div className="detail-section">
+                    <div className="projects-detail-section">
                       <h4>Tags</h4>
-                      <div className="project-tags">
+                      <div className="projects-tags">
                         {project.tags.map((tag, index) => (
-                          <span key={index} className="tag">{tag}</span>
+                          <span key={index} className="projects-tag">{tag}</span>
                         ))}
                       </div>
                     </div>
