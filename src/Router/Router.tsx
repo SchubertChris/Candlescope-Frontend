@@ -261,22 +261,6 @@ export const routes: RouteObject[] = [
           </SuspenseWrapper>
         ),
       },
-      {
-        path: 'oauth-success',
-        element: (
-          <SuspenseWrapper>
-            <OAuthSuccess />
-          </SuspenseWrapper>
-        ),
-      },
-      {
-        path: 'oauth-error',
-        element: (
-          <SuspenseWrapper>
-            <OAuthError />
-          </SuspenseWrapper>
-        ),
-      },
     ],
   },
 
