@@ -262,7 +262,7 @@ export const routes: RouteObject[] = [
         ),
       },
       {
-        path: '/oauth-success',
+        path: 'oauth-success',
         element: (
           <SuspenseWrapper>
             <OAuthSuccess />
@@ -270,14 +270,13 @@ export const routes: RouteObject[] = [
         ),
       },
       {
-        path: '/oauth-error',
+        path: 'oauth-error',
         element: (
           <SuspenseWrapper>
             <OAuthError />
           </SuspenseWrapper>
         ),
       },
-
     ],
   },
 
