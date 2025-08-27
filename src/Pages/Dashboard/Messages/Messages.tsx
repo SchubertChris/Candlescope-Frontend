@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Messages/Messages.tsx
-// KORRIGIERT: Verwendet MessageCard-Komponente statt inline HTML
+// KORRIGIERT: Auto-Scroll Problem behoben - scrollt nur bei neuen eigenen Messages
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -39,6 +39,10 @@ const Messages: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   
+  // KORRIGIERT: Neue States für kontrollierten Auto-Scroll
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
+  
   // Refs für Auto-Scroll
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -58,26 +62,42 @@ const Messages: React.FC = () => {
   // Aktives Projekt finden
   const activeProject = projects.find(p => p.id === activeProjectId);
 
-  // Auto-Scroll zu neuen Nachrichten
+  // KORRIGIERT: Kontrollierte Auto-Scroll Funktion
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // KORRIGIERT: Auto-Scroll nur bei echten neuen Messages (nicht bei Navigation)
   useEffect(() => {
-    scrollToBottom();
-  }, [activeProjectMessages]);
+    const currentMessageCount = activeProjectMessages.length;
+    
+    // Nur scrollen wenn:
+    // 1. shouldAutoScroll explizit aktiviert ist UND
+    // 2. tatsächlich neue Messages hinzugekommen sind
+    if (shouldAutoScroll && currentMessageCount > lastMessageCount) {
+      setTimeout(() => {
+        scrollToBottom();
+        setShouldAutoScroll(false); // Nach dem Scrollen wieder deaktivieren
+      }, 100);
+    }
+    
+    setLastMessageCount(currentMessageCount);
+  }, [activeProjectMessages, shouldAutoScroll, lastMessageCount]);
 
-  // Erstes Projekt automatisch auswählen beim Laden
+  // KORRIGIERT: Erstes Projekt auswählen OHNE Auto-Scroll zu triggern
   useEffect(() => {
     if (projects.length > 0 && !activeProjectId) {
       const projectWithMessages = projects.find(p => 
         messages.some(m => m.projectId === p.id)
       ) || projects[0];
+      
       setActiveProjectId(projectWithMessages.id);
+      // KORRIGIERT: Explizit KEIN Auto-Scroll bei initialer Projekt-Auswahl
+      setLastMessageCount(messages.filter(m => m.projectId === projectWithMessages.id).length);
     }
   }, [projects, messages, activeProjectId]);
 
-  // Auto-Resize für Textarea
+  // Auto-Resize für Textarea (unverändert)
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = 'auto';
@@ -85,11 +105,12 @@ const Messages: React.FC = () => {
     }
   }, [messageInput]);
 
-  // Message senden
+  // KORRIGIERT: Message senden mit explizitem Auto-Scroll
   const handleSendMessage = async () => {
     if (!messageInput.trim() || !activeProjectId || isSending) return;
     
     setIsSending(true);
+    setShouldAutoScroll(true); // KORRIGIERT: Auto-Scroll nur beim Senden aktivieren
     
     try {
       await onSendMessage(activeProjectId, messageInput.trim());
@@ -100,12 +121,13 @@ const Messages: React.FC = () => {
       }
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
+      setShouldAutoScroll(false); // Bei Fehler Auto-Scroll wieder deaktivieren
     } finally {
       setIsSending(false);
     }
   };
 
-  // Enter-Key Handler
+  // Enter-Key Handler (unverändert)
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -113,9 +135,14 @@ const Messages: React.FC = () => {
     }
   };
 
-  // Projekt auswählen
+  // KORRIGIERT: Projekt auswählen OHNE Auto-Scroll
   const handleProjectSelect = (projectId: string) => {
     setActiveProjectId(projectId);
+    
+    // KORRIGIERT: Message Count für neues Projekt setzen (verhindert ungewolltes Scrollen)
+    const newProjectMessages = messages.filter(m => m.projectId === projectId);
+    setLastMessageCount(newProjectMessages.length);
+    setShouldAutoScroll(false); // Explizit kein Auto-Scroll bei Projekt-Wechsel
     
     const unreadMessages = messages.filter(m => 
       m.projectId === projectId && !m.isRead
@@ -126,7 +153,7 @@ const Messages: React.FC = () => {
     });
   };
 
-  // Message Action Handler für MessageCard
+  // Message Action Handler für MessageCard (unverändert)
   const handleMessageAction = (messageId: string, action: string) => {
     switch (action) {
       case 'read':
@@ -141,7 +168,7 @@ const Messages: React.FC = () => {
     }
   };
 
-  // Time formatting für MessageCard
+  // Time formatting für MessageCard (unverändert)
   const formatTimeAgo = (timestamp: string): string => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -159,12 +186,12 @@ const Messages: React.FC = () => {
     });
   };
 
-  // Ungelesene Nachrichten pro Projekt zählen
+  // Ungelesene Nachrichten pro Projekt zählen (unverändert)
   const getUnreadCount = (projectId: string): number => {
     return messages.filter(m => m.projectId === projectId && !m.isRead).length;
   };
 
-  // Project Type Icon
+  // Project Type Icon (unverändert)
   const getProjectTypeIcon = (type: string) => {
     switch (type) {
       case 'website': return '🌐';
@@ -293,7 +320,7 @@ const Messages: React.FC = () => {
               </div>
             </header>
 
-            {/* Messages Container - KORRIGIERT: Verwendet MessageCard */}
+            {/* Messages Container */}
             <div className="messages-container">
               <div className="messages-list">
                 {activeProjectMessages.length > 0 ? (
