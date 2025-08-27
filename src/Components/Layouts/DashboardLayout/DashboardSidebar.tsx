@@ -1,18 +1,19 @@
 // src/Components/Layouts/DashboardLayout/DashboardSidebar.tsx
-// PROFESSIONAL: Dashboard Sidebar Navigation Component
+// KORRIGIERT: Collapsible Sidebar - Standard nur Icons, aufklappbar für Text
+// Mobile Navigation bleibt unverändert
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   HiHome,
   HiFolderOpen, 
-  HiChatAlt2, // ✅ KORRIGIERT: HiMessageSquare → HiChatAlt2
+  HiChatAlt2,
   HiReceiptTax,
   HiMail,
   HiCog,
   HiUser,
   HiLogout,
-  HiCode
+  HiViewGrid // KORRIGIERT: 9-Punkt Grid Icon statt Chevron
 } from 'react-icons/hi';
 import { UserRole, DashboardView } from '@/Pages/Dashboard/Types/DashboardTypes';
 
@@ -20,6 +21,8 @@ interface DashboardSidebarProps {
   userRole: UserRole;
   notifications: number;
   onLogout: () => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 interface NavItem {
@@ -34,7 +37,9 @@ interface NavItem {
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   userRole,
   notifications,
-  onLogout
+  onLogout,
+  isExpanded,
+  onToggle
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,7 +60,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     {
       id: 'messages',
       label: 'Nachrichten',
-      icon: HiChatAlt2, // ✅ KORRIGIERT
+      icon: HiChatAlt2,
       path: '/dashboard/messages',
       badge: notifications
     },
@@ -97,13 +102,31 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     return location.pathname.startsWith(path);
   };
 
+  // KORRIGIERT: Toggle über Props statt lokalem State
+  const toggleSidebar = () => {
+    onToggle();
+  };
+
   return (
-    <aside className="dashboard-sidebar">
-      {/* Sidebar Header */}
+    <aside className={`dashboard-sidebar ${isExpanded ? 'dashboard-sidebar--expanded' : 'dashboard-sidebar--collapsed'}`}>
+      {/* KORRIGIERT: Sidebar Toggle Button mit 9-Punkt Grid Icon */}
+      <button 
+        className="sidebar-toggle-btn"
+        onClick={toggleSidebar}
+        title={isExpanded ? 'Sidebar einklappen' : 'Sidebar ausklappen'}
+      >
+        <HiViewGrid />
+      </button>
+
+      {/* Sidebar Header - nur bei expanded */}
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <div className="brand-icon">
+            {/* Icon hier falls gewünscht */}
           </div>
+          {isExpanded && (
+            <div className="brand-text">Dashboard</div>
+          )}
         </div>
       </div>
 
@@ -121,11 +144,19 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 <button
                   className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
                   onClick={() => handleNavigation(item.path)}
+                  title={!isExpanded ? item.label : ''} // Tooltip nur bei collapsed
                 >
-                  <item.icon className="nav-icon" />
-                  <span className="nav-text">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
-                    <span className="nav-badge">{item.badge}</span>
+                  <div className="nav-icon-wrapper">
+                    <item.icon className="nav-icon" />
+                    {/* KORRIGIERT: Badge als vertikaler Streifen statt Zahlen */}
+                    {item.badge && item.badge > 0 && (
+                      <span className="nav-badge-stripe"></span>
+                    )}
+                  </div>
+                  
+                  {/* KORRIGIERT: Text nur bei expanded anzeigen */}
+                  {isExpanded && (
+                    <span className="nav-text">{item.label}</span>
                   )}
                 </button>
               </li>
@@ -136,7 +167,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
       {/* Sidebar Footer */}
       <div className="sidebar-footer">
-{/* Kann noch was rein [Werbung etc.] */}
+        {/* Kann noch was rein [Werbung etc.] */}
       </div>
     </aside>
   );

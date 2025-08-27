@@ -1,0 +1,213 @@
+.
+   │.env
+   │.env.example
+   │.gitignore
+   │dist
+   │   │assets
+   │   │   │animations-1oDrbmgY.js
+   │   │   │CandleScopeLogo-BCNZvY6M.png
+   │   │   │Dashboard-DQJ4Q48y.js
+   │   │   │Dashboard-ucE5gWKA.css
+   │   │   │DashboardContext-BWcHnXNz.js
+   │   │   │icons-D8DXKN1n.js
+   │   │   │index-Bbw0FQ1w.js
+   │   │   │index-CkqB1YE7.css
+   │   │   │index-DpWyUd-q.js
+   │   │   │Invoices-C4PAX1We.css
+   │   │   │Invoices-DUaSsllO.js
+   │   │   │Kontakt-Index-BHUVaf7j.css
+   │   │   │Kontakt-Index-BnEbT45V.js
+   │   │   │kramer__-CX8kcUq1.TTF
+   │   │   │LandingPage-Index-DromzLRV.js
+   │   │   │LandingPage-Index-GNRB7j7g.css
+   │   │   │Meredia-D9bCvpgI.ttf
+   │   │   │Messages-18VdrYfX.css
+   │   │   │Messages-LWaznPcL.js
+   │   │   │Mexcellent3d-DpDhb_4j.otf
+   │   │   │Newsletter-D9GEnzt7.css
+   │   │   │Newsletter-DZ7-K8Ev.js
+   │   │   │OAuthCallback-BPraOP0a.css
+   │   │   │OAuthError-C26JVqHn.js
+   │   │   │OAuthSuccess-D7kI_5qk.js
+   │   │   │Overview-BkHEijmb.js
+   │   │   │Overview-Co8-JN1P.css
+   │   │   │Profile-Bx3M7Wzu.js
+   │   │   │Profile-jNaKASrL.css
+   │   │   │Projects-3A9NHPHR.js
+   │   │   │Projects-cbHMEiV_.css
+   │   │   │Reiswar-DhEu-ynq.ttf
+   │   │   │router-BvN9Kz9F.js
+   │   │   │Settings-BXma89V4.js
+   │   │   │Settings-DXtQpZSj.css
+   │   │   │Stretch-CH6E1sjS.otf
+   │   │   │users-CNbXQj4f.js
+   │   │   │vendor-DJG_os-6.js
+   │   │CandleScopeLogo.png
+   │   │index.html
+   │eslint.config.js
+   │index.html
+   │package-lock.json
+   │package.json
+   │Projektstruktur.txt
+   │public
+   │   │CandleScopeLogo.png
+   │README.md
+   │src
+   │   │App.tsx
+   │   │assets
+   │   │   │Fonts
+   │   │   │   │KRAMER
+   │   │   │   │   │kramer__.TTF
+   │   │   │   │Meredia
+   │   │   │   │   │Meredia.ttf
+   │   │   │   │Mexcellent
+   │   │   │   │   │Mexcellent3d.otf
+   │   │   │   │   │MexcellentRg.otf
+   │   │   │   │Reiswar
+   │   │   │   │   │Reiswar.ttf
+   │   │   │   │StretchPro
+   │   │   │   │   │Stretch.otf
+   │   │   │Images
+   │   │   │   │CandleScopeBanner2.png
+   │   │   │   │CandleScopeBanner22.png
+   │   │   │   │DasBinIch.png
+   │   │   │   │DasBinIch3.png
+   │   │   │   │Logo
+   │   │   │   │   │CandleScopeLogo.png
+   │   │Components
+   │   │   │Layouts
+   │   │   │   │AppLayout-Standard
+   │   │   │   │   │Footer.tsx
+   │   │   │   │   │Main-Router-Slot.tsx
+   │   │   │   │   │Navbar.tsx
+   │   │   │   │   │StandardLayout.tsx
+   │   │   │   │   │Style
+   │   │   │   │   │   │Footer.scss
+   │   │   │   │   │   │Main-Router-Slot.scss
+   │   │   │   │   │   │Navbar.scss
+   │   │   │   │   │   │StandardLayout.scss
+   │   │   │   │DashboardLayout
+   │   │   │   │   │DashboardHeader.tsx
+   │   │   │   │   │DashboardLayout.tsx
+   │   │   │   │   │DashboardMainContent.tsx
+   │   │   │   │   │DashboardSidebar.tsx
+   │   │   │   │   │Style
+   │   │   │   │   │   │DashboardLayout.scss
+   │   │   │PageComponents
+   │   │   │   │LandingPage
+   │   │   │   │   │LandingPage-AboutSection.tsx
+   │   │   │   │   │LandingPage-ContactSection.tsx
+   │   │   │   │   │LandingPage-HeroSection.tsx
+   │   │   │   │   │LandingPage-OffersSection.tsx
+   │   │   │   │   │LandingPage-WorkSection.tsx
+   │   │   │   │   │Style
+   │   │   │   │   │   │LandingPage-AboutSection.scss
+   │   │   │   │   │   │LandingPage-ContactSection.scss
+   │   │   │   │   │   │LandingPage-HeroSection.scss
+   │   │   │   │   │   │LandingPage-OffersSection.scss
+   │   │   │   │   │   │LandingPage-WorkSection.scss
+   │   │   │Ui
+   │   │   │   │AnimatedBackground.scss
+   │   │   │   │AnimatedBackground.tsx
+   │   │   │   │CookieBanner.scss
+   │   │   │   │CookieBanner.tsx
+   │   │   │Utils
+   │   │   │   │ScrollObserver.ts
+   │   │main.tsx
+   │   │Pages
+   │   │   │Dashboard
+   │   │   │   │Components
+   │   │   │   │   │Cards
+   │   │   │   │   │   │MessageCard
+   │   │   │   │   │   │   │MessageCard.scss
+   │   │   │   │   │   │   │MessageCard.tsx
+   │   │   │   │   │   │ProjectCard
+   │   │   │   │   │   │   │ProjectCard.scss
+   │   │   │   │   │   │   │ProjectCard.tsx
+   │   │   │   │   │   │ProjectPreviewCard
+   │   │   │   │   │   │   │ProjectPreviewCard.scss
+   │   │   │   │   │   │   │ProjectPreviewCard.tsx
+   │   │   │   │   │Common
+   │   │   │   │   │   │DashboardHeader
+   │   │   │   │   │   │   │DashboardHeader.scss
+   │   │   │   │   │   │   │DashboardHeader.tsx
+   │   │   │   │   │   │DashboardLoading
+   │   │   │   │   │   │   │DashboardLoading.scss
+   │   │   │   │   │   │   │DashboardLoading.tsx
+   │   │   │   │   │   │DashboardNavigation
+   │   │   │   │   │   │   │DashboardNavigation.scss
+   │   │   │   │   │   │   │DashboardNavigation.tsx
+   │   │   │   │   │   │StatsSection
+   │   │   │   │   │   │   │StatsSection.scss
+   │   │   │   │   │   │   │StatsSection.tsx
+   │   │   │   │Context
+   │   │   │   │   │DashboardContext.tsx
+   │   │   │   │Dashboard.scss
+   │   │   │   │Dashboard.tsx
+   │   │   │   │Invoices
+   │   │   │   │   │Invoices.scss
+   │   │   │   │   │Invoices.tsx
+   │   │   │   │Messages
+   │   │   │   │   │Messages.scss
+   │   │   │   │   │Messages.tsx
+   │   │   │   │Newsletter
+   │   │   │   │   │Newsletter.scss
+   │   │   │   │   │Newsletter.tsx
+   │   │   │   │Overview
+   │   │   │   │   │Overview.scss
+   │   │   │   │   │Overview.tsx
+   │   │   │   │Profile
+   │   │   │   │   │Profile.scss
+   │   │   │   │   │Profile.tsx
+   │   │   │   │Projects
+   │   │   │   │   │Projects.scss
+   │   │   │   │   │Projects.tsx
+   │   │   │   │Settings
+   │   │   │   │   │Settings.scss
+   │   │   │   │   │Settings.tsx
+   │   │   │   │Shared
+   │   │   │   │   │_dashboard-base.scss
+   │   │   │   │   │_dashboard-components.scss
+   │   │   │   │   │_dashboard-content.scss
+   │   │   │   │Types
+   │   │   │   │   │DashboardTypes.ts
+   │   │   │   │   │NewsletterTypes.ts
+   │   │   │Kontakt
+   │   │   │   │Kontakt-Index.scss
+   │   │   │   │Kontakt-Index.tsx
+   │   │   │LandingPage
+   │   │   │   │LandingPage-Index.scss
+   │   │   │   │LandingPage-Index.tsx
+   │   │   │OAuth
+   │   │   │   │OAuthError.tsx
+   │   │   │   │OAuthSuccess.tsx
+   │   │   │   │Style
+   │   │   │   │   │OAuthCallback.scss
+   │   │Router
+   │   │   │ProtectedRoute.tsx
+   │   │   │Router.tsx
+   │   │Services
+   │   │   │Auth-Service.ts
+   │   │   │AxiosInstance-Service.ts
+   │   │   │Contact-Service.ts
+   │   │   │Dashboard-Service.ts
+   │   │   │Newsletter-Service.ts
+   │   │   │ThemeToggle-Service.ts
+   │   │Styles
+   │   │   │Base
+   │   │   │   │_ANIMATIONS.scss
+   │   │   │   │_DASHBOARD_THEME.scss
+   │   │   │   │_FONTS.scss
+   │   │   │   │_MIXINS.scss
+   │   │   │   │_RESET.scss
+   │   │   │   │_VARIABLES.scss
+   │   │   │MAIN.scss
+   │   │Types
+   │   │vite-env.d.ts
+   │todo.md
+   │tsconfig.app.json
+   │tsconfig.app.tsbuildinfo
+   │tsconfig.json
+   │tsconfig.node.json
+   │vercel.json
+   │vite.config.ts

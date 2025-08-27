@@ -1,6 +1,7 @@
 // =============================================================================
-// DASHBOARD LAYOUT STYLES - ERWEITERT MIT MODERNEM HEADER
+// DASHBOARD LAYOUT STYLES - MIT AUTO-HIDE HEADER UND COLLAPSIBLE SIDEBAR
 // Datei: DashboardLayout.scss
+// KORRIGIERT: Auto-Hide Header + Sidebar Collapse/Expand Funktionalität
 // =============================================================================
 
 @use "../../../../Styles/Base/_VARIABLES" as *;
@@ -15,10 +16,16 @@
   grid-template-areas:
     "header header"
     "sidebar main";
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 80px 1fr; // KORRIGIERT: Standardbreite für collapsed sidebar
   grid-template-rows: auto 1fr;
   min-height: 100vh;
   background: transparent;
+  transition: grid-template-columns 0.3s ease; // Smooth transition für Sidebar-Resize
+
+  // KORRIGIERT: Expanded Sidebar State
+  &.layout--sidebar-expanded {
+    grid-template-columns: 280px 1fr;
+  }
 
   @media (max-width: 768px) {
     grid-template-areas:
@@ -31,7 +38,7 @@
 }
 
 // =============================================================================
-// DASHBOARD HEADER - MODERNISIERT
+// DASHBOARD HEADER - MIT AUTO-HIDE FUNKTIONALITÄT
 // =============================================================================
 .dashboard-header {
   grid-area: header;
@@ -44,9 +51,24 @@
   box-shadow: 0 -4px 24px 0 rgba(162, 89, 255, 0.1);
   border-bottom: 1px solid rgba(162, 89, 255, 0.1);
   padding: 1rem 0;
+  
+  // KORRIGIERT: Smooth Transform für Auto-Hide
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   @media (max-width: 768px) {
     padding: 0.75rem 0;
+  }
+
+  // KORRIGIERT: Hidden State
+  &.dashboard-header--hidden {
+    transform: translateY(-100%);
+    box-shadow: none;
+  }
+
+  // KORRIGIERT: Visible State (für explizite Animation)
+  &.dashboard-header--visible {
+    transform: translateY(0);
   }
 
   .header-container {
@@ -66,8 +88,7 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    font-family: "hero-font", Arial,
-      sans-serif;
+    font-family: "hero-font", Arial, sans-serif;
 
     .brand-logo-wrapper {
       max-width: 124px;
@@ -114,8 +135,7 @@
         margin: 0;
         color: var(--color-primary);
         letter-spacing: -0.5px;
-        font-family: "hero-font", "Segoe UI", "Roboto", "Helvetica Neue", Arial,
-          sans-serif;
+        font-family: "hero-font", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
         line-height: 1.15;
       }
 
@@ -124,8 +144,7 @@
         margin: 0;
         color: var(--color-text-secondary);
         opacity: 0.85;
-        font-family: "hero-font", "Segoe UI", "Roboto", "Helvetica Neue", Arial,
-          sans-serif;
+        font-family: "hero-font", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
         font-weight: 400;
         letter-spacing: 0.01em;
       }
@@ -155,30 +174,6 @@
           border-radius: 4px;
           border: 1px solid rgba(162, 89, 255, 0.18);
         }
-      }
-    }
-  }
-
-  .mobile-menu-btn {
-    display: none;
-
-    @media (max-width: 768px) {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: rgba(162, 89, 255, 0.2);
-        color: var(--color-primary);
       }
     }
   }
@@ -273,7 +268,7 @@
     }
   }
 
-  // MODERNISIERT: Action Buttons mit coolen Effekten
+  // Action Buttons mit coolen Effekten
   .action-btn {
     position: relative;
     display: flex;
@@ -297,25 +292,6 @@
       border-color: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    // Ripple-Effekt beim Click
-    &::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-
-    &:active::before {
-      width: 200px;
-      height: 200px;
     }
 
     @media (max-width: 768px) {
@@ -352,7 +328,7 @@
       }
     }
 
-    // Settings Button - nur Icon
+    // Settings Button
     &.settings-btn {
       &:hover {
         color: #f59e0b;
@@ -392,60 +368,7 @@
 }
 
 // =============================================================================
-// ANIMATIONS
-// =============================================================================
-
-@keyframes brandPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 5px rgba(162, 89, 255, 0.3));
-  }
-  50% {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 15px rgba(162, 89, 255, 0.6));
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
-
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-3px);
-  }
-  60% {
-    transform: translateY(-2px);
-  }
-}
-
-// =============================================================================
-// SIDEBAR (Unverändert)
+// SIDEBAR - COLLAPSIBLE MIT ICON-ONLY UND EXPANDED STATES
 // =============================================================================
 .dashboard-sidebar {
   grid-area: sidebar;
@@ -455,6 +378,14 @@
   box-shadow: 0 -4px 24px 0 rgba(162, 89, 255, 0.1);
   padding: 2rem 0;
   overflow-y: auto;
+  position: relative;
+  width: 80px; // KORRIGIERT: Collapsed Standardbreite
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // KORRIGIERT: Expanded State
+  &.dashboard-sidebar--expanded {
+    width: 280px;
+  }
 
   @media (max-width: 768px) {
     position: sticky;
@@ -463,6 +394,7 @@
     left: 0;
     right: 0;
     z-index: 90;
+    width: 100% !important; // Mobile immer full width
     padding: 0.75rem 0.5rem 0.85rem 0.5rem;
     border-top: 1.5px solid rgba(162, 89, 255, 0.13);
     border-right: none;
@@ -472,9 +404,54 @@
     box-shadow: 0 -4px 24px 0 rgba(162, 89, 255, 0.1);
   }
 
+  // KORRIGIERT: Sidebar Toggle Button - 9-Punkt Grid Icon Design
+  .sidebar-toggle-btn {
+    position: absolute;
+    top: 1rem;
+    right: -12px;
+    width: 28px; // KORRIGIERT: Etwas größer für bessere Klickfläche
+    height: 28px;
+    background: var(--color-primary); // KORRIGIERT: Vollfarbe statt transparent
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px; // KORRIGIERT: Rechteckiger für Grid-Icon
+    color: white; // KORRIGIERT: Weiß/solid
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem; // KORRIGIERT: Größer für Grid-Icon
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(162, 89, 255, 0.3);
+
+    @media (max-width: 768px) {
+      display: none; // Auf Mobile verstecken
+    }
+
+    &:hover {
+      background: var(--color-primary-light);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(162, 89, 255, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
   .sidebar-header {
     padding: 0 1.5rem 2rem;
     margin-bottom: 2rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.3s ease;
+
+    // KORRIGIERT: Nur bei expanded sichtbar
+    .dashboard-sidebar--expanded & {
+      opacity: 1;
+      transform: translateX(0);
+    }
 
     @media (max-width: 768px) {
       display: none;
@@ -488,17 +465,8 @@
       font-size: 1.5rem;
       font-weight: bold;
 
-      .brand-icon {
-        font-size: 2rem;
-        filter: drop-shadow(0 0 10px currentColor);
-      }
-
       .brand-text {
-        background: linear-gradient(
-          135deg,
-          var(--color-primary),
-          var(--color-primary-light)
-        );
+        background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -507,7 +475,12 @@
   }
 
   .sidebar-nav {
-    padding: 0 1rem;
+    padding: 0 0.5rem; // KORRIGIERT: Weniger Padding für collapsed state
+
+    // KORRIGIERT: Mehr Padding bei expanded
+    .dashboard-sidebar--expanded & {
+      padding: 0 1rem;
+    }
 
     @media (max-width: 768px) {
       padding: 0;
@@ -531,10 +504,9 @@
     .nav-item {
       .nav-link {
         display: flex;
-        justify-content: space-evenly;
         align-items: center;
         gap: 1rem;
-        padding: 1rem 1.5rem;
+        padding: 1rem; // KORRIGIERT: Gleichmäßiges Padding
         color: rgba(255, 255, 255, 0.7);
         background: transparent;
         border: 1px solid transparent;
@@ -543,9 +515,15 @@
         transition: all 0.3s ease;
         font-weight: 500;
         width: 100%;
-        min-width: 90px;
+        min-width: 48px; // KORRIGIERT: Mindestbreite für Icon-only
         text-align: left;
         position: relative;
+        justify-content: flex-start; // KORRIGIERT: Icons links ausrichten
+
+        // KORRIGIERT: In collapsed mode Icons zentrieren
+        &:not(.dashboard-sidebar--expanded &) {
+          justify-content: center;
+        }
 
         @media (max-width: 768px) {
           flex-direction: column;
@@ -554,13 +532,16 @@
           text-align: center;
           font-size: 0.7rem;
           border-radius: 8px;
+          justify-content: center;
         }
 
-        // Abstand nach rechts nur für das letzte Element in der Nav-Liste (mobile)
-        @media (max-width: 768px) {
-          &:last-child {
-            margin-right: 1.25rem;
-          }
+        // KORRIGIERT: Icon Wrapper für Badge-Positionierung
+        .nav-icon-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
         }
 
         .nav-icon {
@@ -575,24 +556,60 @@
 
         .nav-text {
           flex: 1;
+          white-space: nowrap;
+          opacity: 0;
+          transform: translateX(-10px);
+          transition: all 0.3s ease;
+          
+          // KORRIGIERT: Nur bei expanded sichtbar
+          .dashboard-sidebar--expanded & {
+            opacity: 1;
+            transform: translateX(0);
+          }
+
+          @media (max-width: 768px) {
+            opacity: 1;
+            transform: none;
+          }
         }
 
-        .nav-badge {
-          color: white;
-          font-size: 0.75rem;
-          font-weight: bold;
-          padding: 0.25rem 0.5rem;
-          border-radius: 10px;
-          min-width: 20px;
-          text-align: center;
+        .nav-badge-stripe {
+          position: absolute;
+          top: 2px;
+          right: 2px;
+          width: 3px; // KORRIGIERT: Schmaler vertikaler Streifen
+          height: 16px; // KORRIGIERT: Höher für bessere Sichtbarkeit
+          background: linear-gradient(
+            180deg,
+            #ef4444 0%,
+            #dc2626 100%
+          ); // KORRIGIERT: Vertikaler Gradient
+          border-radius: 2px;
+          box-shadow: 
+            0 1px 3px rgba(239, 68, 68, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.2); // KORRIGIERT: Weißer Rand für Kontrast
           animation: pulse 2s infinite;
 
           @media (max-width: 768px) {
-            position: absolute;
             top: 4px;
-            right: 4px;
-            font-size: 0.6rem;
-            padding: 0.1rem 0.3rem;
+            right: 6px;
+            width: 2px; // KORRIGIERT: Noch schmaler auf Mobile
+            height: 12px;
+            box-shadow: 
+              0 1px 2px rgba(239, 68, 68, 0.4),
+              0 0 0 1px rgba(255, 255, 255, 0.3);
+          }
+
+          // KORRIGIERT: Hover-Effekt für Streifen
+          .nav-link:hover & {
+            background: linear-gradient(
+              180deg,
+              #f87171 0%,
+              #ef4444 100%
+            );
+            box-shadow: 
+              0 2px 6px rgba(239, 68, 68, 0.6),
+              0 0 0 1px rgba(255, 255, 255, 0.4);
           }
         }
 
@@ -602,7 +619,10 @@
           border-color: rgba(255, 255, 255, 0.1);
 
           @media (min-width: 769px) {
-            transform: translateX(5px);
+            // KORRIGIERT: Transform nur bei expanded oder mobile
+            .dashboard-sidebar--expanded & {
+              transform: translateX(5px);
+            }
           }
 
           .nav-icon {
@@ -613,15 +633,24 @@
 
         &.active {
           color: white;
+          background: rgba(162, 89, 255, 0.15);
           border-color: var(--color-primary);
           box-shadow: 0 4px 15px rgba(162, 89, 255, 0.3);
-          .nav-badge{
-            background: var(--color-primary);
+
+          .nav-badge-stripe {
+            background: linear-gradient(
+              180deg,
+              var(--color-primary) 0%,
+              var(--color-primary-dark) 100%
+            ); // KORRIGIERT: Primary Color für aktive Nav-Items
+            box-shadow: 
+              0 2px 6px rgba(162, 89, 255, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.3);
           }
 
           .nav-icon {
-            color: white;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+            color: var(--color-primary);
+            filter: drop-shadow(0 0 15px rgba(162, 89, 255, 0.5));
           }
         }
       }
@@ -631,6 +660,15 @@
   .sidebar-footer {
     padding: 2rem 1.5rem 1rem;
     margin-top: auto;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.3s ease;
+
+    // KORRIGIERT: Nur bei expanded sichtbar
+    .dashboard-sidebar--expanded & {
+      opacity: 1;
+      transform: translateX(0);
+    }
 
     @media (max-width: 768px) {
       display: none;
@@ -639,13 +677,14 @@
 }
 
 // =============================================================================
-// MAIN CONTENT AREA (Unverändert)
+// MAIN CONTENT AREA - ANGEPASST FÜR DYNAMISCHE SIDEBAR
 // =============================================================================
 .dashboard-main-content {
   grid-area: main;
   padding: 2rem;
   overflow-y: auto;
   min-height: 0;
+  transition: all 0.3s ease; // Smooth transition für Layout-Changes
 
   @media (max-width: 768px) {
     padding: 1rem;
@@ -659,7 +698,91 @@
 }
 
 // =============================================================================
-// SCROLLBAR STYLING (Unverändert)
+// LAYOUT STATE MANAGEMENT
+// =============================================================================
+
+// KORRIGIERT: JavaScript Hook für Layout State
+.dashboard-layout {
+  // Sidebar collapsed state
+  &:has(.dashboard-sidebar--collapsed) {
+    grid-template-columns: 80px 1fr;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Sidebar expanded state
+  &:has(.dashboard-sidebar--expanded) {
+    grid-template-columns: 280px 1fr;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
+@keyframes brandPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 5px rgba(162, 89, 255, 0.3));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(162, 89, 255, 0.6));
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+// KORRIGIERT: Slide-in Animation für Sidebar-Inhalte
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// SCROLLBAR STYLING
 // =============================================================================
 .dashboard-sidebar {
   &::-webkit-scrollbar {
@@ -677,5 +800,285 @@
     &:hover {
       background: rgba(255, 255, 255, 0.4);
     }
+  }
+}
+
+// =============================================================================
+// RESPONSIVE VERBESSERUNGEN
+// =============================================================================
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 80px 1fr; // Tablet bleibt collapsed
+  }
+  
+  .dashboard-sidebar {
+    &.dashboard-sidebar--expanded {
+      width: 240px; // Kleinere expanded width auf Tablet
+    }
+  }
+}
+
+// =============================================================================
+// HIGH CONTRAST UND ACCESSIBILITY
+// =============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-sidebar,
+  .dashboard-header,
+  .nav-link,
+  .sidebar-toggle-btn {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .dashboard-sidebar {
+    border: 2px solid var(--color-primary);
+  }
+  
+  .nav-link {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+// =============================================================================
+// CROSS-BROWSER BADGE STRIPE FIXES
+// Ergänzung zur DashboardLayout.scss für optimale Badge-Darstellung
+// =============================================================================
+
+// ===========================
+// WEBKIT/SAFARI FIXES
+// ===========================
+@supports (-webkit-appearance: none) {
+  .nav-badge-stripe {
+    // Safari braucht explizite Backdrop-Filter-Unterstützung
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    // Safari Gradient-Fix
+    background: -webkit-linear-gradient(
+      top,
+      #ef4444 0%,
+      #dc2626 100%
+    );
+    background: linear-gradient(
+      180deg,
+      #ef4444 0%,
+      #dc2626 100%
+    );
+  }
+}
+
+// ===========================
+// FIREFOX FIXES
+// ===========================
+@-moz-document url-prefix() {
+  .nav-badge-stripe {
+    // Firefox Box-Shadow-Rendering verbessern
+    box-shadow: 
+      0 1px 3px rgba(239, 68, 68, 0.5),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ===========================
+// iOS/MOBILE SAFARI FIXES
+// ===========================
+@supports (-webkit-touch-callout: none) {
+  .nav-badge-stripe {
+    // iOS Safari braucht explizite Transform-Optimierung
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    // Touch-Optimierung
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .sidebar-toggle-btn {
+    // iOS Button-Styling Fix
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+// ===========================
+// ANDROID CHROME FIXES
+// ===========================
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+  .nav-badge-stripe {
+    // Android Chrome Pixelation-Fix
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+// ===========================
+// HIGH-DPI DISPLAYS (RETINA)
+// ===========================
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .nav-badge-stripe {
+    // Retina-optimierte Streifen-Breite
+    width: 2.5px;
+    border-radius: 1.5px;
+    
+    @media (max-width: 768px) {
+      width: 2px;
+      border-radius: 1px;
+    }
+  }
+  
+  .sidebar-toggle-btn {
+    // Retina Button-Optimierung
+    border-width: 1.5px;
+  }
+}
+
+// ===========================
+// EDGE/IE LEGACY SUPPORT
+// ===========================
+@supports not (display: grid) {
+  // Fallback für alte Browser
+  .dashboard-sidebar {
+    width: 80px !important;
+    
+    &.dashboard-sidebar--expanded {
+      width: 280px !important;
+    }
+  }
+  
+  .nav-badge-stripe {
+    // IE Fallback
+    background: #ef4444;
+    filter: progid:DXImageTransform.Microsoft.gradient(
+      startColorstr='#ef4444', 
+      endColorstr='#dc2626'
+    );
+  }
+}
+
+// ===========================
+// PRINT OPTIMIERUNG
+// ===========================
+@media print {
+  .nav-badge-stripe {
+    background: #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
+}
+
+// ===========================
+// REDUCED MOTION ACCESSIBILITY
+// ===========================
+@media (prefers-reduced-motion: reduce) {
+  .nav-badge-stripe {
+    animation: none !important;
+  }
+  
+  .sidebar-toggle-btn {
+    transition: none !important;
+    
+    &:hover {
+      transform: none !important;
+    }
+  }
+}
+
+// ===========================
+// HOVER CAPABILITY DETECTION
+// ===========================
+@media (hover: none) and (pointer: coarse) {
+  // Touch-only Geräte
+  .sidebar-toggle-btn {
+    // Größere Touch-Fläche auf Touch-Geräten
+    width: 32px;
+    height: 32px;
+    right: -14px;
+    
+    &:hover {
+      // Hover-Effekte deaktivieren
+      transform: none;
+      background: var(--color-primary);
+    }
+    
+    // Active-State für Touch
+    &:active {
+      background: var(--color-primary-dark);
+      transform: scale(0.9);
+    }
+  }
+  
+  .nav-badge-stripe {
+    // Touch-optimierte Badge-Größe
+    width: 4px;
+    height: 18px;
+    
+    @media (max-width: 768px) {
+      width: 3px;
+      height: 14px;
+    }
+  }
+}
+
+// ===========================
+// FORCE HARDWARE ACCELERATION
+// ===========================
+.nav-badge-stripe,
+.sidebar-toggle-btn {
+  // GPU-Acceleration für smooth Animationen
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// ===========================
+// CONTRAST UND ACCESSIBILITY
+// ===========================
+@media (prefers-contrast: high) {
+  .nav-badge-stripe {
+    background: #ff0000 !important; // Höherer Kontrast
+    box-shadow: 
+      0 0 0 2px #ffffff,
+      0 0 0 3px #000000;
+  }
+  
+  .sidebar-toggle-btn {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  // Bereits durch CSS-Variablen abgedeckt, aber zusätzliche Sicherheit
+  .nav-badge-stripe {
+    box-shadow: 
+      0 1px 3px rgba(239, 68, 68, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.3); // Stärkerer weißer Rand im Dark Mode
+  }
+}
+
+// ===========================
+// LANDSCAPE ORIENTATION FIXES
+// ===========================
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  // Kleine Landscape-Displays (z.B. iPhone im Querformat)
+  .sidebar-toggle-btn {
+    top: 0.5rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+  }
+  
+  .nav-badge-stripe {
+    width: 2px;
+    height: 12px;
   }
 }

@@ -1,6 +1,7 @@
 // =============================================================================
-// DASHBOARD HEADER COMPONENT - VEREINFACHT FÜR BESTEHENDE STRUKTUR
+// DASHBOARD HEADER COMPONENT - MIT KOMPAKT-SYSTEM
 // Datei: DashboardHeader.tsx
+// KORRIGIERT: Alle Referenzen auf isHeaderVisible entfernt
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -8,8 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   HiCode,
   HiUserCircle,
-  HiMail, // GEÄNDERT: Brief-Icon für Benachrichtigungen
-  HiCog, // Nur als Icon ohne Text
+  HiMail,
+  HiCog,
   HiLogout,
   HiMenuAlt3,
   HiSparkles,
@@ -30,12 +31,49 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // KORRIGIERT: States für kompaktes Header-System
+  const [isHeaderCompact, setIsHeaderCompact] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Live-Zeit für futuristisches Feeling
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // KORRIGIERT: Header-Kompaktierung mit flacherem Schwellenwert
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // KORRIGIERT: Flacherer Trigger - bereits ab 50px statt 100px
+      if (currentScrollY > 50) {
+        setIsHeaderCompact(true);
+      } else {
+        setIsHeaderCompact(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    let ticking = false;
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+    };
+  }, [lastScrollY]);
 
   const handleMobileMenuToggle = () => {
     console.log('Toggle mobile menu');
@@ -61,16 +99,16 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   };
 
   return (
-    <header className="dashboard-header">
+    <header className={`dashboard-header ${isHeaderCompact ? 'dashboard-header--compact' : 'dashboard-header--full'}`}>
       <div className="header-container">
         {/* Brand Section - modernes rundes Logo mit flexibler Schriftpositionierung */}
         <div className="header-brand modern-brand">
           <div className="brand-logo-wrapper">
             <a href="/" aria-label="Zur Startseite">
               <img
-          src="/CandleScopeLogo.png"
-          alt="CandleScope Logo"
-          className="brand-logo-img"
+                src="/CandleScopeLogo.png"
+                alt="CandleScope Logo"
+                className="brand-logo-img"
               />
             </a>
           </div>
@@ -81,10 +119,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <HiLightningBolt className="status-icon" />
               <span className="status-text">Online</span>
               <span className="status-time">
-          {currentTime.toLocaleTimeString('de-DE', {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
+                {currentTime.toLocaleTimeString('de-DE', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </span>
             </div>
           </div>

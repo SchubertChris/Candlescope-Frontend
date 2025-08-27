@@ -1,7 +1,7 @@
 // src/Components/Layouts/DashboardLayout/DashboardLayout.tsx
-// PROFESSIONAL: Haupt-Dashboard-Layout-Component
+// KORRIGIERT: State Management für Sidebar Expansion hinzugefügt
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import DashboardHeader from './DashboardHeader';
 import DashboardSidebar from './DashboardSidebar';
@@ -21,8 +21,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   notifications,
   onLogout
 }) => {
+  // KORRIGIERT: State für Sidebar Expansion
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
+  const handleSidebarToggle = () => {
+    setIsSidebarExpanded(!isSidebarExpanded);
+  };
+
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout ${isSidebarExpanded ? 'layout--sidebar-expanded' : 'layout--sidebar-collapsed'}`}>
       <AnimatedBackground />
       
       {/* Header */}
@@ -32,11 +39,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         onLogout={onLogout}
       />
       
-      {/* Sidebar */}
+      {/* Sidebar - KORRIGIERT: Props für Expansion State */}
       <DashboardSidebar 
         userRole={user.role}
         notifications={notifications}
         onLogout={onLogout}
+        isExpanded={isSidebarExpanded}
+        onToggle={handleSidebarToggle}
       />
       
       {/* Main Content */}
