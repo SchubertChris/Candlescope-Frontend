@@ -36,7 +36,7 @@ const OAuthSuccess: React.FC = () => {
         
         setStatus('success');
         setMessage('OAuth-Authentifizierung erfolgreich!');
-        setUserEmail(result.user.email);
+        setUserEmail(result.user.email || 'User');
 
         // KORRIGIERT: Sofort zum Dashboard weiterleiten (ohne 2s Delay)
         console.log('🚀 OAUTH SUCCESS: Redirecting to dashboard immediately');
@@ -44,7 +44,7 @@ const OAuthSuccess: React.FC = () => {
         // Kurze Verzögerung nur für UX (User sieht "Success")
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
-        }, 800);
+        }, 1600);
 
       } catch (error: any) {
         console.error('❌ OAUTH SUCCESS HANDLER ERROR:', error);
