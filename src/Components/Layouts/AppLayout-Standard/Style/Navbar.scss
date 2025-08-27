@@ -300,6 +300,19 @@
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 
+    // Autofill für Chrome/Safari
+    &:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0px 1000px rgba(26, 12, 64, 0.4) inset;
+      -webkit-text-fill-color: white !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    // Autofill für Firefox
+    &:-moz-autofill {
+      color: white !important;
+      background-color: rgba(26, 12, 64, 0.4) !important;
+    }
+
     &::placeholder {
       color: var(--color-text-muted);
     }
@@ -308,10 +321,6 @@
       outline: none;
       border-color: var(--color-primary);
       background: rgba(26, 12, 64, 0.6);
-
-      &.has-value {
-        color: white !important;
-      }
 
       ~ .navbar-mobile__input-glow {
         opacity: 1;
