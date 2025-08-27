@@ -206,12 +206,12 @@
     border-inline-start: 1px solid var(--color-glow);
     border-inline-end: 2px solid var(--color-glow);
     box-shadow: 0 0 40px rgba(162, 89, 255, 0.3);
-    
+
     // GEÄNDERT: Flexbox-Layout für adaptive Anordnung
     display: flex;
     flex-direction: column;
     align-items: center;
-    
+
     // KORRIGIERT: Responsive Padding ohne feste Bottom-Navigation
     padding: 2rem 1rem 3rem 1rem;
     padding-block-start: calc(2rem + env(safe-area-inset-top));
@@ -268,12 +268,12 @@
   &__spacer {
     block-size: 2rem;
     flex-shrink: 0;
-    
+
     // RESPONSIVE: Mehr Platz bei mittleren Bildschirmgrößen
     @media (min-block-size: 600px) and (max-block-size: 800px) {
       block-size: 3rem;
     }
-    
+
     @media (min-block-size: 500px) and (max-block-size: 600px) {
       block-size: 1rem;
     }
@@ -295,7 +295,7 @@
     background: rgba(26, 12, 64, 0.4);
     border: 1px solid rgba(162, 89, 255, 0.2);
     border-radius: var(--border-radius-lg);
-    color: var(--color-text-primary);
+    color: #fff; // Wert (value) ist jetzt weiß
     font-size: 1rem;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
@@ -308,6 +308,10 @@
       outline: none;
       border-color: var(--color-primary);
       background: rgba(26, 12, 64, 0.6);
+
+      &.has-value {
+        color: white !important;
+      }
 
       ~ .navbar-mobile__input-glow {
         opacity: 1;
@@ -476,11 +480,11 @@
     &.loading {
       pointer-events: none;
       opacity: 0.8;
-      
+
       .navbar-mobile__oauth-spinner {
         animation: spin 1s linear infinite;
       }
-      
+
       // Deaktiviere Hover-Effekte während Loading
       &:hover {
         transform: none;
@@ -488,13 +492,13 @@
         box-shadow: none;
       }
     }
-    
+
     // HINZUGEFÜGT: Disabled-State für OAuth-Buttons
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       pointer-events: none;
-      
+
       &:hover {
         transform: none;
         background: rgba(26, 12, 64, 0.3);
@@ -548,20 +552,20 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0; // NEU: Navigation soll nicht schrumpfen
-    
+
     // ENTFERNT: Absolute Positionierung für bessere Responsivität
     // position: absolute;
     // inset-block-end: 8%;
-    
+
     // NEU: Adaptive Margins für verschiedene Bildschirmgrößen
     margin-block-start: auto; // Schiebt Navigation nach unten, aber ohne Überlappung
     margin-block-end: 1rem;
-    
+
     // RESPONSIVE: Anpassungen für verschiedene Bildschirmhöhen
     @media (min-block-size: 700px) {
       margin-block-start: 2rem; // Mehr Abstand bei großen Bildschirmen
     }
-    
+
     @media (max-block-size: 600px) {
       margin-block-start: 1rem; // Weniger Abstand bei kleinen Bildschirmen
     }
@@ -573,7 +577,7 @@
       transform: translateX(50px);
       transition: all 0.3s ease;
       margin-block-end: 1rem;
-      
+
       // RESPONSIVE: Kleinere Margins bei wenig Platz
       @media (max-block-size: 600px) {
         margin-block-end: 0.75rem;
@@ -591,7 +595,7 @@
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease-out;
-    
+
     // RESPONSIVE: Kleineres Padding bei wenig Platz
     @media (max-block-size: 600px) {
       padding: 0.75rem 1.25rem;
@@ -604,7 +608,7 @@
       font-size: 1.5rem;
       @include icon-glow-effect; // NEU: Icon Glow Effekt
       position: relative; // NEU: Für ::after Pseudo-Element
-      
+
       // RESPONSIVE: Kleinere Icons bei wenig Platz
       @media (max-block-size: 600px) {
         font-size: 1.25rem;
@@ -731,9 +735,9 @@
     outline: 2px solid var(--color-primary);
     outline-offset: 4px;
     box-shadow: 0 0 0 4px rgba(162, 89, 255, 0.2);
+    color: var(--color-text-primary);
   }
 }
-
 
 // =============================================================================
 // FEEDBACK & INFO MESSAGES
@@ -943,7 +947,7 @@
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    
+
     &:hover {
       transform: none;
     }
@@ -975,7 +979,7 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    
+
     &:hover {
       transform: none;
     }
@@ -1061,7 +1065,8 @@
 
 // Erweiterte Animationen
 @keyframes pulseGlow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
   }
   50% {
@@ -1070,7 +1075,8 @@
 }
 
 @keyframes fadeInOut {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {
@@ -1086,19 +1092,19 @@
   * {
     color: white !important;
   }
-  
+
   svg {
     color: white !important;
   }
-  
+
   p {
     color: white !important;
   }
-  
+
   small {
     color: rgba(255, 255, 255, 0.8) !important;
   }
-  
+
   .navbar-mobile__loading-spinner {
     border-color: rgba(255, 255, 255, 0.2) !important;
     border-block-start-color: white !important;
@@ -1115,28 +1121,28 @@
     &__content {
       padding: 1rem 1rem 2rem 1rem;
     }
-    
+
     &__header {
       margin-block-end: 1rem;
       margin-block-start: 0.5rem;
     }
-    
+
     &__logo {
       block-size: 50px;
     }
-    
+
     &__login {
       margin-block-end: 1rem;
     }
-    
+
     &__links li {
       margin-block-end: 0.5rem;
     }
-    
+
     &__link {
       padding: 0.5rem 1rem;
       font-size: 0.95rem;
-      
+
       .navbar-icon {
         font-size: 1rem;
         margin-inline-end: 0.5rem;
@@ -1151,7 +1157,7 @@
     &__spacer {
       block-size: 1.5rem;
     }
-    
+
     &__links {
       margin-block-start: 1.5rem;
     }
@@ -1164,24 +1170,24 @@
     &__content {
       padding: 3rem 1rem 4rem 1rem;
     }
-    
+
     &__header {
       margin-block-end: 2.5rem;
       margin-block-start: 1.5rem;
     }
-    
+
     &__login {
       margin-block-end: 3rem;
     }
-    
+
     &__spacer {
       block-size: 3rem;
     }
-    
+
     &__links {
       margin-block-start: 2rem;
       margin-block-end: 2rem;
-      
+
       li {
         margin-block-end: 1.25rem;
       }

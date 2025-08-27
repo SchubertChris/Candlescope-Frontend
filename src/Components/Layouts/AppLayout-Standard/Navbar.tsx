@@ -80,17 +80,17 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
   // KORRIGIERT: Navigation Handler mit Router + Scroll Logic
   const handleNavigation = useCallback((section: string) => {
     const navItem = navigationItems.find(item => item.id === section);
-    
+
     if (!navItem) {
       console.warn(`❌ Navigation item not found: ${section}`);
       return;
     }
 
     console.log(`🧭 NAVIGATION: ${section} (${navItem.isRoute ? 'ROUTE' : 'SCROLL'})`);
-    
+
     setActiveSection(section);
     setIsMobileMenuOpen(false);
-    
+
     if (navItem.isRoute) {
       // ➜ Router-Navigation (zu anderer Seite)
       console.log(`🔗 ROUTER NAVIGATION: ${navItem.href}`);
@@ -98,7 +98,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     } else {
       // ➜ Scroll-Navigation (zu Section auf Landing Page)
       console.log(`🎯 SCROLL NAVIGATION: ${section} on ${location.pathname}`);
-      
+
       if (location.pathname !== '/') {
         // Von anderer Seite zur Landing Page + Scroll
         console.log(`📍 NOT ON LANDING PAGE - Navigate to / + scroll to ${section}`);
@@ -122,9 +122,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     if (element) {
       const offset = 80; // Navbar-Höhe
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      
+
       console.log(`⬇️ SCROLLING TO: ${sectionId} (Position: ${elementPosition - offset})`);
-      
+
       window.scrollTo({
         top: elementPosition - offset,
         behavior: 'smooth'
@@ -428,7 +428,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                       placeholder="Email"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                      className="navbar-mobile__input"
+                      className={`navbar-mobile__input ${loginForm.email ? 'has-value' : ''}`}
                       required
                     />
                     <div className="navbar-mobile__input-glow" />
@@ -441,7 +441,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
                       placeholder="Passwort"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      className="navbar-mobile__input"
+                      className={`navbar-mobile__input ${loginForm.password ? 'has-value' : ''}`}
                       required
                     />
                     <button
