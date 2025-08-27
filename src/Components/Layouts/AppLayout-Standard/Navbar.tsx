@@ -15,9 +15,9 @@ import {
 import { FaGithub } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 import { useNavigate, useLocation } from 'react-router-dom';
-import authService from '@/Services/Auth-Service';
 import './Style/Navbar.scss';
 import Logo from '@/assets/Images/Logo/CandleScopeLogo.png';
+import authService, { initiateOAuth } from '@/Services/Auth-Service';
 
 interface NavbarProps {
   className?: string;
@@ -273,7 +273,7 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
     setLoadingStep(`Weiterleitung zu ${provider === 'google' ? 'Google' : 'GitHub'}...`);
 
     try {
-      authService.initiateOAuth(provider);
+      initiateOAuth(provider);
       authService.setOAuthProvider(provider);
     } catch (error: any) {
       console.error(`❌ ${provider.toUpperCase()} OAUTH ERROR:`, error);
