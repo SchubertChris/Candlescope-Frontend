@@ -135,7 +135,7 @@ const OAuthError = lazy(() =>
 const PageLoader = () => (
   <div
     style={{
-      position: 'fixed',        // HINZUGEFÜGT: Fixed positioning
+      position: 'fixed',
       top: 0,                   // HINZUGEFÜGT
       left: 0,                  // HINZUGEFÜGT  
       right: 0,                 // HINZUGEFÜGT
@@ -145,8 +145,7 @@ const PageLoader = () => (
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',       // GEÄNDERT: Von minBlockSize
-      backgroundColor: 'rgba(20, 19, 29, 0.95)', // KORRIGIERT: Proper rgba
-      backdropFilter: 'blur(10px)', // HINZUGEFÜGT: Blur-Effekt
+      backdropFilter: 'blur(20px)', // HINZUGEFÜGT: Blur-Effekt
       flexDirection: 'column',  // HINZUGEFÜGT: Für vertikale Anordnung
       gap: '1rem'              // HINZUGEFÜGT: Abstand zwischen Elementen
     }}
