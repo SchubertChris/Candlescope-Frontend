@@ -1,5 +1,5 @@
 // src/Components/PageComponents/LandingPage/LandingPage-CandleScopeSection.tsx
-// CandleScope Finance App - Dezentrale Trading-Analyse mit CSV/PDF Export
+// CandleScope Finance Tracker - Dezentrale Finanzanalyse & Portfolio-Tracking
 
 import React, { useState, useEffect } from 'react';
 import { 
@@ -8,8 +8,6 @@ import {
   FileDown, 
   Zap, 
   Rocket, 
-  Mail, 
-  BookOpen,
   CheckCircle,
   Clock,
   RotateCcw,
@@ -17,73 +15,72 @@ import {
   TrendingUp,
   DollarSign,
   Activity,
-  Play
-} from 'lucide-react'; // Importiere alle benötigten Icons
+  Play,
+  Lock,
+  Github
+} from 'lucide-react'; 
 import './Style/LandingPage-CandleScopeSection.scss';
 
 const CandleScopeSection: React.FC = () => {
   const [activeFeature, setActiveFeature] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Geändert: Emojis durch Lucide React Icons ersetzt
+  // Geändert: Features an die USB-/Offline-Tracking-App angepasst
   const features = [
     {
       id: 'offline',
-      title: 'Offline & Dezentral',
-      description: 'Deine Daten bleiben bei dir - keine Cloud, keine Server, keine Überwachung.',
-      icon: <Shield className="w-8 h-8" />, // Icon als React Component
+      title: 'Offline & Eigenständig',
+      description: 'Alle Daten bleiben lokal auf deinem USB-Stick. Keine Cloud, keine Server, volle Kontrolle.',
+      icon: <Shield className="w-8 h-8" />,
       color: '#4CAF50'
     },
     {
       id: 'analysis',
-      title: 'Erweiterte Analyse',
-      description: 'Candlestick-Patterns, technische Indikatoren und Portfolio-Tracking in Echtzeit.',
+      title: 'Finanzanalyse & Statistiken',
+      description: 'Tracke deine Ausgaben, Investments und erhalte Auswertungen – komplett lokal berechnet.',
       icon: <BarChart3 className="w-8 h-8" />,
       color: '#2196F3'
     },
     {
       id: 'export',
       title: 'CSV & PDF Export',
-      description: 'Alle Daten exportierbar - für Steuererklärung, Archivierung oder weitere Analyse.',
+      description: 'Exporte für Steuer, Archiv oder Backups – inklusive Anhänge wie PDF-Scans & Belege.',
       icon: <FileDown className="w-8 h-8" />,
       color: '#FF9800'
     },
     {
-      id: 'crypto',
-      title: 'Multi-Exchange',
-      description: 'Unterstützt alle großen Krypto-Börsen mit automatischem Import.',
+      id: 'prices',
+      title: 'Live-Preisfeeds (lesend)',
+      description: 'Hole dir aktuelle Kurse für Aktien, ETFs und Krypto – ohne eigene Daten preiszugeben.',
       icon: <Zap className="w-8 h-8" />,
       color: '#9C27B0'
     }
   ];
 
+  // Geändert: TechSpecs an die USB-Idee angepasst
   const techSpecs = [
-    { label: 'Plattform', value: 'Windows, macOS, Linux' },
-    { label: 'Sprache', value: 'TypeScript + Electron' },
-    { label: 'Datenbank', value: 'Lokale SQLite' },
-    { label: 'Sicherheit', value: 'AES-256 Verschlüsselung' }
+    { label: 'Plattform', value: 'Windows, macOS, Linux (portable vom USB)' },
+    { label: 'Technologie', value: 'Tauri (Rust + React), Node.js optional' },
+    { label: 'Datenhaltung', value: 'SQLite + SQLCipher (AES-256 Verschlüsselung)' },
+    { label: 'Updates', value: 'Signierte Bundles (manuell oder auto-verifiziert)' }
   ];
 
-  // Geändert: Floating Icons als Lucide Components
   const floatingIcons = [
     <Bitcoin className="w-8 h-8" />,
     <TrendingUp className="w-8 h-8" />,
     <DollarSign className="w-8 h-8" />,
     <Activity className="w-8 h-8" />,
     <BarChart3 className="w-8 h-8" />,
-    <Zap className="w-8 h-8" />
+    <Lock className="w-8 h-8" /> // Geändert: Schloss-Symbol für Sicherheit
   ];
 
-  // Auto-Feature Rotation
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveFeature(prev => (prev + 1) % features.length);
     }, 4000);
-
     return () => clearInterval(interval);
   }, [features.length]);
 
-  // Visibility Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -91,21 +88,17 @@ const CandleScopeSection: React.FC = () => {
       },
       { threshold: 0.3 }
     );
-
     const section = document.querySelector('.candlescope-section');
     if (section) observer.observe(section);
-
     return () => observer.disconnect();
   }, []);
 
   return (
     <section className="candlescope-section" id="candlescope">
-      {/* Background Elements */}
       <div className="candlescope-bg">
         <div className="bg-grid" />
         <div className="bg-gradient" />
         <div className="floating-elements">
-          {/* Geändert: Icons als React Components */}
           {floatingIcons.map((icon, i) => (
             <div key={i} className={`floating-element element-${i + 1}`}>
               {icon}
@@ -118,25 +111,23 @@ const CandleScopeSection: React.FC = () => {
         {/* Header */}
         <div className={`candlescope-header ${isVisible ? 'header-visible' : ''}`}>
           <div className="header-badge">
-            {/* Geändert: Rocket Icon statt Emoji */}
             <Rocket className="w-5 h-5 badge-icon" />
-            <span className="badge-text">Mein Flagship Projekt</span>
+            <span className="badge-text">USB Finance App</span> {/* Geändert */}
           </div>
           
           <h2 className="candlescope-title">
             <span className="title-brand">CandleScope</span>
-            <span className="title-tagline">Finance Analyzer</span>
+            <span className="title-tagline">Finance Tracker</span> {/* Geändert */}
           </h2>
           
           <p className="candlescope-subtitle">
-            Dezentrale Desktop-Anwendung für professionelle Krypto-Analyse. 
-            Offline, sicher und vollständig unter deiner Kontrolle.
+            Portable Finanz-App direkt vom USB-Stick.  
+            Offline, verschlüsselt, privat – mit optionalen Kurs-Feeds ohne Datenabgabe.
           </p>
         </div>
 
-        {/* Main Content Grid */}
+        {/* App Preview bleibt gleich, nur Text leicht angepasst */}
         <div className="candlescope-content">
-          {/* App Preview */}
           <div className={`app-preview ${isVisible ? 'preview-visible' : ''}`}>
             <div className="app-window">
               <div className="window-header">
@@ -145,20 +136,18 @@ const CandleScopeSection: React.FC = () => {
                   <span className="control minimize"></span>
                   <span className="control maximize"></span>
                 </div>
-                <div className="window-title">CandleScope v2.1.0</div>
+                <div className="window-title">CandleScope v1.0.0</div> {/* Geändert: Version */}
               </div>
               
               <div className="window-content">
-                {/* Geändert: Video Placeholder statt Chart-Grafiken */}
                 <div className="video-placeholder">
                   <div className="video-container">
                     <div className="video-overlay">
                       <Play className="w-16 h-16 play-icon" />
-                      <p className="video-text">App Demo Video</p>
+                      <p className="video-text">Demo Video</p>
                       <span className="video-duration">2:30</span>
                     </div>
                     <div className="video-background">
-                      {/* Minimale Interface-Elemente als Hintergrund */}
                       <div className="interface-hint">
                         <div className="hint-header">
                           <span className="hint-pair">BTC/EUR</span>
@@ -187,7 +176,6 @@ const CandleScopeSection: React.FC = () => {
                   style={{ '--feature-color': feature.color } as React.CSSProperties}
                   onClick={() => setActiveFeature(index)}
                 >
-                  {/* Geändert: Icon als React Component */}
                   <div className="feature-icon">{feature.icon}</div>
                   <h4 className="feature-title">{feature.title}</h4>
                   <p className="feature-description">{feature.description}</p>
@@ -195,7 +183,6 @@ const CandleScopeSection: React.FC = () => {
               ))}
             </div>
             
-            {/* Feature Navigation */}
             <div className="feature-nav">
               {features.map((_, index) => (
                 <button
@@ -209,7 +196,7 @@ const CandleScopeSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Technical Specifications */}
+        {/* Tech Specs */}
         <div className={`tech-specs ${isVisible ? 'specs-visible' : ''}`}>
           <h3 className="specs-title">Technische Details</h3>
           <div className="specs-grid">
@@ -225,48 +212,48 @@ const CandleScopeSection: React.FC = () => {
         {/* Call to Action */}
         <div className={`candlescope-cta ${isVisible ? 'cta-visible' : ''}`}>
           <div className="cta-content">
-            <h3>Bereit für professionelle Krypto-Analyse?</h3>
+            <h3>Deine Finanzen – deine Daten</h3>
             <p>
-              CandleScope befindet sich in der Beta-Phase. 
-              Melde dich für Early Access und exklusive Updates an.
+              CandleScope ist noch in Entwicklung – sichere dir jetzt Zugang zur Beta und gestalte die App mit!
+            </p>
+            <p>
             </p>
           </div>
           
-          <div className="cta-buttons">
-            <button className="btn-primary">
-              {/* Geändert: Mail Icon statt Emoji */}
-              <Mail className="w-5 h-5 btn-icon" />
-              <span>Early Access anfragen</span>
-            </button>
+            <div className="cta-buttons">
+            <a href="/kontakt" className="btn-primary">
+              <span>Beta-Zugang anfragen</span>
+            </a>
             
-            <button className="btn-secondary">
-              {/* Geändert: BookOpen Icon statt Emoji */}
-              <BookOpen className="w-5 h-5 btn-icon" />
+            <a
+              href="https://github.com/SchubertChris/Candlescope-Frontend"
+              className="btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github className="w-5 h-5 btn-icon" />
               <span>Dokumentation</span>
-            </button>
+            </a>
           </div>
         </div>
 
-        {/* Development Status */}
+        {/* Status */}
         <div className="development-status">
           <div className="status-item">
-            {/* Geändert: CheckCircle Icon statt Emoji */}
             <CheckCircle className="w-5 h-5 status-icon text-green-500" />
-            <div className="status-text">Core Engine</div>
+            <div className="status-text">Lokale DB & Verschlüsselung</div> {/* Geändert */}
           </div>
           <div className="status-item">
             <CheckCircle className="w-5 h-5 status-icon text-green-500" />
-            <div className="status-text">Chart Analysis</div>
+            <div className="status-text">Analyse & Statistiken</div> {/* Geändert */}
           </div>
           <div className="status-item">
-            {/* Geändert: RotateCcw Icon statt Emoji */}
             <RotateCcw className="w-5 h-5 status-icon text-blue-500" />
-            <div className="status-text">Multi-Exchange API</div>
+            <div className="status-text">Update-System</div> {/* Geändert */}
           </div>
           <div className="status-item">
-            {/* Geändert: Clock Icon statt Emoji */}
             <Clock className="w-5 h-5 status-icon text-yellow-500" />
-            <div className="status-text">Beta Testing</div>
+            <div className="status-text">Beta-Phase</div> {/* Geändert */}
           </div>
         </div>
       </div>

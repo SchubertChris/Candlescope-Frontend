@@ -34,26 +34,26 @@ const Footer: React.FC = () => {
     {
       id: 'github',
       icon: <FaGithub />,
-      url: 'https://github.com/schubert-chris',
+      url: 'https://github.com/SchubertChris',
       label: 'GitHub'
     },
     {
       id: 'linkedin',
       icon: <FaLinkedin />,
-      url: 'https://linkedin.com/in/chris-schubert',
+      url: 'https://www.linkedin.com/in/chris-schubert-4bb5b0353/',
       label: 'LinkedIn'
     },
     {
       id: 'instagram',
       icon: <FaInstagram />,
-      url: 'https://instagram.com',
+      url: 'https://www.instagram.com/candlescope/',
       label: 'Instagram'
     },
     {
       id: 'email',
       icon: <FaEnvelope />,
-      url: 'mailto:schubert_chris@rocketmail.com',
-      label: 'Email'
+      url: '/kontakt',
+      label: 'Kontaktformular'
     }
   ];
 
@@ -72,10 +72,10 @@ const Footer: React.FC = () => {
               Spezialisiert auf React, TypeScript und Node.js.
             </p>
             <div className="footer-section__contact">
-              <a href="mailto:schubert_chris@rocketmail.com" className="contact-item">
+                <a href="/kontakt" className="contact-item">
                 <FaEnvelope />
                 <span>schubert_chris@rocketmail.com</span>
-              </a>
+                </a>
               <a href="tel:+491609416348" className="contact-item">
                 <FaPhone />
                 <span>+49 160 941 683 48</span>
@@ -91,8 +91,9 @@ const Footer: React.FC = () => {
           <div className="footer-section footer-section--links">
             <h3 className="footer-section__title">Quick Links</h3>
             <nav className="footer-nav">
-              <a href="/about" className="footer-nav__link">Das bin ich</a>
-              <a href="/projects" className="footer-nav__link">Library</a>
+                <a href="#timeline" className="footer-nav__link">Das bin ich</a>
+              <a href="/#candlescope" className="footer-nav__link">Candlescope</a>
+              <a href="/#offer" className="footer-nav__link">Angebote</a>
               <a href="/kontakt" className="footer-nav__link">Kontaktanfrage</a>
               <a href="/impressum" className="footer-nav__link">Impressum</a>
               <a href="/datenschutz" className="footer-nav__link">Datenschutz</a>

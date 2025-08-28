@@ -85,9 +85,9 @@ const Navbar: React.FC<NavbarProps> = ({ className = '', onNavigate }) => {
   // ERWEITERT: Navigation Items mit Auth-Logic und Dashboard
   const navigationItems: NavigationItem[] = useMemo(() => {
     const baseItems: NavigationItem[] = [
-      { id: 'home', label: 'Übersicht', href: '/', icon: HiHome, isRoute: false },
-      { id: 'about', label: 'Informationen', href: '#about', icon: HiUser, isRoute: false },
-      { id: 'work', label: 'Candlescope', href: '#work', icon: HiBriefcase, isRoute: false },
+      { id: 'home', label: 'Home', href: '/', icon: HiHome, isRoute: false },
+      { id: 'about', label: 'Services', href: '#about', icon: HiUser, isRoute: false },
+      { id: 'candlescope', label: 'Candlescope', href: '#candlescope', icon: HiBriefcase, isRoute: false },
       { id: 'contact', label: 'Kontakt', href: '/kontakt', icon: HiMail, isRoute: true },
     ];
 

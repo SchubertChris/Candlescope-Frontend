@@ -5,7 +5,7 @@ import './Style/LandingPage-WorkSection.scss';
 
 const WorkSection: React.FC = () => {
   return (
-    <div className="work-section">
+    <div className="work-section" id='arbeit'>
     </div>
   );
 }

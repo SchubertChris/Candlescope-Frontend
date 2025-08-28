@@ -1,5 +1,7 @@
 // =============================================================================
-// CANDLESCOPE SECTION - FINANCE APP WERBUNG
+// CANDLESCOPE SECTION - MOBILE RESPONSIVITÄT KORRIGIERT
+// PROBLEM: Leere Lücke auf Mobile durch defekte Grid-Layouts
+// LÖSUNG: Vereinfachte Layout-Struktur mit Mobile-First Ansatz
 // =============================================================================
 
 // Import Base Styles
@@ -9,69 +11,14 @@
 @use '@styles/Base/ANIMATIONS' as *;
 
 // =============================================================================
-// KEYFRAME ANIMATIONS
-// =============================================================================
-
-@keyframes floatingElement {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 1;
-  }
-}
-
-// Geändert: Neue Animation für Video Placeholder
-@keyframes videoPulse {
-  0%, 100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes playIconBounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-@keyframes windowGlow {
-  0%, 100% {
-    box-shadow: 0 20px 60px rgba(var(--color-primary-rgb), 0.2);
-  }
-  50% {
-    box-shadow: 0 30px 80px rgba(var(--color-primary-rgb), 0.4);
-  }
-}
-
-@keyframes featureSlide {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// =============================================================================
-// CANDLESCOPE SECTION CONTAINER
+// MOBILE-FIRST RESPONSIVE DESIGN KORREKTUREN
 // =============================================================================
 
 .candlescope-section {
   position: relative;
-  padding: clamp(6rem, 12vh, 10rem) 0;
-  min-block-size: 100vh;
+  // KORRIGIERT: Flexible Höhe statt fixer 100vh
+  padding: clamp(3rem, 8vh, 6rem) 0;
+  min-block-size: auto; // GEÄNDERT: Keine feste Höhe mehr!
   overflow: hidden;
   background: linear-gradient(
     135deg,
@@ -80,7 +27,7 @@
     rgba(var(--color-primary-rgb), 0.05) 100%
   );
 
-  // Background Elements
+  // KORRIGIERT: Background Elements für Mobile optimiert
   .candlescope-bg {
     position: absolute;
     inset-block-start: 0;
@@ -101,6 +48,12 @@
         linear-gradient(90deg, rgba(var(--color-primary-rgb), 0.1) 1px, transparent 1px);
       background-size: 50px 50px;
       opacity: 0.3;
+
+      // MOBILE: Grid weniger sichtbar
+      @media (max-width: 768px) {
+        opacity: 0.1;
+        background-size: 30px 30px;
+      }
     }
 
     .bg-gradient {
@@ -116,8 +69,16 @@
         transparent 70%
       );
       filter: blur(100px);
+
+      // MOBILE: Kleinerer Gradient
+      @media (max-width: 768px) {
+        inline-size: 400px;
+        block-size: 400px;
+        filter: blur(50px);
+      }
     }
 
+    // KORRIGIERT: Floating Elements für Mobile optimiert
     .floating-elements {
       position: absolute;
       inline-size: 100%;
@@ -125,12 +86,10 @@
 
       .floating-element {
         position: absolute;
-        // Geändert: Styling für Lucide Icons
         color: var(--color-primary);
         opacity: 0.6;
         animation: floatingElement 6s ease-in-out infinite;
 
-        // Geändert: Icon-spezifische Styles
         svg {
           inline-size: 2rem;
           block-size: 2rem;
@@ -144,15 +103,10 @@
         &.element-5 { inset-block-start: 40%; inset-inline-start: 85%; animation-delay: 4s; }
         &.element-6 { inset-block-start: 70%; inset-inline-end: 10%; animation-delay: 5s; }
 
-        @media (max-inline-size: 768px) {
-          svg {
-            inline-size: 1.5rem;
-            block-size: 1.5rem;
-          }
-          
-          &.element-3, &.element-4, &.element-5, &.element-6 {
-            display: none;
-          }
+        // KORRIGIERT: Mobile zeigt nur wichtige Elemente
+        @media (max-width: 768px) {
+          // VERSTECKT: Floating Elements auf Mobile komplett ausblenden
+          display: none;
         }
       }
     }
@@ -165,22 +119,25 @@
     margin: 0 auto;
     padding: 0 2rem;
 
-    @media (max-inline-size: 768px) {
+    // MOBILE: Weniger Padding
+    @media (max-width: 768px) {
       padding: 0 1rem;
     }
   }
 
-  // Header Section
+  // KORRIGIERT: Header Section Mobile-optimiert - Intersection Observer Animation
   .candlescope-header {
     text-align: center;
-    margin-block-end: 4rem;
+    margin-block-end: 3rem; // REDUZIERT: Weniger Abstand
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.8s ease;
 
+    // EINMALIGE Animation - wird nur beim ersten Sichtbar-werden getriggert
     &.header-visible {
       opacity: 1;
       transform: translateY(0);
+      animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
     }
 
     .header-badge {
@@ -191,25 +148,34 @@
       border: 1px solid rgba(var(--color-primary-rgb), 0.3);
       padding: 0.75rem 1.5rem;
       border-radius: 50px;
-      margin-block-end: 2rem;
+      margin-block-end: 1.5rem; // REDUZIERT: Weniger Abstand
       color: var(--color-primary);
       font-weight: 600;
 
-      // Geändert: Icon-spezifisches Styling
-      .badge-icon {
-        svg {
-          inline-size: 1.2rem;
-          block-size: 1.2rem;
+      .badge-icon svg {
+        inline-size: 1.2rem;
+        block-size: 1.2rem;
+      }
+
+      // MOBILE: Kleinere Badge
+      @media (max-width: 768px) {
+        padding: 0.5rem 1rem;
+        margin-block-end: 1rem;
+        font-size: 0.9rem;
+
+        .badge-icon svg {
+          inline-size: 1rem;
+          block-size: 1rem;
         }
       }
     }
 
     .candlescope-title {
-      margin-block-end: 1.5rem;
+      margin-block-end: 1rem; // REDUZIERT: Weniger Abstand
 
       .title-brand {
         display: block;
-        font-size: clamp(3rem, 8vw, 5rem);
+        font-size: clamp(2.5rem, 8vw, 5rem); // ANGEPASST: Kleinere Mobile-Größe
         font-weight: 700;
         @include text-gradient();
         font-family: 'hero-font', sans-serif;
@@ -218,7 +184,7 @@
 
       .title-tagline {
         display: block;
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-size: clamp(1.2rem, 4vw, 2.5rem); // ANGEPASST: Kleinere Mobile-Größe
         color: var(--color-text-secondary);
         font-family: 'head-font', sans-serif;
         font-weight: 400;
@@ -226,41 +192,57 @@
     }
 
     .candlescope-subtitle {
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 3vw, 1.25rem); // RESPONSIVE: Fluid Typography
       color: var(--color-text-secondary);
       line-height: 1.6;
       max-inline-size: 700px;
       margin: 0 auto;
-
-      @media (max-inline-size: 768px) {
-        font-size: 1.1rem;
-      }
     }
   }
 
-  // Main Content Grid
+  // KORRIGIERT: Main Content Grid - Mobile-First
   .candlescope-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    // MOBILE-FIRST: Standardmäßig eine Spalte
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; // REDUZIERT: Weniger Abstand
     align-items: center;
-    margin-block-end: 4rem;
+    margin-block-end: 3rem; // REDUZIERT: Weniger Abstand
 
-    @media (max-inline-size: 1024px) {
-      grid-template-columns: 1fr;
-      gap: 3rem;
+    // DESKTOP: Zwei Spalten nur bei größeren Bildschirmen
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-block-end: 4rem;
     }
   }
 
-  // App Preview - Geändert: Video Placeholder
+  // KORRIGIERT: App Preview - Intersection Observer Animation
   .app-preview {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateY(20px); // GEÄNDERT: Y-Transform statt X für Mobile
     transition: all 0.8s ease;
+    inline-size: 100%;
+    max-inline-size: 600px; // BEGRENZT: Maximale Breite
 
+    // EINMALIGE Animation - wird nur beim ersten Sichtbar-werden getriggert
     &.preview-visible {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateY(0); // KORRIGIERT: Keine X-Translation
+      animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
+    }
+
+    // DESKTOP: X-Transform nur bei größeren Bildschirmen
+    @media (min-width: 1024px) {
+      transform: translateX(-50px);
+
+      &.preview-visible {
+        opacity: 1;
+        transform: translateX(0);
+        animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
+      }
     }
 
     .app-window {
@@ -279,6 +261,12 @@
         gap: 1rem;
         border-block-end: 1px solid rgba(255, 255, 255, 0.1);
 
+        // MOBILE: Kompakterer Header
+        @media (max-width: 768px) {
+          padding: 0.75rem;
+          gap: 0.75rem;
+        }
+
         .window-controls {
           display: flex;
           gap: 0.5rem;
@@ -291,6 +279,12 @@
             &.close { background: #ff5f57; }
             &.minimize { background: #ffbd2e; }
             &.maximize { background: #28ca42; }
+
+            // MOBILE: Kleinere Controls
+            @media (max-width: 768px) {
+              inline-size: 10px;
+              block-size: 10px;
+            }
           }
         }
 
@@ -298,20 +292,26 @@
           color: rgba(255, 255, 255, 0.8);
           font-size: 0.9rem;
           font-weight: 500;
+
+          // MOBILE: Kleinerer Titel
+          @media (max-width: 768px) {
+            font-size: 0.8rem;
+          }
         }
       }
 
       .window-content {
         padding: 1.5rem;
-        min-block-size: 300px;
+        min-block-size: 250px; // REDUZIERT: Kleinere Mindesthöhe
 
-        @media (max-inline-size: 768px) {
+        // MOBILE: Weniger Padding und Höhe
+        @media (max-width: 768px) {
           padding: 1rem;
-          min-block-size: 250px;
+          min-block-size: 200px;
         }
       }
 
-      // Geändert: Video Placeholder Styles
+      // KORRIGIERT: Video Placeholder Mobile-optimiert
       .video-placeholder {
         block-size: 100%;
         display: flex;
@@ -321,7 +321,7 @@
         .video-container {
           position: relative;
           inline-size: 100%;
-          block-size: 250px;
+          block-size: 220px; // REDUZIERT: Kleinere Standardhöhe
           background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
           border-radius: 8px;
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -329,6 +329,11 @@
           cursor: pointer;
           transition: all 0.3s ease;
           animation: videoPulse 4s ease-in-out infinite;
+
+          // MOBILE: Noch kleinere Höhe
+          @media (max-width: 768px) {
+            block-size: 180px;
+          }
 
           &:hover {
             border-color: var(--color-primary);
@@ -358,6 +363,13 @@
               margin-block-end: 1rem;
               animation: playIconBounce 2s ease-in-out infinite;
               transition: all 0.3s ease;
+
+              // MOBILE: Kleineres Play-Icon
+              @media (max-width: 768px) {
+                inline-size: 3rem;
+                block-size: 3rem;
+                margin-block-end: 0.75rem;
+              }
             }
 
             .video-text {
@@ -365,6 +377,11 @@
               font-size: 1.2rem;
               font-weight: 600;
               margin-block-end: 0.5rem;
+
+              // MOBILE: Kleinerer Text
+              @media (max-width: 768px) {
+                font-size: 1rem;
+              }
             }
 
             .video-duration {
@@ -373,6 +390,12 @@
               background: rgba(0, 0, 0, 0.7);
               padding: 0.25rem 0.75rem;
               border-radius: 15px;
+
+              // MOBILE: Kleinerer Duration-Text
+              @media (max-width: 768px) {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.6rem;
+              }
             }
           }
 
@@ -390,6 +413,13 @@
               inset-inline-start: 1rem;
               inset-inline-end: 1rem;
 
+              // MOBILE: Weniger Padding
+              @media (max-width: 768px) {
+                inset-block-start: 0.75rem;
+                inset-inline-start: 0.75rem;
+                inset-inline-end: 0.75rem;
+              }
+
               .hint-header {
                 display: flex;
                 align-items: center;
@@ -399,16 +429,33 @@
                 border-radius: 6px;
                 backdrop-filter: blur(5px);
 
+                // MOBILE: Kompakterer Header + weniger Gap
+                @media (max-width: 768px) {
+                  gap: 0.5rem;
+                  padding: 0.5rem 0.75rem;
+                  flex-wrap: wrap;
+                }
+
                 .hint-pair {
                   color: rgba(255, 255, 255, 0.8);
                   font-weight: 700;
                   font-size: 0.9rem;
+
+                  // MOBILE: Kleinerer Text
+                  @media (max-width: 768px) {
+                    font-size: 0.8rem;
+                  }
                 }
 
                 .hint-price {
                   color: var(--color-primary);
                   font-weight: 600;
                   font-size: 0.85rem;
+
+                  // MOBILE: Kleinerer Text
+                  @media (max-width: 768px) {
+                    font-size: 0.75rem;
+                  }
                 }
 
                 .hint-change {
@@ -421,22 +468,13 @@
                     background: rgba(76, 175, 80, 0.2);
                     color: #4caf50;
                   }
+
+                  // MOBILE: Kleinerer Change-Indikator
+                  @media (max-width: 768px) {
+                    font-size: 0.65rem;
+                    padding: 0.15rem 0.4rem;
+                  }
                 }
-              }
-            }
-          }
-
-          @media (max-inline-size: 768px) {
-            block-size: 200px;
-
-            .video-overlay {
-              .play-icon {
-                inline-size: 3rem;
-                block-size: 3rem;
-              }
-
-              .video-text {
-                font-size: 1rem;
               }
             }
           }
@@ -445,36 +483,55 @@
     }
   }
 
-  // Features Section
+  // KORRIGIERT: Features Section - Intersection Observer Animation
   .features-section {
     opacity: 0;
-    transform: translateX(50px);
+    transform: translateY(20px); // GEÄNDERT: Y-Transform statt X für Mobile
     transition: all 0.8s ease;
+    inline-size: 100%;
+    max-inline-size: 600px; // BEGRENZT: Maximale Breite
 
+    // EINMALIGE Animation - wird nur beim ersten Sichtbar-werden getriggert
     &.features-visible {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateY(0); // KORRIGIERT: Keine X-Translation
+      animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
+    }
+
+    // DESKTOP: X-Transform nur bei größeren Bildschirmen
+    @media (min-width: 1024px) {
+      transform: translateX(50px);
+
+      &.features-visible {
+        opacity: 1;
+        transform: translateX(0);
+        animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
+      }
     }
 
     .features-header {
-      margin-block-end: 2rem;
+      margin-block-end: 1.5rem; // REDUZIERT: Weniger Abstand
 
       h3 {
-        font-size: 2rem;
+        font-size: clamp(1.5rem, 5vw, 2rem); // RESPONSIVE: Fluid Typography
         font-weight: 700;
         color: var(--color-text-primary);
-        margin-block-end: 1rem;
+        margin-block-end: 0.5rem; // REDUZIERT: Weniger Abstand
       }
     }
 
     .features-carousel {
+      // MOBILE-FIRST: Eine Spalte standardmäßig
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      margin-block-end: 2rem;
+      grid-template-columns: 1fr;
+      gap: 1rem; // REDUZIERT: Weniger Abstand
+      margin-block-end: 1.5rem; // REDUZIERT: Weniger Abstand
 
-      @media (max-inline-size: 768px) {
-        grid-template-columns: 1fr;
+      // TABLET+: Zwei Spalten nur bei ausreichend Platz
+      @media (min-width: 600px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-block-end: 2rem;
       }
 
       .feature-card {
@@ -482,12 +539,17 @@
         backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 16px;
-        padding: 2rem;
+        padding: 1.5rem; // REDUZIERT: Weniger Padding
         text-align: center;
         transition: all 0.4s ease;
         cursor: pointer;
         opacity: 0.7;
         transform: scale(0.95);
+
+        // DESKTOP: Mehr Padding bei größeren Bildschirmen
+        @media (min-width: 1024px) {
+          padding: 2rem;
+        }
 
         &.feature-active {
           opacity: 1;
@@ -501,7 +563,6 @@
           border-color: var(--feature-color);
         }
 
-        // Geändert: Icon-Styling für React Components
         .feature-icon {
           margin-block-end: 1rem;
           display: flex;
@@ -509,40 +570,29 @@
           color: var(--feature-color);
 
           svg {
-            inline-size: 3rem;
-            block-size: 3rem;
+            inline-size: 2.5rem; // REDUZIERT: Kleinere Icons
+            block-size: 2.5rem;
             stroke-width: 1.5;
+
+            // DESKTOP: Größere Icons
+            @media (min-width: 1024px) {
+              inline-size: 3rem;
+              block-size: 3rem;
+            }
           }
         }
 
         .feature-title {
-          font-size: 1.5rem;
+          font-size: clamp(1.1rem, 4vw, 1.5rem); // RESPONSIVE: Fluid Typography
           font-weight: 700;
           color: var(--color-text-primary);
-          margin-block-end: 1rem;
+          margin-block-end: 0.75rem; // REDUZIERT: Weniger Abstand
         }
 
         .feature-description {
           color: var(--color-text-secondary);
           line-height: 1.6;
-          font-size: 1rem;
-        }
-
-        @media (max-inline-size: 768px) {
-          padding: 1.5rem;
-
-          .feature-icon svg {
-            inline-size: 2.5rem;
-            block-size: 2.5rem;
-          }
-
-          .feature-title {
-            font-size: 1.25rem;
-          }
-
-          .feature-description {
-            font-size: 0.9rem;
-          }
+          font-size: clamp(0.9rem, 3vw, 1rem); // RESPONSIVE: Fluid Typography
         }
       }
     }
@@ -569,40 +619,55 @@
         &:hover {
           background: rgba(255, 255, 255, 0.5);
         }
+
+        // MOBILE: Größere Touch-Targets
+        @media (max-width: 768px) {
+          inline-size: 16px;
+          block-size: 16px;
+        }
       }
     }
   }
 
-  // Technical Specifications
+  // KORRIGIERT: Tech Specs - Intersection Observer Animation
   .tech-specs {
-    margin: 4rem 0;
+    margin: 3rem 0 2rem; // REDUZIERT: Weniger Margin
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.8s ease;
 
+    // EINMALIGE Animation - wird nur beim ersten Sichtbar-werden getriggert
     &.specs-visible {
       opacity: 1;
       transform: translateY(0);
+      animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
     }
 
     .specs-title {
       text-align: center;
-      font-size: 2rem;
+      font-size: clamp(1.5rem, 5vw, 2rem); // RESPONSIVE: Fluid Typography
       font-weight: 700;
       color: var(--color-text-primary);
-      margin-block-end: 2rem;
+      margin-block-end: 1.5rem; // REDUZIERT: Weniger Abstand
     }
 
     .specs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+      // MOBILE-FIRST: Eine Spalte, dann auto-fit
+      grid-template-columns: 1fr;
+      gap: 1rem;
+
+      // TABLET+: Auto-fit mit mindestens 200px
+      @media (min-width: 600px) {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+      }
 
       .spec-item {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        padding: 1.5rem;
+        padding: 1.25rem; // REDUZIERT: Weniger Padding
         text-align: center;
         transition: all 0.3s ease;
 
@@ -614,7 +679,7 @@
 
         .spec-label {
           color: var(--color-text-secondary);
-          font-size: 0.9rem;
+          font-size: 0.85rem; // KLEINER: Kompaktere Labels
           text-transform: uppercase;
           letter-spacing: 1px;
           margin-block-end: 0.5rem;
@@ -622,42 +687,50 @@
 
         .spec-value {
           color: var(--color-text-primary);
-          font-size: 1.1rem;
+          font-size: 1rem; // KLEINER: Kompaktere Values
           font-weight: 600;
         }
       }
     }
   }
 
-  // Call to Action
+  // KORRIGIERT: CTA - Intersection Observer Animation
   .candlescope-cta {
     text-align: center;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 3rem 2rem;
-    margin-block-end: 3rem;
+    padding: 2rem 1.5rem; // REDUZIERT: Weniger Padding
+    margin-block-end: 2rem; // REDUZIERT: Weniger Margin
     opacity: 0;
     transform: translateY(30px);
     transition: all 0.8s ease;
 
+    // DESKTOP: Mehr Padding
+    @media (min-width: 768px) {
+      padding: 3rem 2rem;
+      margin-block-end: 3rem;
+    }
+
+    // EINMALIGE Animation - wird nur beim ersten Sichtbar-werden getriggert
     &.cta-visible {
       opacity: 1;
       transform: translateY(0);
+      animation-fill-mode: forwards; // HINZUGEFÜGT: Bleibt sichtbar nach Animation
     }
 
     .cta-content {
-      margin-block-end: 2rem;
+      margin-block-end: 1.5rem; // REDUZIERT: Weniger Abstand
 
       h3 {
-        font-size: 2rem;
+        font-size: clamp(1.5rem, 5vw, 2rem); // RESPONSIVE: Fluid Typography
         font-weight: 700;
         color: var(--color-text-primary);
         margin-block-end: 1rem;
       }
 
       p {
-        font-size: 1.1rem;
+        font-size: clamp(1rem, 3vw, 1.1rem); // RESPONSIVE: Fluid Typography
         color: var(--color-text-secondary);
         line-height: 1.6;
         max-inline-size: 600px;
@@ -671,21 +744,43 @@
       justify-content: center;
       flex-wrap: wrap;
 
+      // MOBILE: Stack buttons vertically
+      @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: center;
+      }
+
       .btn-primary, .btn-secondary {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 1rem 2rem;
+        padding: 1rem 1.5rem; // REDUZIERT: Weniger Padding
         border-radius: 50px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.95rem; // KLEINER: Kompaktere Buttons
         cursor: pointer;
         transition: all 0.3s ease;
         border: none;
 
-        // Geändert: Icon-Styling für Buttons
-        .btn-icon {
-          svg {
+        // DESKTOP: Mehr Padding und größerer Text
+        @media (min-width: 768px) {
+          padding: 1rem 2rem;
+          font-size: 1rem;
+        }
+
+        // MOBILE: Full width buttons
+        @media (max-width: 480px) {
+          inline-size: 100%;
+          max-inline-size: 280px;
+          justify-content: center;
+        }
+
+        .btn-icon svg {
+          inline-size: 1.1rem; // KLEINER: Kompaktere Icons
+          block-size: 1.1rem;
+
+          // DESKTOP: Größere Icons
+          @media (min-width: 768px) {
             inline-size: 1.2rem;
             block-size: 1.2rem;
           }
@@ -719,63 +814,61 @@
     }
   }
 
-  // Development Status - Geändert: Icon-Styling
+  // KORRIGIERT: Development Status Mobile-optimiert
   .development-status {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 1rem; // REDUZIERT: Weniger Gap
     flex-wrap: wrap;
-
-    @media (max-inline-size: 768px) {
-      gap: 1rem;
-    }
 
     .status-item {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       background: rgba(255, 255, 255, 0.05);
-      padding: 0.75rem 1.5rem;
+      padding: 0.6rem 1.2rem; // REDUZIERT: Weniger Padding
       border-radius: 25px;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--color-text-primary);
 
-      .status-icon {
-        svg {
+      // DESKTOP: Mehr Padding
+      @media (min-width: 768px) {
+        padding: 0.75rem 1.5rem;
+      }
+
+      .status-icon svg {
+        inline-size: 1rem; // KLEINER: Kompaktere Icons
+        block-size: 1rem;
+        stroke-width: 2;
+
+        // DESKTOP: Größere Icons
+        @media (min-width: 768px) {
           inline-size: 1.2rem;
           block-size: 1.2rem;
-          stroke-width: 2;
         }
+      }
 
-        // Geändert: Spezifische Icon-Farben über Tailwind-Klassen
-        &.text-green-500 svg {
-          color: #10b981;
-        }
+      // Spezifische Icon-Farben über Tailwind-Klassen
+      &.text-green-500 .status-icon svg {
+        color: #10b981;
+      }
 
-        &.text-blue-500 svg {
-          color: #3b82f6;
-        }
+      &.text-blue-500 .status-icon svg {
+        color: #3b82f6;
+      }
 
-        &.text-yellow-500 svg {
-          color: #f59e0b;
-        }
+      &.text-yellow-500 .status-icon svg {
+        color: #f59e0b;
       }
 
       .status-text {
         color: var(--color-text-secondary);
-        font-size: 0.9rem;
+        font-size: 0.8rem; // KLEINER: Kompakterer Text
         font-weight: 500;
-      }
 
-      @media (max-inline-size: 768px) {
-        padding: 0.5rem 1rem;
-
-        .status-text {
-          font-size: 0.8rem;
-        }
-
-        .status-icon svg {
-          inline-size: 1rem;
-          block-size: 1rem;
+        // DESKTOP: Größerer Text
+        @media (min-width: 768px) {
+          font-size: 0.9rem;
         }
       }
     }
@@ -783,57 +876,150 @@
 }
 
 // =============================================================================
-// RESPONSIVE DESIGN
+// ZUSÄTZLICHE MOBILE KORREKTUREN
 // =============================================================================
 
+// =============================================================================
+// NEUE KEYFRAME ANIMATIONEN FÜR EINMALIGES ERSCHEINEN
+// =============================================================================
+
+// Basis Animation - Von unten einblenden
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Desktop - Von links einblenden
+@keyframes fadeInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Desktop - Von rechts einblenden
+@keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// KORRIGIERT: Bestehende Animationen für Mobile optimiert
+@keyframes floatingElement {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+@keyframes videoPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+
+  // MOBILE: Weniger Transform für bessere Performance
+  @media (max-width: 768px) {
+    0%, 100% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.01);
+    }
+  }
+}
+
+@keyframes playIconBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+
+  // MOBILE: Weniger Bounce für bessere Performance
+  @media (max-width: 768px) {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@keyframes windowGlow {
+  0%, 100% {
+    box-shadow: 0 20px 60px rgba(var(--color-primary-rgb), 0.2);
+  }
+  50% {
+    box-shadow: 0 30px 80px rgba(var(--color-primary-rgb), 0.4);
+  }
+
+  // MOBILE: Weniger intensive Shadows
+  @media (max-width: 768px) {
+    0%, 100% {
+      box-shadow: 0 10px 30px rgba(var(--color-primary-rgb), 0.15);
+    }
+    50% {
+      box-shadow: 0 15px 40px rgba(var(--color-primary-rgb), 0.25);
+    }
+  }
+}
+
+// =============================================================================
+// PERFORMANCE OPTIMIERUNGEN FÜR MOBILE
+// =============================================================================
+
+// KORRIGIERT: Reduzierte Motion für schwächere Geräte
 @media (max-width: 768px) {
   .candlescope-section {
-    .candlescope-header {
-      margin-block-end: 3rem;
-
-      .header-badge {
-        padding: 0.5rem 1rem;
-        margin-block-end: 1.5rem;
-      }
+    // Vereinfachte Transforms
+    * {
+      transform: translateZ(0); // Hardware-Acceleration aktivieren
+      will-change: transform, opacity; // Browser-Optimierung
     }
-
-    .candlescope-content {
-      gap: 2rem;
+    
+    // Weniger komplexe Blur-Effekte
+    .bg-gradient {
+      filter: blur(20px) !important;
     }
-
-    .app-preview {
-      .app-window {
-        .window-content {
-          min-block-size: 200px;
-        }
-      }
-    }
-
-    .features-section {
-      .features-carousel {
-        gap: 1rem;
-      }
-    }
-
+    
+    // Reduzierte Backdrop-Filter
+    .feature-card,
     .candlescope-cta {
-      padding: 2rem 1rem;
-
-      .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-
-        .btn-primary, .btn-secondary {
-          inline-size: 100%;
-          max-inline-size: 300px;
-          justify-content: center;
-        }
-      }
+      backdrop-filter: blur(5px) !important;
     }
   }
 }
 
 // =============================================================================
-// ACCESSIBILITY
+// ACCESSIBILITY VERBESSERUNGEN
 // =============================================================================
 
 @media (prefers-reduced-motion: reduce) {
@@ -844,8 +1030,20 @@
   }
 
   .feature-card,
-  .spec-item {
+  .spec-item,
+  .status-item {
     transition: none !important;
+  }
+
+  // Statische Darstellung für bessere Zugänglichkeit - ALLE ELEMENTE SICHTBAR
+  .candlescope-header,
+  .app-preview,
+  .features-section,
+  .tech-specs,
+  .candlescope-cta {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important; // GEÄNDERT: Animationen komplett deaktiviert
   }
 }
 
@@ -862,8 +1060,30 @@
     }
   }
 
-  // Geändert: Video Placeholder High-Contrast
   .video-container {
     border: 2px solid var(--color-primary) !important;
   }
+
+  // Bessere Kontraste für Mobile
+  @media (max-width: 768px) {
+    .candlescope-title .title-brand,
+    .candlescope-title .title-tagline,
+    .features-header h3,
+    .specs-title,
+    .cta-content h3 {
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+  }
 }
+
+// =============================================================================
+// DEBUGGING HELPER (Temporär - später entfernen)
+// =============================================================================
+
+/* 
+DEBUGGING: Uncomment um Layout-Probleme zu identifizieren
+.candlescope-section * {
+  border: 1px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+*/
