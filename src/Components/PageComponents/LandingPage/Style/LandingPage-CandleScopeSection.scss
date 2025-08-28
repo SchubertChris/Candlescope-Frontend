@@ -1,0 +1,869 @@
+// =============================================================================
+// CANDLESCOPE SECTION - FINANCE APP WERBUNG
+// =============================================================================
+
+// Import Base Styles
+@use '@styles/Base/VARIABLES' as *;
+@use '@styles/Base/MIXINS' as *;
+@use '@styles/Base/FONTS' as *;
+@use '@styles/Base/ANIMATIONS' as *;
+
+// =============================================================================
+// KEYFRAME ANIMATIONS
+// =============================================================================
+
+@keyframes floatingElement {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+// Geändert: Neue Animation für Video Placeholder
+@keyframes videoPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes playIconBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes windowGlow {
+  0%, 100% {
+    box-shadow: 0 20px 60px rgba(var(--color-primary-rgb), 0.2);
+  }
+  50% {
+    box-shadow: 0 30px 80px rgba(var(--color-primary-rgb), 0.4);
+  }
+}
+
+@keyframes featureSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =============================================================================
+// CANDLESCOPE SECTION CONTAINER
+// =============================================================================
+
+.candlescope-section {
+  position: relative;
+  padding: clamp(6rem, 12vh, 10rem) 0;
+  min-block-size: 100vh;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--color-primary-rgb), 0.08) 0%,
+    rgba(var(--color-secondary-rgb), 0.03) 50%,
+    rgba(var(--color-primary-rgb), 0.05) 100%
+  );
+
+  // Background Elements
+  .candlescope-bg {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+    z-index: 1;
+
+    .bg-grid {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      inline-size: 100%;
+      block-size: 100%;
+      background-image: 
+        linear-gradient(rgba(var(--color-primary-rgb), 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--color-primary-rgb), 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.3;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      inline-size: 800px;
+      block-size: 800px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(
+        circle,
+        rgba(var(--color-primary-rgb), 0.15) 0%,
+        transparent 70%
+      );
+      filter: blur(100px);
+    }
+
+    .floating-elements {
+      position: absolute;
+      inline-size: 100%;
+      block-size: 100%;
+
+      .floating-element {
+        position: absolute;
+        // Geändert: Styling für Lucide Icons
+        color: var(--color-primary);
+        opacity: 0.6;
+        animation: floatingElement 6s ease-in-out infinite;
+
+        // Geändert: Icon-spezifische Styles
+        svg {
+          inline-size: 2rem;
+          block-size: 2rem;
+          stroke-width: 1.5;
+        }
+
+        &.element-1 { inset-block-start: 10%; inset-inline-start: 10%; animation-delay: 0s; }
+        &.element-2 { inset-block-start: 20%; inset-inline-end: 15%; animation-delay: 1s; }
+        &.element-3 { inset-block-start: 60%; inset-inline-start: 8%; animation-delay: 2s; }
+        &.element-4 { inset-block-start: 80%; inset-inline-end: 20%; animation-delay: 3s; }
+        &.element-5 { inset-block-start: 40%; inset-inline-start: 85%; animation-delay: 4s; }
+        &.element-6 { inset-block-start: 70%; inset-inline-end: 10%; animation-delay: 5s; }
+
+        @media (max-inline-size: 768px) {
+          svg {
+            inline-size: 1.5rem;
+            block-size: 1.5rem;
+          }
+          
+          &.element-3, &.element-4, &.element-5, &.element-6 {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .candlescope-container {
+    position: relative;
+    z-index: 2;
+    max-inline-size: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+
+    @media (max-inline-size: 768px) {
+      padding: 0 1rem;
+    }
+  }
+
+  // Header Section
+  .candlescope-header {
+    text-align: center;
+    margin-block-end: 4rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+
+    &.header-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(var(--color-primary-rgb), 0.1);
+      border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      margin-block-end: 2rem;
+      color: var(--color-primary);
+      font-weight: 600;
+
+      // Geändert: Icon-spezifisches Styling
+      .badge-icon {
+        svg {
+          inline-size: 1.2rem;
+          block-size: 1.2rem;
+        }
+      }
+    }
+
+    .candlescope-title {
+      margin-block-end: 1.5rem;
+
+      .title-brand {
+        display: block;
+        font-size: clamp(3rem, 8vw, 5rem);
+        font-weight: 700;
+        @include text-gradient();
+        font-family: 'hero-font', sans-serif;
+        margin-block-end: 0.5rem;
+      }
+
+      .title-tagline {
+        display: block;
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        color: var(--color-text-secondary);
+        font-family: 'head-font', sans-serif;
+        font-weight: 400;
+      }
+    }
+
+    .candlescope-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      max-inline-size: 700px;
+      margin: 0 auto;
+
+      @media (max-inline-size: 768px) {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  // Main Content Grid
+  .candlescope-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-block-end: 4rem;
+
+    @media (max-inline-size: 1024px) {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+
+  // App Preview - Geändert: Video Placeholder
+  .app-preview {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.8s ease;
+
+    &.preview-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .app-window {
+      background: rgba(30, 30, 30, 0.95);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: windowGlow 4s ease-in-out infinite;
+
+      .window-header {
+        background: rgba(40, 40, 40, 0.9);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+
+        .window-controls {
+          display: flex;
+          gap: 0.5rem;
+
+          .control {
+            inline-size: 12px;
+            block-size: 12px;
+            border-radius: 50%;
+
+            &.close { background: #ff5f57; }
+            &.minimize { background: #ffbd2e; }
+            &.maximize { background: #28ca42; }
+          }
+        }
+
+        .window-title {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.9rem;
+          font-weight: 500;
+        }
+      }
+
+      .window-content {
+        padding: 1.5rem;
+        min-block-size: 300px;
+
+        @media (max-inline-size: 768px) {
+          padding: 1rem;
+          min-block-size: 250px;
+        }
+      }
+
+      // Geändert: Video Placeholder Styles
+      .video-placeholder {
+        block-size: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .video-container {
+          position: relative;
+          inline-size: 100%;
+          block-size: 250px;
+          background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          animation: videoPulse 4s ease-in-out infinite;
+
+          &:hover {
+            border-color: var(--color-primary);
+            transform: scale(1.02);
+
+            .play-icon {
+              transform: scale(1.2);
+              color: var(--color-primary);
+            }
+          }
+
+          .video-overlay {
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inline-size: 100%;
+            block-size: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2;
+
+            .play-icon {
+              color: rgba(255, 255, 255, 0.8);
+              margin-block-end: 1rem;
+              animation: playIconBounce 2s ease-in-out infinite;
+              transition: all 0.3s ease;
+            }
+
+            .video-text {
+              color: rgba(255, 255, 255, 0.9);
+              font-size: 1.2rem;
+              font-weight: 600;
+              margin-block-end: 0.5rem;
+            }
+
+            .video-duration {
+              color: rgba(255, 255, 255, 0.6);
+              font-size: 0.9rem;
+              background: rgba(0, 0, 0, 0.7);
+              padding: 0.25rem 0.75rem;
+              border-radius: 15px;
+            }
+          }
+
+          .video-background {
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inline-size: 100%;
+            block-size: 100%;
+            z-index: 1;
+
+            .interface-hint {
+              position: absolute;
+              inset-block-start: 1rem;
+              inset-inline-start: 1rem;
+              inset-inline-end: 1rem;
+
+              .hint-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                backdrop-filter: blur(5px);
+
+                .hint-pair {
+                  color: rgba(255, 255, 255, 0.8);
+                  font-weight: 700;
+                  font-size: 0.9rem;
+                }
+
+                .hint-price {
+                  color: var(--color-primary);
+                  font-weight: 600;
+                  font-size: 0.85rem;
+                }
+
+                .hint-change {
+                  padding: 0.2rem 0.5rem;
+                  border-radius: 4px;
+                  font-size: 0.7rem;
+                  font-weight: 600;
+
+                  &.positive {
+                    background: rgba(76, 175, 80, 0.2);
+                    color: #4caf50;
+                  }
+                }
+              }
+            }
+          }
+
+          @media (max-inline-size: 768px) {
+            block-size: 200px;
+
+            .video-overlay {
+              .play-icon {
+                inline-size: 3rem;
+                block-size: 3rem;
+              }
+
+              .video-text {
+                font-size: 1rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Features Section
+  .features-section {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.8s ease;
+
+    &.features-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .features-header {
+      margin-block-end: 2rem;
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin-block-end: 1rem;
+      }
+    }
+
+    .features-carousel {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-block-end: 2rem;
+
+      @media (max-inline-size: 768px) {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.4s ease;
+        cursor: pointer;
+        opacity: 0.7;
+        transform: scale(0.95);
+
+        &.feature-active {
+          opacity: 1;
+          transform: scale(1);
+          border-color: var(--feature-color);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        &:hover {
+          transform: scale(1.02);
+          border-color: var(--feature-color);
+        }
+
+        // Geändert: Icon-Styling für React Components
+        .feature-icon {
+          margin-block-end: 1rem;
+          display: flex;
+          justify-content: center;
+          color: var(--feature-color);
+
+          svg {
+            inline-size: 3rem;
+            block-size: 3rem;
+            stroke-width: 1.5;
+          }
+        }
+
+        .feature-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--color-text-primary);
+          margin-block-end: 1rem;
+        }
+
+        .feature-description {
+          color: var(--color-text-secondary);
+          line-height: 1.6;
+          font-size: 1rem;
+        }
+
+        @media (max-inline-size: 768px) {
+          padding: 1.5rem;
+
+          .feature-icon svg {
+            inline-size: 2.5rem;
+            block-size: 2.5rem;
+          }
+
+          .feature-title {
+            font-size: 1.25rem;
+          }
+
+          .feature-description {
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+
+    .feature-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+
+      .nav-dot {
+        inline-size: 12px;
+        block-size: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.dot-active {
+          background: var(--color-primary);
+          transform: scale(1.2);
+        }
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+  }
+
+  // Technical Specifications
+  .tech-specs {
+    margin: 4rem 0;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+
+    &.specs-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .specs-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-block-end: 2rem;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+
+      .spec-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: var(--color-primary);
+          transform: translateY(-5px);
+        }
+
+        .spec-label {
+          color: var(--color-text-secondary);
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-block-end: 0.5rem;
+        }
+
+        .spec-value {
+          color: var(--color-text-primary);
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  // Call to Action
+  .candlescope-cta {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-block-end: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+
+    &.cta-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cta-content {
+      margin-block-end: 2rem;
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin-block-end: 1rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        max-inline-size: 600px;
+        margin: 0 auto;
+      }
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      .btn-primary, .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+
+        // Geändert: Icon-Styling für Buttons
+        .btn-icon {
+          svg {
+            inline-size: 1.2rem;
+            block-size: 1.2rem;
+          }
+        }
+
+        &:hover {
+          transform: translateY(-3px);
+        }
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+        color: white;
+        box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.3);
+
+        &:hover {
+          box-shadow: 0 15px 35px rgba(var(--color-primary-rgb), 0.4);
+        }
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--color-text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: var(--color-primary);
+        }
+      }
+    }
+  }
+
+  // Development Status - Geändert: Icon-Styling
+  .development-status {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    @media (max-inline-size: 768px) {
+      gap: 1rem;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.75rem 1.5rem;
+      border-radius: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      .status-icon {
+        svg {
+          inline-size: 1.2rem;
+          block-size: 1.2rem;
+          stroke-width: 2;
+        }
+
+        // Geändert: Spezifische Icon-Farben über Tailwind-Klassen
+        &.text-green-500 svg {
+          color: #10b981;
+        }
+
+        &.text-blue-500 svg {
+          color: #3b82f6;
+        }
+
+        &.text-yellow-500 svg {
+          color: #f59e0b;
+        }
+      }
+
+      .status-text {
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      @media (max-inline-size: 768px) {
+        padding: 0.5rem 1rem;
+
+        .status-text {
+          font-size: 0.8rem;
+        }
+
+        .status-icon svg {
+          inline-size: 1rem;
+          block-size: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// =============================================================================
+// RESPONSIVE DESIGN
+// =============================================================================
+
+@media (max-width: 768px) {
+  .candlescope-section {
+    .candlescope-header {
+      margin-block-end: 3rem;
+
+      .header-badge {
+        padding: 0.5rem 1rem;
+        margin-block-end: 1.5rem;
+      }
+    }
+
+    .candlescope-content {
+      gap: 2rem;
+    }
+
+    .app-preview {
+      .app-window {
+        .window-content {
+          min-block-size: 200px;
+        }
+      }
+    }
+
+    .features-section {
+      .features-carousel {
+        gap: 1rem;
+      }
+    }
+
+    .candlescope-cta {
+      padding: 2rem 1rem;
+
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+
+        .btn-primary, .btn-secondary {
+          inline-size: 100%;
+          max-inline-size: 300px;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// =============================================================================
+// ACCESSIBILITY
+// =============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-element,
+  .video-container,
+  .app-window {
+    animation: none !important;
+  }
+
+  .feature-card,
+  .spec-item {
+    transition: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .app-window {
+    border: 2px solid var(--color-primary);
+  }
+
+  .feature-card {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+
+    &.feature-active {
+      border: 2px solid var(--color-primary);
+    }
+  }
+
+  // Geändert: Video Placeholder High-Contrast
+  .video-container {
+    border: 2px solid var(--color-primary) !important;
+  }
+}

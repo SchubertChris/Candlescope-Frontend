@@ -48,9 +48,9 @@
 ## Landingpage 
 
     - Parallax effekte im vollen Umfang
-    - Cards im 100vw 70 vh look mega parallax im zoom in und out das es wie im 3D Kino wirkt Opacity irgendwas krasses
-    - Darunter alles zu mir mit Timeline Small und big width cards rechtecke und immer einem angelehnten Bild Badge wie eine Story Cards
-    - Darunter Werbung für meine Finance App Candlescope Programm mit Stick offline, dezentral --> per Datei csv und pdf
+    - Cards im 100vw 70 vh oder so look mega parallax mit zoom in und out das es wie im 3D Kino wirkt Opacity irgendwas krasses
+    - Darunter alles zu mir mit Timeline Small und big width cards rechtecke und immer einem angelehnten Bild Badge wie Story Cards
+    - Darunter Werbung für meine Finance App Candlescope Programm mit Stick offline, dezentral --> per Datei csv und pdf extrahierbar
 
 ## LP - NAVIGATION DESKTOP
 

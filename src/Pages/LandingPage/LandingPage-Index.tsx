@@ -10,6 +10,8 @@ import AboutSection from '@/Components/PageComponents/LandingPage/LandingPage-Ab
 import WorkSection from '@/Components/PageComponents/LandingPage/LandingPage-WorkSection';
 import OffersSection from '@/Components/PageComponents/LandingPage/LandingPage-OffersSection';
 import CTASection from '@/Components/PageComponents/LandingPage/LandingPage-ContactSection';
+import CandleScopeSection from '@/Components/PageComponents/LandingPage/LandingPage-CandleScopeSection';
+import TimelineSection from '@/Components/PageComponents/LandingPage/LandingPage-TimelineSection';
 import { createFadeInObserver } from '@/Components/Utils/ScrollObserver';
 import CookieBanner from '@/Components/Ui/CookieBanner';
 
@@ -119,6 +121,8 @@ const LandingPage: React.FC = () => {
       <AboutSection />
       <WorkSection />
       <OffersSection />
+      <CandleScopeSection />
+      <TimelineSection />
       <CTASection />
     </div>
   );
