@@ -1,0 +1,23 @@
+// =============================================================================
+// DASHBOARD MAIN CONTENT STYLES
+// Datei: _dashboard-main.scss
+// Zweck: Main Content Area Styling
+// =============================================================================
+
+.dashboard-main-content {
+  grid-area: main;
+  padding: 2rem;
+  overflow-y: auto;
+  min-height: 0;
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    padding-bottom: 6rem;
+  }
+
+  .content-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}

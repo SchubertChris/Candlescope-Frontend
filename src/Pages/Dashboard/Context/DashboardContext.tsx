@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Context/DashboardContext.tsx
-// ERWEITERT: DashboardContext mit allen benötigten Handlers
+// KORRIGIERT: Loading State hinzugefügt um Flackern zu vermeiden
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { User, Project, Message, Invoice } from '../Types/DashboardTypes';
@@ -10,13 +10,13 @@ interface DashboardContextType {
   messages: Message[];
   invoices: Invoice[];
   notifications: number;
+  isLoading: boolean; // ← HINZUGEFÜGT: Loading State
   onProjectUpdate: (project: Project) => void;
   onMessageRead: (messageId: string) => void;
   onSendMessage: (projectId: string, content: string) => void;
   onInvoiceUpdate: (invoice: Invoice) => void;
   onCreateInvoice: () => void;
   onPayInvoice: (invoiceId: string) => void;
-  // Erweitert für Settings/Profile Pages
   onUserUpdate: (user: User) => void;
   onLogout?: () => void;
 }
@@ -38,6 +38,7 @@ interface DashboardProviderProps {
   messages: Message[];
   invoices: Invoice[];
   notifications: number;
+  isLoading: boolean; // ← HINZUGEFÜGT: Loading State Prop
   onProjectUpdate: (project: Project) => void;
   onMessageRead: (messageId: string) => void;
   onSendMessage: (projectId: string, content: string) => void;
@@ -55,6 +56,7 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
   messages,
   invoices,
   notifications,
+  isLoading, // ← HINZUGEFÜGT: Loading State Parameter
   onProjectUpdate,
   onMessageRead,
   onSendMessage,
@@ -70,6 +72,7 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
     messages,
     invoices,
     notifications,
+    isLoading, // ← HINZUGEFÜGT: Loading State im Context Value
     onProjectUpdate,
     onMessageRead,
     onSendMessage,

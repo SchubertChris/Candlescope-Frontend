@@ -1,5 +1,5 @@
 // src/Router/Router.tsx
-// KORRIGIERT: Dashboard-Subpages als separate Routes hinzugefügt
+// KORRIGIERT: Dashboard-Subpages als separate Routes hinzugefügt + PageLoader Fix
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { lazy, Suspense, type ReactNode } from 'react';
 
@@ -52,7 +52,7 @@ const KontaktPage = lazy(() =>
   })
 );
 
-// ✅ FIXED: Dashboard Lazy Loading
+// Dashboard Lazy Loading
 const Dashboard = lazy(() =>
   import('../Pages/Dashboard/Dashboard').catch((err) => {
     console.error('Fehler beim Laden des Dashboards:', err);
@@ -75,7 +75,7 @@ const Dashboard = lazy(() =>
   })
 );
 
-// ✅ NEU: Dashboard Subpages Lazy Loading
+// Dashboard Subpages Lazy Loading
 const Overview = lazy(() =>
   import('../Pages/Dashboard/Overview/Overview').catch(() => ({
     default: () => <div>Fehler beim Laden der Übersicht</div>
@@ -131,34 +131,69 @@ const OAuthError = lazy(() =>
   }))
 );
 
-// OPTIMIERT: Loading Component mit besserer Performance
+// KORRIGIERT: PageLoader mit perfekter Zentrierung
 const PageLoader = () => (
   <div
     style={{
+      position: 'fixed',        // HINZUGEFÜGT: Fixed positioning
+      top: 0,                   // HINZUGEFÜGT
+      left: 0,                  // HINZUGEFÜGT  
+      right: 0,                 // HINZUGEFÜGT
+      bottom: 0,                // HINZUGEFÜGT
+      zIndex: 9999,             // HINZUGEFÜGT: Höchste Priorität
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minBlockSize: '100vh',
-      backgroundColor: 'var(--color-background, #000000ff)'
+      minHeight: '100vh',       // GEÄNDERT: Von minBlockSize
+      backgroundColor: 'rgba(20, 19, 29, 0.95)', // KORRIGIERT: Proper rgba
+      backdropFilter: 'blur(10px)', // HINZUGEFÜGT: Blur-Effekt
+      flexDirection: 'column',  // HINZUGEFÜGT: Für vertikale Anordnung
+      gap: '1rem'              // HINZUGEFÜGT: Abstand zwischen Elementen
     }}
   >
-    <div style={{ animation: 'spin 1s linear infinite' }}>
+    <div style={{ 
+      animation: 'spin 1s linear infinite',
+      filter: 'drop-shadow(0 0 20px rgba(162, 89, 255, 0.5))' // HINZUGEFÜGT: Glow
+    }}>
       <svg
-        width="55"
-        height="55"
+        width="64"                // VERGRÖSSERT: Von 55 zu 64
+        height="64"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
           d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93"
-          stroke="white"
-          strokeWidth="2"
+          stroke="rgba(162, 89, 255, 1)" // GEÄNDERT: Von white zu primary
+          strokeWidth="2.5"               // VERSTÄRKT
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       </svg>
     </div>
+    
+    {/* HINZUGEFÜGT: Loading-Text */}
+    <div style={{
+      color: 'rgba(255, 255, 255, 0.8)',
+      fontSize: '0.9rem',
+      fontWeight: '500',
+      animation: 'pulse 2s ease-in-out infinite'
+    }}>
+      Wird geladen...
+    </div>
+
+    {/* HINZUGEFÜGT: Inline CSS für Animationen */}
+    <style>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+    `}</style>
   </div>
 );
 
@@ -169,7 +204,7 @@ const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   </Suspense>
 );
 
-// ✅ KORRIGIERT: Route Konfiguration mit Dashboard Subpages
+// Route Konfiguration mit Dashboard Subpages
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -194,7 +229,7 @@ export const routes: RouteObject[] = [
     ],
   },
 
-  // ✅ ERWEITERT: Dashboard-Routes mit Subpages
+  // Dashboard-Routes mit Subpages
   {
     path: '/dashboard',
     element: (
@@ -292,7 +327,7 @@ export const routes: RouteObject[] = [
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minBlockSize: '100vh',
+          minHeight: '100vh',     // KORRIGIERT: Von minBlockSize
           textAlign: 'center'
         }}
       >

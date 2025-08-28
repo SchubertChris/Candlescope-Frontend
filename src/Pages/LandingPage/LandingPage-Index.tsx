@@ -1,5 +1,5 @@
 // src/Pages/LandingPage/LandingPage-Index.tsx
-// KORRIGIERT: Auto-Dashboard-Redirect für eingeloggte User
+// KORRIGIERT: Conditional redirect - Logo-Navigation ohne Auto-Logout
 import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import authService from '@/Services/Auth-Service';
@@ -18,34 +18,53 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const scrollHandledRef = useRef(false);
 
-  // TEMPORÄR DEAKTIVIERT: Auth-Check für eingeloggte User
+  // KORRIGIERT: Conditional Auth-Redirect mit Navigation Intent Detection
   useEffect(() => {
-    const checkAuthAndRedirect = () => {
+    const checkAuthAndConditionalRedirect = () => {
       const isAuthenticated = authService.isAuthenticated();
       const currentUser = authService.getCurrentUser();
       
       console.log('🏠 LANDING PAGE AUTH CHECK:');
       console.log('  - Is Authenticated:', isAuthenticated);
       console.log('  - Current User:', currentUser?.email);
+      console.log('  - Location State:', location.state);
       
-      // Falls User eingeloggt ist, zum Dashboard weiterleiten
+      // WICHTIG: Prüfe Navigation Intent Flags
+      const isFromDashboard = location.state?.fromDashboard === true;
+      const hasScrollIntent = location.state?.scrollTo;
+      
+      console.log('🎯 NAVIGATION FLAGS:');
+      console.log('  - fromDashboard:', isFromDashboard);
+      console.log('  - scrollTo:', hasScrollIntent);
+      
       if (isAuthenticated && currentUser) {
-        console.log('✅ LANDING PAGE: User is logged in, redirecting to dashboard...');
+        if (isFromDashboard) {
+          console.log('✅ LANDING PAGE: User came from dashboard - STAYING logged in on landing page');
+          // State cleanup für zukünftige normale Redirects
+          window.history.replaceState({}, document.title);
+          return; // KEIN REDIRECT - User bleibt auf Landing Page eingeloggt
+        }
         
-        // Kurze Verzögerung für bessere UX
+        if (hasScrollIntent) {
+          console.log('✅ LANDING PAGE: User has scroll intent - staying on landing page');
+          return; // KEIN REDIRECT - User will zu Section scrollen
+        }
+        
+        // NUR redirect wenn User direkt/zufällig auf Landing Page gelandet ist
+        console.log('🔄 LANDING PAGE: Direct access while logged in - redirecting to dashboard');
         setTimeout(() => {
           navigate('/dashboard', { replace: true });
         }, 100);
       } else {
-        console.log('ℹ️  LANDING PAGE: User not logged in, staying on landing page');
+        console.log('ℹ️  LANDING PAGE: User not logged in - staying on landing page');
       }
     };
     
-    // Auth-Check nur einmal ausführen
-    checkAuthAndRedirect();
-  }, []); // Leeres dependency array = nur beim Mount
+    // Auth-Check nur einmal beim Mount
+    checkAuthAndConditionalRedirect();
+  }, [navigate, location.state]);
 
-  // Bestehende scroll animations
+  // Scroll animations
   useEffect(() => {
     const observer = createFadeInObserver();
     observer.observeAll('.reveal');
@@ -55,7 +74,7 @@ const LandingPage: React.FC = () => {
     };
   }, []);
 
-  // Bestehende scroll handling
+  // Scroll handling für Navigation
   useEffect(() => {
     const scrollToSection = location.state?.scrollTo;
     
@@ -76,6 +95,7 @@ const LandingPage: React.FC = () => {
             behavior: 'smooth'
           });
           
+          // State cleanup nach Scroll
           window.history.replaceState({}, document.title);
         }
         

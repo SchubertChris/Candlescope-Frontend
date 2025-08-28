@@ -1,8 +1,7 @@
 // src/Components/Layouts/DashboardLayout/DashboardSidebar.tsx
-// KORRIGIERT: Collapsible Sidebar - Standard nur Icons, aufklappbar für Text
-// Mobile Navigation bleibt unverändert
+// KORRIGIERT: Subtiler 9-Punkte-Raster Toggle, komplett innerhalb Sidebar
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   HiHome,
@@ -11,9 +10,7 @@ import {
   HiReceiptTax,
   HiMail,
   HiCog,
-  HiUser,
-  HiLogout,
-  HiViewGrid // KORRIGIERT: 9-Punkt Grid Icon statt Chevron
+  HiUser
 } from 'react-icons/hi';
 import { UserRole, DashboardView } from '@/Pages/Dashboard/Types/DashboardTypes';
 
@@ -102,39 +99,35 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     return location.pathname.startsWith(path);
   };
 
-  // KORRIGIERT: Toggle über Props statt lokalem State
   const toggleSidebar = () => {
     onToggle();
   };
 
   return (
     <aside className={`dashboard-sidebar ${isExpanded ? 'dashboard-sidebar--expanded' : 'dashboard-sidebar--collapsed'}`}>
-      {/* KORRIGIERT: Sidebar Toggle Button mit 9-Punkt Grid Icon */}
+      {/* KORRIGIERT: 9-Punkte-Raster Toggle komplett innerhalb Sidebar */}
       <button 
-        className="sidebar-toggle-btn"
+        className="sidebar-toggle-btn tactile-toggle"
         onClick={toggleSidebar}
-        title={isExpanded ? 'Sidebar einklappen' : 'Sidebar ausklappen'}
+        title={isExpanded ? 'Sidebar schließen' : 'Sidebar öffnen'}
       >
-        <HiViewGrid />
-      </button>
-
-      {/* Sidebar Header - nur bei expanded */}
-      <div className="sidebar-header">
-        <div className="sidebar-brand">
-          <div className="brand-icon">
-            {/* Icon hier falls gewünscht */}
-          </div>
-          {isExpanded && (
-            <div className="brand-text">Dashboard</div>
-          )}
+        <div className="tactile-dots">
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
         </div>
-      </div>
+      </button>
 
       {/* Navigation Menu */}
       <nav className="sidebar-nav">
         <ul className="nav-list">
           {navItems.map((item) => {
-            // Admin-only Items filtern
             if (item.adminOnly && userRole !== 'admin') {
               return null;
             }
@@ -144,19 +137,22 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 <button
                   className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
                   onClick={() => handleNavigation(item.path)}
-                  title={!isExpanded ? item.label : ''} // Tooltip nur bei collapsed
+                  title={!isExpanded ? item.label : ''}
                 >
                   <div className="nav-icon-wrapper">
                     <item.icon className="nav-icon" />
-                    {/* KORRIGIERT: Badge als vertikaler Streifen statt Zahlen */}
-                    {item.badge && item.badge > 0 && (
-                      <span className="nav-badge-stripe"></span>
+                    {!isExpanded && item.badge && item.badge > 0 && (
+                      <span className="nav-badge-stripe nav-badge-stripe--on-icon"></span>
                     )}
                   </div>
                   
-                  {/* KORRIGIERT: Text nur bei expanded anzeigen */}
                   {isExpanded && (
-                    <span className="nav-text">{item.label}</span>
+                    <div className="nav-text-container">
+                      <span className="nav-text">{item.label}</span>
+                      {item.badge && item.badge > 0 && (
+                        <span className="nav-badge-stripe nav-badge-stripe--after-text"></span>
+                      )}
+                    </div>
                   )}
                 </button>
               </li>
@@ -164,11 +160,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           })}
         </ul>
       </nav>
-
-      {/* Sidebar Footer */}
-      <div className="sidebar-footer">
-        {/* Kann noch was rein [Werbung etc.] */}
-      </div>
     </aside>
   );
 };

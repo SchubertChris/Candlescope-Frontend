@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Dashboard.tsx
-// KORRIGIERT: Context um Outlet gewrapped + erweiterte Mock-Daten
+// KORRIGIERT: isLoading State an DashboardProvider weitergegeben
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [notifications] = useState<number>(3);
 
-  // Erweiterte Mock-Daten für alle Dashboard-Features
+  // Mock-Daten (unverändert)
   const [mockProjects] = useState<Project[]>([
     {
       id: '1',
@@ -228,12 +228,16 @@ const Dashboard: React.FC = () => {
 
   const navigate = useNavigate();
 
+  // KORRIGIERT: Zusätzlicher State für Data Loading
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
   // Dashboard-Initialisierung
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
         console.log('Dashboard initialization starting...');
         setIsLoading(true);
+        setIsDataLoading(true); // HINZUGEFÜGT
         setError(null);
 
         // User-Daten aus AuthService holen
@@ -249,13 +253,12 @@ const Dashboard: React.FC = () => {
         const dashboardUser: User = {
           id: currentUser.id,
           email: currentUser.email,
-          role: 'admin', // Default für jetzt - später aus Backend
+          role: 'admin',
           firstName: currentUser.name?.split(' ')[0] || 'Benutzer',
           lastName: currentUser.name?.split(' ')[1] || '',
           avatar: currentUser.avatar,
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
-          // Erweiterte Business-Daten für Settings
           businessData: {
             phone: '+49 160 941 683 48',
             website: 'portfolio-chris-schubert.vercel.app',
@@ -268,7 +271,6 @@ const Dashboard: React.FC = () => {
               country: 'Deutschland'
             }
           },
-          // 2FA Settings für Settings-Page
           twoFactorAuth: {
             enabled: false,
             backupCodes: [],
@@ -278,57 +280,55 @@ const Dashboard: React.FC = () => {
         
         console.log('User data loaded:', dashboardUser.email, dashboardUser.role);
         setUserData(dashboardUser);
-        setIsLoading(false);
+        
+        // KORRIGIERT: Simuliere Data Loading für Context
+        setTimeout(() => {
+          setIsDataLoading(false);
+          setIsLoading(false);
+          console.log('Dashboard data loading completed');
+        }, 500); // 500ms für Mock-Daten Loading
 
-        console.log('Dashboard initialization completed');
       } catch (err) {
         console.error('Dashboard initialization error:', err);
         setError(err instanceof Error ? err.message : 'Fehler beim Laden des Dashboards');
         setIsLoading(false);
+        setIsDataLoading(false); // HINZUGEFÜGT
       }
     };
 
     initializeDashboard();
   }, [navigate]);
 
-  // Event Handlers
+  // Event Handlers (unverändert)
   const handleProjectUpdate = (project: Project) => {
     console.log('PROJECT UPDATE:', project.id, project);
-    // TODO: Implement real API call
   };
 
   const handleMessageRead = (messageId: string) => {
     console.log('MESSAGE READ:', messageId);
-    // TODO: Implement real API call
   };
 
   const handleSendMessage = (projectId: string, content: string) => {
     console.log('SEND MESSAGE:', projectId, content);
-    // TODO: Implement real API call
   };
 
   const handleInvoiceUpdate = (invoice: Invoice) => {
     console.log('INVOICE UPDATE:', invoice.id, invoice);
-    // TODO: Implement real API call
   };
 
   const handlePayInvoice = (invoiceId: string) => {
     console.log('PAY INVOICE:', invoiceId);
-    // TODO: Implement real API call
   };
 
   const handleCreateInvoice = () => {
     console.log('CREATE INVOICE');
-    // TODO: Implement create invoice modal or navigation
   };
 
   const handleUserUpdate = (updatedUser: User) => {
     console.log('USER UPDATE:', updatedUser);
     setUserData(updatedUser);
-    // TODO: Implement real API call
   };
 
-  // Logout Handler
   const handleLogout = () => {
     console.log('LOGGING OUT...');
     authService.logout();
@@ -366,7 +366,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // KORRIGIERT: Context um DashboardLayout + Outlet gewrapped
+  // KORRIGIERT: isLoading State an Provider weitergegeben
   return (
     <DashboardProvider
       user={userData}
@@ -374,6 +374,7 @@ const Dashboard: React.FC = () => {
       messages={mockMessages}
       invoices={mockInvoices}
       notifications={notifications}
+      isLoading={isDataLoading} // ← KRITISCH: Das war der Fehler!
       onProjectUpdate={handleProjectUpdate}
       onMessageRead={handleMessageRead}
       onSendMessage={handleSendMessage}

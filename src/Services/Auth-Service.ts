@@ -1,5 +1,5 @@
 // src/Services/Auth-Service.ts
-// KORRIGIERT: OAuth-URLs und Route-Handling
+// KORRIGIERT: Logout ohne automatische Weiterleitung - Navigation überlässt dem Component
 import axiosInstance from './AxiosInstance-Service';
 
 interface LoginData {
@@ -25,7 +25,7 @@ interface AuthResponse {
 
 type OAuthProvider = 'google' | 'github';
 
-// KORRIGIERT: Dynamische Backend-URL mit korrekten OAuth-Routen
+// Dynamische Backend-URL mit korrekten OAuth-Routen
 const getBackendURL = (): string => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 };
@@ -116,12 +116,22 @@ class AuthService {
     }
   }
 
+  // KORRIGIERT: Logout ohne automatische Weiterleitung
   logout(): void {
-    console.log('🚪 LOGGING OUT');
+    console.log('🚪 LOGGING OUT - Clearing auth data');
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('oauthProvider');
-    window.location.href = '/';
+    
+    // ENTFERNT: Automatische Weiterleitung - überlassen wir dem Component
+    // window.location.href = '/'; 
+  }
+
+  // HINZUGEFÜGT: Separate Methode für kompletten Logout mit Redirect
+  logoutAndRedirect(): void {
+    console.log('🚪 FULL LOGOUT - Clearing data and redirecting');
+    this.logout(); // Daten löschen
+    window.location.href = '/'; // Dann erst weiterleiten
   }
 
   isAuthenticated(): boolean {
@@ -137,7 +147,9 @@ class AuthService {
         const parsed = JSON.parse(userData);
         return parsed;
       } catch (error) {
-        this.logout();
+        // KORRIGIERT: Verwende logoutAndRedirect für Error-Case
+        console.warn('⚠️ User data corrupted, logging out');
+        this.logoutAndRedirect();
         return null;
       }
     }
@@ -171,7 +183,7 @@ class AuthService {
     }
   }
 
-  // HINZUGEFÜGT: Debug-Funktion für OAuth-Status
+  // Debug-Funktion für OAuth-Status
   async checkOAuthStatus(): Promise<void> {
     try {
       const response = await axiosInstance.get('/oauth/status');

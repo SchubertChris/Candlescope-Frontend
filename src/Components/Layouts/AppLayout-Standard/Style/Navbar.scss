@@ -1,9 +1,9 @@
 // =============================================================================
-// MOBILE-ONLY NAVBAR STYLES - RESPONSIVE OVERLAP FIX
+// MOBILE-ONLY NAVBAR STYLES - ERWEITERT MIT LOGIN STATUS & BUTTON POSITION
 // Datei: Navbar.scss
-// GEÄNDERT: Adaptive Layout verhindert Überlappung bei mittleren Bildschirmgrößen
-// NEU: Scroll-Container für bessere Responsivität
-// KORRIGIERT: Navigation rutscht nicht mehr über Login-Bereich
+// GEÄNDERT: Button Position unten rechts + User Status Display
+// HINZUGEFÜGT: Dashboard Navigation für eingeloggte User
+// KORRIGIERT: Kompatibel mit bestehender Mixin-Struktur
 // =============================================================================
 
 @use "@styles/Base/VARIABLES" as *;
@@ -11,97 +11,52 @@
 @use "@styles/Base/ANIMATIONS" as *;
 @use "@styles/Base/FONTS" as *;
 
-// NEU: CSS Custom Property für dynamische Viewport-Höhe
+// CSS Custom Property für dynamische Viewport-Höhe
 :root {
-  --vh: 1vh; // Fallback, wird durch JavaScript überschrieben
+  --vh: 1vh;
 }
 
 // =============================================================================
-// NEU: GEMEINSAME HOVER EFFEKTE MIXIN
-// =============================================================================
-@mixin unified-hover-effect {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-    background: rgba(162, 89, 255, 0.1);
-    border-color: var(--color-primary);
-    box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4),
-      0 0 40px rgba(162, 89, 255, 0.2), inset 0 0 20px rgba(162, 89, 255, 0.1);
-
-    // NEU: Text-Stroke für knackigere Darstellung
-    -webkit-text-stroke: 0.5px var(--color-primary);
-    text-shadow: 0 0 20px var(--color-glow);
-  }
-}
-
-// NEU: Icon Glow Effekt Mixin
-@mixin icon-glow-effect {
-  // Basis-Transition für Icons
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  // Hover-Zustand wird vom Parent-Element getriggert
-  .navbar-mobile-toggle:hover &,
-  .navbar-mobile__submit:hover &,
-  .navbar-mobile__social-btn:hover &,
-  .navbar-mobile__link:hover & {
-    transform: scale(1.2);
-    filter: drop-shadow(0 0 8px var(--color-primary))
-      drop-shadow(0 0 16px var(--color-primary))
-      drop-shadow(0 0 24px rgba(162, 89, 255, 0.6));
-    color: var(--color-primary);
-
-    // NEU: Zusätzlicher Glow mit Pseudo-Element
-    &::after {
-      content: "";
-      position: absolute;
-      inset-block-start: 50%;
-      inset-inline-start: 50%;
-      transform: translate(-50%, -50%);
-      inline-size: 150%;
-      block-size: 150%;
-      background: radial-gradient(
-        circle,
-        var(--color-primary) 0%,
-        transparent 70%
-      );
-      opacity: 0.5;
-      filter: blur(10px);
-      pointer-events: none;
-      z-index: -1;
-    }
-  }
-}
-
-// =============================================================================
-// MOBILE STYLES - jetzt die Haupt-Navigation
+// MOBILE TOGGLE BUTTON - UNTEN RECHTS POSITIONIERT
 // =============================================================================
 
 .navbar-mobile-toggle {
-  @include reset-button;
-  @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  inline-size: 48px;
-  block-size: 48px;
-  position: fixed;
-  inset-block-start: 5.5rem !important;
-  inset-block-start: calc(1rem + env(safe-area-inset-top));
-  inset-inline-end: 3rem !important;
-  inset-inline-end: calc(1rem + env(safe-area-inset-right));
+    @include reset-button;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 48px;
+    block-size: 48px;
+    position: fixed;
+    
+    // GEÄNDERT: Von unten rechts zu oben rechts mit 90vh Abstand von oben
+    inset-block-start: 90vh !important;    // 90% der Viewport-Höhe von oben
+    inset-inline-end: 2rem !important;     // Rechts bleibt
+    inset-block-start: calc(90vh + env(safe-area-inset-top));
+    inset-inline-end: calc(2rem + env(safe-area-inset-right));
+
   z-index: 1002;
   background: rgba(20, 19, 29, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(162, 89, 255, 0.3);
   border-radius: 50%;
+  
+  // Basis Hover-Effekte
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(162, 89, 255, 0.1);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4);
+  }
 
   .hamburger {
     inline-size: 24px;
     block-size: 20px;
     position: relative;
-    @include icon-glow-effect; // NEU: Icon Glow Effekt
+    transition: all 0.3s ease;
 
     &__line {
       display: block;
@@ -129,7 +84,6 @@
     }
   }
 
-  // NEU: Hover-Effekt für Hamburger-Linien
   &:hover .hamburger__line {
     box-shadow: 0 0 10px var(--color-primary);
     background: var(--color-primary-light);
@@ -157,6 +111,10 @@
     }
   }
 }
+
+// =============================================================================
+// MOBILE MENU - GRUNDSTRUKTUR
+// =============================================================================
 
 .navbar-mobile {
   position: fixed;
@@ -201,18 +159,16 @@
     inline-size: 100%;
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    overflow-y: auto; // KORRIGIERT: Immer scrollbar
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     border-inline-start: 1px solid var(--color-glow);
     border-inline-end: 2px solid var(--color-glow);
     box-shadow: 0 0 40px rgba(162, 89, 255, 0.3);
 
-    // GEÄNDERT: Flexbox-Layout für adaptive Anordnung
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    // KORRIGIERT: Responsive Padding ohne feste Bottom-Navigation
     padding: 2rem 1rem 3rem 1rem;
     padding-block-start: calc(2rem + env(safe-area-inset-top));
     padding-block-end: calc(3rem + env(safe-area-inset-bottom));
@@ -230,7 +186,7 @@
     position: relative;
     margin-block-end: 2rem;
     margin-block-start: 1rem;
-    flex-shrink: 0; // NEU: Header soll nicht schrumpfen
+    flex-shrink: 0;
   }
 
   &__logo {
@@ -256,27 +212,150 @@
     pointer-events: none;
   }
 
+  // =============================================================================
+  // USER STATUS DISPLAY - FÜR EINGELOGGTE USER
+  // =============================================================================
+
+  &__user-status {
+    inline-size: 100%;
+    max-inline-size: 320px;
+    margin-block-end: 2rem;
+    padding: 1.5rem;
+    background: rgba(26, 12, 64, 0.4);
+    border: 1px solid rgba(162, 89, 255, 0.3);
+    border-radius: var(--border-radius-lg);
+    backdrop-filter: blur(15px);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__user-avatar {
+    inline-size: 48px;
+    block-size: 48px;
+    border-radius: 50%;
+    background: rgba(162, 89, 255, 0.2);
+    border: 2px solid rgba(162, 89, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+
+    img {
+      inline-size: 100%;
+      block-size: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    svg {
+      inline-size: 32px;
+      block-size: 32px;
+      color: var(--color-primary);
+      filter: drop-shadow(0 0 8px rgba(162, 89, 255, 0.5));
+    }
+
+    // Online-Status Indicator
+    &::after {
+      content: '';
+      position: absolute;
+      inset-block-end: 2px;
+      inset-inline-end: 2px;
+      inline-size: 12px;
+      block-size: 12px;
+      background: #22c55e;
+      border: 2px solid rgba(0, 0, 0, 0.8);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+      animation: online-pulse 2s ease-in-out infinite;
+    }
+  }
+
+  &__user-details {
+    flex: 1;
+    min-inline-size: 0;
+  }
+
+  &__user-name {
+    color: var(--color-text-primary);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-block-end: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__user-email {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__logout-btn {
+    @include button-style("secondary", "sm");
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--border-radius-lg);
+    color: #ef4444;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    align-self: stretch;
+
+    &:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ff6b6b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      
+      &:hover {
+        transform: none;
+        background: rgba(239, 68, 68, 0.1);
+        box-shadow: none;
+      }
+    }
+
+    svg {
+      inline-size: 18px;
+      block-size: 18px;
+      transition: all 0.3s ease;
+    }
+  }
+
+  // =============================================================================
+  // LOGIN FORM STYLES
+  // =============================================================================
+
   &__login {
     inline-size: 100%;
     max-inline-size: 320px;
-    margin-block-end: 2rem; // REDUZIERT: Von 3rem auf 2rem
-    flex-shrink: 0; // NEU: Login-Bereich soll nicht schrumpfen
-    z-index: 1;
-  }
-
-  // HINZUGEFÜGT: Spacer zwischen Login und Navigation
-  &__spacer {
-    block-size: 2rem;
+    margin-block-end: 2rem;
     flex-shrink: 0;
-
-    // RESPONSIVE: Mehr Platz bei mittleren Bildschirmgrößen
-    @media (min-block-size: 600px) and (max-block-size: 800px) {
-      block-size: 3rem;
-    }
-
-    @media (min-block-size: 500px) and (max-block-size: 600px) {
-      block-size: 1rem;
-    }
+    z-index: 1;
   }
 
   &__form {
@@ -295,19 +374,17 @@
     background: rgba(26, 12, 64, 0.4);
     border: 1px solid rgba(162, 89, 255, 0.2);
     border-radius: var(--border-radius-lg);
-    color: #fff; // Wert (value) ist jetzt weiß
+    color: #fff;
     font-size: 1rem;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 
-    // Autofill für Chrome/Safari
     &:-webkit-autofill {
       -webkit-box-shadow: 0 0 0px 1000px rgba(26, 12, 64, 0.4) inset;
       -webkit-text-fill-color: white !important;
       transition: background-color 5000s ease-in-out 0s;
     }
 
-    // Autofill für Firefox
     &:-moz-autofill {
       color: white !important;
       background-color: rgba(26, 12, 64, 0.4) !important;
@@ -356,30 +433,38 @@
     padding: 0.5rem;
     transition: all 0.2s ease;
 
-    // NEU: Vereinheitlichter Hover-Effekt für Icon
     svg {
-      @include icon-glow-effect;
+      transition: all 0.3s ease;
     }
 
     &:hover {
       color: var(--color-primary);
+      
+      svg {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 5px var(--color-primary));
+      }
     }
   }
 
   &__submit {
     @include button-style("primary", "lg");
-    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
     inline-size: 100%;
     margin-block-start: 0.5rem;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4);
+    }
 
     &.loading {
       pointer-events: none;
       color: transparent;
     }
 
-    // NEU: Glänzender Sweep-Effekt beim Hover
     &::before {
       content: "";
       position: absolute;
@@ -462,7 +547,6 @@
   }
 
   &__social-btn {
-    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
     flex: 1;
     display: flex;
     align-items: center;
@@ -476,16 +560,28 @@
     font-weight: 500;
     cursor: pointer;
     backdrop-filter: blur(10px);
-    position: relative; // NEU: Für Icon-Positionierung
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba(162, 89, 255, 0.1);
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4);
+    }
 
     svg {
       inline-size: 20px;
       block-size: 20px;
-      @include icon-glow-effect; // NEU: Icon Glow Effekt
-      position: relative; // NEU: Für ::after Pseudo-Element
+      position: relative;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 8px var(--color-primary));
+      }
     }
 
-    // HINZUGEFÜGT: Loading-State für OAuth-Buttons
     &.loading {
       pointer-events: none;
       opacity: 0.8;
@@ -494,7 +590,6 @@
         animation: spin 1s linear infinite;
       }
 
-      // Deaktiviere Hover-Effekte während Loading
       &:hover {
         transform: none;
         background: rgba(26, 12, 64, 0.3);
@@ -502,7 +597,6 @@
       }
     }
 
-    // HINZUGEFÜGT: Disabled-State für OAuth-Buttons
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
@@ -515,7 +609,6 @@
       }
     }
 
-    // NEU: Spezifische Farb-Overlays beim Hover
     &--google:hover:not(.loading):not(:disabled) {
       box-shadow: 0 4px 20px rgba(219, 68, 55, 0.4),
         0 0 40px rgba(219, 68, 55, 0.2), inset 0 0 20px rgba(219, 68, 55, 0.1);
@@ -540,7 +633,6 @@
     }
   }
 
-  // HINZUGEFÜGT: OAuth-Spinner für Buttons
   &__oauth-spinner {
     inline-size: 20px;
     block-size: 20px;
@@ -550,7 +642,10 @@
     display: inline-block;
   }
 
-  // GEÄNDERT: Navigation jetzt im Flexbox-Flow statt absolut positioniert
+  // =============================================================================
+  // NAVIGATION LINKS
+  // =============================================================================
+
   &__links {
     list-style: none;
     padding: 0;
@@ -560,23 +655,17 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
-    flex-shrink: 0; // NEU: Navigation soll nicht schrumpfen
+    flex-shrink: 0;
 
-    // ENTFERNT: Absolute Positionierung für bessere Responsivität
-    // position: absolute;
-    // inset-block-end: 8%;
-
-    // NEU: Adaptive Margins für verschiedene Bildschirmgrößen
-    margin-block-start: auto; // Schiebt Navigation nach unten, aber ohne Überlappung
+    margin-block-start: auto;
     margin-block-end: 1rem;
 
-    // RESPONSIVE: Anpassungen für verschiedene Bildschirmhöhen
     @media (min-block-size: 700px) {
-      margin-block-start: 2rem; // Mehr Abstand bei großen Bildschirmen
+      margin-block-start: 2rem;
     }
 
     @media (max-block-size: 600px) {
-      margin-block-start: 1rem; // Weniger Abstand bei kleinen Bildschirmen
+      margin-block-start: 1rem;
     }
 
     transition: all 0.3s ease-out;
@@ -587,7 +676,6 @@
       transition: all 0.3s ease;
       margin-block-end: 1rem;
 
-      // RESPONSIVE: Kleinere Margins bei wenig Platz
       @media (max-block-size: 600px) {
         margin-block-end: 0.75rem;
       }
@@ -596,7 +684,6 @@
 
   &__link {
     @include button-style("ghost", "lg");
-    @include unified-hover-effect; // NEU: Vereinheitlichter Hover-Effekt
     inline-size: 100%;
     justify-content: flex-start;
     padding: 1rem 1.5rem;
@@ -605,7 +692,14 @@
     overflow: hidden;
     transition: all 0.3s ease-out;
 
-    // RESPONSIVE: Kleineres Padding bei wenig Platz
+    // Standard Hover-Effekte
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba(162, 89, 255, 0.1);
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 20px rgba(162, 89, 255, 0.4);
+    }
+
     @media (max-block-size: 600px) {
       padding: 0.75rem 1.25rem;
       font-size: 1rem;
@@ -615,18 +709,31 @@
       margin-inline-end: 1rem;
       transition: all 0.3s ease-out;
       font-size: 1.5rem;
-      @include icon-glow-effect; // NEU: Icon Glow Effekt
-      position: relative; // NEU: Für ::after Pseudo-Element
+      position: relative;
 
-      // RESPONSIVE: Kleinere Icons bei wenig Platz
       @media (max-block-size: 600px) {
         font-size: 1.25rem;
         margin-inline-end: 0.75rem;
       }
     }
 
+    // Auth-Only Link Styling
+    &.auth-only {
+      border-color: rgba(162, 89, 255, 0.4);
+      background: rgba(162, 89, 255, 0.08);
+
+      .navbar-icon {
+        color: var(--color-primary);
+      }
+
+      &:hover {
+        background: rgba(162, 89, 255, 0.15);
+        box-shadow: 0 4px 20px rgba(162, 89, 255, 0.3);
+      }
+    }
+
     &.active {
-      background: rgba(162, 89, 255, 0.15); // GEÄNDERT: Etwas stärker als Hover
+      background: rgba(162, 89, 255, 0.15);
       border-color: var(--color-primary);
       color: var(--color-text-primary);
       box-shadow: 0 0 30px rgba(162, 89, 255, 0.5),
@@ -644,7 +751,7 @@
       }
     }
 
-    // NEU: Ripple-Effekt beim Klick
+    // Ripple-Effekt beim Klick
     &::before {
       content: "";
       position: absolute;
@@ -687,72 +794,44 @@
       block-size: 20px;
       border: 2px solid var(--color-primary);
       border-radius: 50%;
-      animation: pulse 2s infinite; // NEU: Pulsierender Effekt
+      animation: pulse 2s infinite;
+    }
+  }
+
+  // "NEU" Badge für Dashboard
+  &__new-badge {
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+    background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+    animation: new-badge-bounce 3s ease-in-out infinite;
+    z-index: 2;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+      border-radius: 10px;
+      opacity: 0.3;
+      filter: blur(8px);
+      z-index: -1;
     }
   }
 }
 
 // =============================================================================
-// ANIMATIONS
+// FEEDBACK & LOADING STATES
 // =============================================================================
 
-@keyframes spin {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-// NEU: Pulse Animation für Active Dot
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-}
-
-// =============================================================================
-// ACCESSIBILITY & PERFORMANCE
-// =============================================================================
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-// Focus Styles - NEU: Vereinheitlicht
-.navbar-mobile__link,
-.navbar-mobile__input,
-.navbar-mobile__submit,
-.navbar-mobile__social-btn,
-.navbar-mobile-toggle {
-  &:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 4px;
-    box-shadow: 0 0 0 4px rgba(162, 89, 255, 0.2);
-    color: var(--color-text-primary);
-  }
-}
-
-// =============================================================================
-// FEEDBACK & INFO MESSAGES
-// =============================================================================
-
-// Feedback Message (Success/Info/Error)
 .navbar-mobile__feedback {
   display: flex;
   align-items: flex-start;
@@ -798,7 +877,6 @@
   }
 }
 
-// Info Message für automatische Account-Erstellung
 .navbar-mobile__info {
   display: flex;
   align-items: flex-start;
@@ -826,7 +904,6 @@
   }
 }
 
-// Error Message (bestehendes Design beibehalten)
 .navbar-mobile__error {
   display: flex;
   align-items: center;
@@ -841,25 +918,69 @@
   backdrop-filter: blur(10px);
 }
 
-// Toggle Mode Button Styling erweitert
-.navbar-mobile__toggle-mode {
-  @include reset-button;
-  inline-size: 100%;
-  padding: 0.75rem;
-  margin-block-start: 1rem;
-  background: rgba(26, 12, 64, 0.2);
-  border: 1px solid rgba(162, 89, 255, 0.2);
+.navbar-mobile__loading-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  margin-block-end: 1rem;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   border-radius: var(--border-radius-lg);
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  animation: pulseGlow 2s ease-in-out infinite;
 
-  &:hover {
-    background: rgba(26, 12, 64, 0.4);
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+  * {
+    color: white !important;
+  }
+
+  &-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    flex-shrink: 0;
+
+    svg {
+      inline-size: 24px;
+      block-size: 24px;
+      color: white !important;
+      z-index: 2;
+    }
+  }
+
+  &-spinner {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 40px;
+    block-size: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    border-block-start: 2px solid white !important;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  &-text {
+    flex: 1;
+    color: white !important;
+
+    p {
+      margin: 0 0 0.25rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: white !important;
+    }
+
+    small {
+      margin: 0;
+      opacity: 0.8;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8) !important;
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
   }
 }
 
@@ -930,7 +1051,6 @@
 }
 
 .navbar-mobile__confirm-btn {
-  @include unified-hover-effect;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -945,6 +1065,7 @@
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba(34, 197, 94, 0.3);
@@ -995,6 +1116,52 @@
   }
 }
 
+// =============================================================================
+// ANIMATIONEN
+// =============================================================================
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes online-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes new-badge-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
 @keyframes slideIn {
   0% {
     opacity: 0;
@@ -1006,76 +1173,8 @@
   }
 }
 
-// =============================================================================
-// LOADING-STATUS ANZEIGE - FARBE KORRIGIERT AUF WEISS
-// =============================================================================
-
-.navbar-mobile__loading-status {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  margin-block-end: 1rem;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: var(--border-radius-lg);
-  backdrop-filter: blur(15px);
-  animation: pulseGlow 2s ease-in-out infinite;
-
-  &-icon {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    inline-size: 40px;
-    block-size: 40px;
-    flex-shrink: 0;
-
-    svg {
-      inline-size: 24px;
-      block-size: 24px;
-      color: white;
-      z-index: 2;
-    }
-  }
-
-  &-spinner {
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 0;
-    inline-size: 40px;
-    block-size: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-block-start: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  &-text {
-    flex: 1;
-    color: white;
-
-    p {
-      margin: 0 0 0.25rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: white;
-    }
-
-    small {
-      margin: 0;
-      opacity: 0.8;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.8);
-      animation: fadeInOut 2s ease-in-out infinite;
-    }
-  }
-}
-
-// Erweiterte Animationen
 @keyframes pulseGlow {
-  0%,
-  100% {
+  0%, 100% {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
   }
   50% {
@@ -1084,8 +1183,7 @@
 }
 
 @keyframes fadeInOut {
-  0%,
-  100% {
+  0%, 100% {
     opacity: 0.6;
   }
   50% {
@@ -1094,37 +1192,38 @@
 }
 
 // =============================================================================
-// LOADING-STATUS FORCE WHITE TEXT - OVERRIDE
+// ACCESSIBILITY & PERFORMANCE
 // =============================================================================
 
-.navbar-mobile__loading-status {
-  * {
-    color: white !important;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
+}
 
-  svg {
-    color: white !important;
-  }
-
-  p {
-    color: white !important;
-  }
-
-  small {
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-
-  .navbar-mobile__loading-spinner {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    border-block-start-color: white !important;
+// Focus Styles
+.navbar-mobile__link,
+.navbar-mobile__input,
+.navbar-mobile__submit,
+.navbar-mobile__social-btn,
+.navbar-mobile__logout-btn,
+.navbar-mobile-toggle {
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 4px rgba(162, 89, 255, 0.2);
+    color: var(--color-text-primary);
   }
 }
 
 // =============================================================================
-// RESPONSIVE BREAKPOINTS - NEU HINZUGEFÜGT
+// RESPONSIVE BREAKPOINTS
 // =============================================================================
 
-// Für sehr kleine Bildschirme (unter 500px Höhe)
+// Sehr kleine Bildschirme (unter 500px Höhe)
 @media (max-height: 500px) {
   .navbar-mobile {
     &__content {
@@ -1140,8 +1239,28 @@
       block-size: 50px;
     }
 
-    &__login {
+    &__login,
+    &__user-status {
       margin-block-end: 1rem;
+    }
+
+    &__user-status {
+      padding: 1rem;
+    }
+
+    &__user-avatar {
+      inline-size: 40px;
+      block-size: 40px;
+
+      svg {
+        inline-size: 24px;
+        block-size: 24px;
+      }
+
+      &::after {
+        inline-size: 10px;
+        block-size: 10px;
+      }
     }
 
     &__links li {
@@ -1157,23 +1276,28 @@
         margin-inline-end: 0.5rem;
       }
     }
+
+    &__new-badge {
+      font-size: 0.55rem;
+      padding: 0.15rem 0.3rem;
+    }
   }
 }
 
-// Für mittlere Bildschirme (500px - 700px Höhe)
+// Mittlere Bildschirme (500px - 700px Höhe)
 @media (min-height: 500px) and (max-height: 700px) {
   .navbar-mobile {
-    &__spacer {
-      block-size: 1.5rem;
-    }
-
     &__links {
       margin-block-start: 1.5rem;
     }
+
+    &__user-status {
+      padding: 1.25rem;
+    }
   }
 }
 
-// Für große Bildschirme (über 700px Höhe)
+// Große Bildschirme (über 700px Höhe)
 @media (min-height: 700px) {
   .navbar-mobile {
     &__content {
@@ -1185,12 +1309,13 @@
       margin-block-start: 1.5rem;
     }
 
-    &__login {
+    &__login,
+    &__user-status {
       margin-block-end: 3rem;
     }
 
-    &__spacer {
-      block-size: 3rem;
+    &__user-status {
+      padding: 2rem;
     }
 
     &__links {

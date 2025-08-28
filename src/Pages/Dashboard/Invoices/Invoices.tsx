@@ -1,5 +1,5 @@
 // src/Pages/Dashboard/Invoices/Invoices.tsx
-// Updated für neue SCSS-Struktur und Context
+// KORRIGIERT: Spezifische Invoice-Button-Klassen verwendet
 
 import React, { useState, useMemo } from 'react';
 import { 
@@ -17,8 +17,8 @@ import { Invoice } from '../Types/DashboardTypes';
 import './Invoices.scss';
 
 const Invoices: React.FC = () => {
-const { invoices, onCreateInvoice, onInvoiceUpdate, onPayInvoice } = useDashboard();
-const userRole = 'admin'; // Temporärer Fallback für Deployment
+  const { invoices, onCreateInvoice, onInvoiceUpdate, onPayInvoice } = useDashboard();
+  const userRole = 'admin'; // Temporärer Fallback für Deployment
   
   // Local state für Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,6 +148,7 @@ const userRole = 'admin'; // Temporärer Fallback für Deployment
     return '';
   };
 
+  // Empty State mit korrigierter Button-Klasse
   if (filteredInvoices.length === 0 && searchTerm === '' && statusFilter === 'all') {
     return (
       <div className="invoices-page">
@@ -157,13 +158,16 @@ const userRole = 'admin'; // Temporärer Fallback für Deployment
           </div>
           <h3>Noch keine Rechnungen</h3>
           <p>Erstellen Sie Ihre erste Rechnung, um loszulegen.</p>
-          <button className="create-first-btn" onClick={onCreateInvoice}>
+          <button className="invoice-create-first-btn" onClick={onCreateInvoice}>
             <HiPlus /> Erste Rechnung erstellen
           </button>
         </div>
       </div>
     );
   }
+
+  // No Results State
+  const hasNoResults = filteredInvoices.length === 0 && (searchTerm !== '' || statusFilter !== 'all');
 
   return (
     <div className="invoices-page">
@@ -176,7 +180,7 @@ const userRole = 'admin'; // Temporärer Fallback für Deployment
           </p>
         </div>
         <div className="header-actions">
-          <button className="btn btn--primary" onClick={onCreateInvoice}>
+          <button className="invoice-btn invoice-btn--primary" onClick={onCreateInvoice}>
             <HiPlus className="icon--btn" />
             Neue Rechnung
           </button>
@@ -212,136 +216,159 @@ const userRole = 'admin'; // Temporärer Fallback für Deployment
         </div>
       </div>
 
-      {/* Invoices Table */}
-      <div className="invoices-table-container">
-        <div className="table-wrapper">
-          <table className="invoices-table">
-            <thead>
-              <tr>
-                <th 
-                  className={`sortable ${sortBy === 'number' ? `sort-${sortOrder}` : ''}`}
-                  onClick={() => handleSort('number')}
-                >
-                  Rechnungsnummer
-                </th>
-                <th>Kunde</th>
-                <th 
-                  className={`sortable ${sortBy === 'amount' ? `sort-${sortOrder}` : ''}`}
-                  onClick={() => handleSort('amount')}
-                >
-                  Betrag
-                </th>
-                <th>Status</th>
-                <th>Fälligkeitsdatum</th>
-                <th 
-                  className={`sortable ${sortBy === 'date' ? `sort-${sortOrder}` : ''}`}
-                  onClick={() => handleSort('date')}
-                >
-                  Erstellt
-                </th>
-                <th>Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedInvoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td className="invoice-number" onClick={() => handleViewInvoice(invoice)}>
-                    {invoice.invoiceNumber}
-                  </td>
-                  <td>
-                    {/* TODO: Customer name from customerId */}
-                    Kunde #{invoice.customerId.substring(0, 8)}
-                  </td>
-                  <td className="amount">
-                    {formatCurrency(invoice.totalAmount)}
-                  </td>
-                  <td>
-                    <span className={getStatusClass(invoice.status)}>
-                      {getStatusLabel(invoice.status)}
-                    </span>
-                  </td>
-                  <td className={`due-date ${getDueDateClass(invoice.dueDate, invoice.status)}`}>
-                    {formatDate(invoice.dueDate)}
-                  </td>
-                  <td>{formatDate(invoice.createdAt)}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button 
-                        className="action-btn view-btn"
-                        onClick={() => handleViewInvoice(invoice)}
-                        title="Anzeigen"
-                      >
-                        <HiEye />
-                      </button>
-                      {userRole === 'admin' && (
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={() => handleEditInvoice(invoice)}
-                          title="Bearbeiten"
-                        >
-                          <HiPencil />
-                        </button>
-                      )}
-                      <button 
-                        className="action-btn pdf-btn"
-                        onClick={() => handleDownloadPDF(invoice)}
-                        title="PDF herunterladen"
-                      >
-                        <HiDocumentDownload />
-                      </button>
-                      {userRole === 'admin' && (
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={() => handleDeleteInvoice(invoice)}
-                          title="Löschen"
-                        >
-                          <HiTrash />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* No Results State */}
+      {hasNoResults ? (
+        <div className="invoices-table-container">
+          <div className="invoices-empty">
+            <div className="empty-icon">
+              <HiSearch />
+            </div>
+            <h3>Keine Ergebnisse gefunden</h3>
+            <p>Versuchen Sie andere Suchbegriffe oder Filter.</p>
+            <button 
+              className="invoice-btn invoice-btn--secondary"
+              onClick={() => {
+                setSearchTerm('');
+                setStatusFilter('all');
+              }}
+            >
+              Filter zurücksetzen
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Invoices Table */}
+          <div className="invoices-table-container">
+            <div className="table-wrapper">
+              <table className="invoices-table">
+                <thead>
+                  <tr>
+                    <th 
+                      className={`sortable ${sortBy === 'number' ? `sort-${sortOrder}` : ''}`}
+                      onClick={() => handleSort('number')}
+                    >
+                      Rechnungsnummer
+                    </th>
+                    <th>Kunde</th>
+                    <th 
+                      className={`sortable ${sortBy === 'amount' ? `sort-${sortOrder}` : ''}`}
+                      onClick={() => handleSort('amount')}
+                    >
+                      Betrag
+                    </th>
+                    <th>Status</th>
+                    <th>Fälligkeitsdatum</th>
+                    <th 
+                      className={`sortable ${sortBy === 'date' ? `sort-${sortOrder}` : ''}`}
+                      onClick={() => handleSort('date')}
+                    >
+                      Erstellt
+                    </th>
+                    <th>Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedInvoices.map((invoice) => (
+                    <tr key={invoice.id}>
+                      <td className="invoice-number" onClick={() => handleViewInvoice(invoice)}>
+                        {invoice.invoiceNumber}
+                      </td>
+                      <td>
+                        Kunde #{invoice.customerId.substring(0, 8)}
+                      </td>
+                      <td className="amount">
+                        {formatCurrency(invoice.totalAmount)}
+                      </td>
+                      <td>
+                        <span className={getStatusClass(invoice.status)}>
+                          {getStatusLabel(invoice.status)}
+                        </span>
+                      </td>
+                      <td className={`due-date ${getDueDateClass(invoice.dueDate, invoice.status)}`}>
+                        {formatDate(invoice.dueDate)}
+                      </td>
+                      <td>{formatDate(invoice.createdAt)}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button 
+                            className="action-btn view-btn"
+                            onClick={() => handleViewInvoice(invoice)}
+                            title="Anzeigen"
+                          >
+                            <HiEye />
+                          </button>
+                          {userRole === 'admin' && (
+                            <button 
+                              className="action-btn edit-btn"
+                              onClick={() => handleEditInvoice(invoice)}
+                              title="Bearbeiten"
+                            >
+                              <HiPencil />
+                            </button>
+                          )}
+                          <button 
+                            className="action-btn pdf-btn"
+                            onClick={() => handleDownloadPDF(invoice)}
+                            title="PDF herunterladen"
+                          >
+                            <HiDocumentDownload />
+                          </button>
+                          {userRole === 'admin' && (
+                            <button 
+                              className="action-btn delete-btn"
+                              onClick={() => handleDeleteInvoice(invoice)}
+                              title="Löschen"
+                            >
+                              <HiTrash />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="invoices-pagination">
-          <div className="pagination-info">
-            Zeige {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} von {filteredInvoices.length} Einträgen
-          </div>
-          
-          <div className="pagination-controls">
-            <button 
-              className="page-btn"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Zurück
-            </button>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button
-                key={page}
-                className={`page-btn ${currentPage === page ? 'active' : ''}`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            ))}
-            
-            <button 
-              className="page-btn"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Weiter
-            </button>
-          </div>
-        </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="invoices-pagination">
+              <div className="pagination-info">
+                Zeige {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} von {filteredInvoices.length} Einträgen
+              </div>
+              
+              <div className="pagination-controls">
+                <button 
+                  className="page-btn"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Zurück
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button 
+                  className="page-btn"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Weiter
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

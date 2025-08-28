@@ -1,7 +1,7 @@
 // =============================================================================
-// DASHBOARD HEADER COMPONENT - MIT KOMPAKT-SYSTEM
+// DASHBOARD HEADER COMPONENT - MIT LOGO-NAVIGATION OHNE LOGOUT
 // Datei: DashboardHeader.tsx
-// KORRIGIERT: Alle Referenzen auf isHeaderVisible entfernt
+// KORRIGIERT: Logo-Navigation ohne automatischen Logout
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -17,6 +17,7 @@ import {
   HiLightningBolt
 } from 'react-icons/hi';
 import { User } from '@/Pages/Dashboard/Types/DashboardTypes';
+import authService from '@/Services/Auth-Service';
 
 interface DashboardHeaderProps {
   user: User;
@@ -31,8 +32,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
-  
-  // KORRIGIERT: States für kompaktes Header-System
   const [isHeaderCompact, setIsHeaderCompact] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -42,12 +41,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // KORRIGIERT: Header-Kompaktierung mit flacherem Schwellenwert
+  // Header-Kompaktierung mit flacherem Schwellenwert
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // KORRIGIERT: Flacherer Trigger - bereits ab 50px statt 100px
       if (currentScrollY > 50) {
         setIsHeaderCompact(true);
       } else {
@@ -75,6 +73,34 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     };
   }, [lastScrollY]);
 
+  // KORRIGIERT: Logo-Click-Handler MIT STATE-FLAG
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    console.log('LOGO CLICKED: Navigating to landing page (staying logged in)');
+    
+    // Navigate zur Landing Page mit State-Flag - KEIN LOGOUT
+    navigate('/', {
+      state: {
+        fromDashboard: true,
+        timestamp: Date.now()
+      }
+    });
+  };
+
+  // KORRIGIERT: Echter Logout-Handler
+  const handleLogout = () => {
+    console.log('LOGOUT BUTTON CLICKED: Performing full logout');
+    
+    // Parent-Callback ausführen (falls vorhanden)
+    if (onLogout) {
+      onLogout();
+    }
+    
+    // Dann direkten Logout mit Redirect
+    authService.logoutAndRedirect();
+  };
+
   const handleMobileMenuToggle = () => {
     console.log('Toggle mobile menu');
   };
@@ -101,10 +127,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <header className={`dashboard-header ${isHeaderCompact ? 'dashboard-header--compact' : 'dashboard-header--full'}`}>
       <div className="header-container">
-        {/* Brand Section - modernes rundes Logo mit flexibler Schriftpositionierung */}
+        {/* Brand Section - KORRIGIERT: Logo mit onClick-Handler und State */}
         <div className="header-brand modern-brand">
           <div className="brand-logo-wrapper">
-            <a href="/" aria-label="Zur Startseite">
+            <a 
+              href="/" 
+              aria-label="Zur Startseite (eingeloggt bleiben)"
+              onClick={handleLogoClick}  // WICHTIG: Dieser Handler ist entscheidend
+              style={{ cursor: 'pointer' }}
+            >
               <img
                 src="/CandleScopeLogo.png"
                 alt="CandleScope Logo"
@@ -140,7 +171,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </div>
           </div>
 
-          {/* Header Actions - NUR die 3 gewünschten Buttons */}
+          {/* Header Actions */}
           <div className="header-actions">
             {/* Notifications - NUR ICON mit Brief */}
             <button 
@@ -163,10 +194,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <HiCog className="icon--action" />
             </button>
 
-            {/* Logout */}
+            {/* KORRIGIERT: Logout Button mit richtigem Handler */}
             <button
               className="action-btn logout-btn"
-              onClick={onLogout}
+              onClick={handleLogout}  // WICHTIG: Verwendet handleLogout, nicht onLogout
               title="Abmelden"
             >
               <HiLogout className="icon--action" />

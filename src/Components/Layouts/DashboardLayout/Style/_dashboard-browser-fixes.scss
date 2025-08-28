@@ -1,0 +1,179 @@
+// =============================================================================
+// DASHBOARD BROWSER FIXES
+// Datei: _dashboard-browser-fixes.scss
+// Zweck: Cross-Browser Compatibility & Badge Fixes
+// =============================================================================
+
+// ===========================
+// WEBKIT/SAFARI FIXES
+// ===========================
+@supports (-webkit-appearance: none) {
+  .nav-badge-stripe {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    
+    // Safari Gradient-Fix
+    background: -webkit-linear-gradient(top, #ef4444 0%, #dc2626 100%);
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  }
+}
+
+// ===========================
+// FIREFOX FIXES
+// ===========================
+@-moz-document url-prefix() {
+  .nav-badge-stripe {
+    box-shadow: 
+      0 1px 3px rgba(239, 68, 68, 0.5),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ===========================
+// iOS/MOBILE SAFARI FIXES
+// ===========================
+@supports (-webkit-touch-callout: none) {
+  .nav-badge-stripe {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .sidebar-toggle-btn {
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+// ===========================
+// ANDROID CHROME FIXES
+// ===========================
+@media screen and (-webkit-min-device-pixel-ratio: 1) {
+  .nav-badge-stripe {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+// ===========================
+// HIGH-DPI DISPLAYS (RETINA)
+// ===========================
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .nav-badge-stripe {
+    width: 2.5px;
+    border-radius: 1.5px;
+    
+    @media (max-width: 768px) {
+      width: 2px;
+      border-radius: 1px;
+    }
+  }
+  
+  .sidebar-toggle-btn {
+    border-width: 1.5px;
+  }
+}
+
+// ===========================
+// EDGE/IE LEGACY SUPPORT
+// ===========================
+@supports not (display: grid) {
+  .dashboard-sidebar {
+    width: 80px !important;
+    
+    &.dashboard-sidebar--expanded {
+      width: 280px !important;
+    }
+  }
+  
+  .nav-badge-stripe {
+    background: #ef4444;
+    filter: progid:DXImageTransform.Microsoft.gradient(
+      startColorstr='#ef4444', 
+      endColorstr='#dc2626'
+    );
+  }
+}
+
+// ===========================
+// PRINT OPTIMIERUNG
+// ===========================
+@media print {
+  .nav-badge-stripe {
+    background: #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .sidebar-toggle-btn {
+    display: none !important;
+  }
+}
+
+// ===========================
+// HOVER CAPABILITY DETECTION
+// ===========================
+@media (hover: none) and (pointer: coarse) {
+  .sidebar-toggle-btn {
+    width: 32px;
+    height: 32px;
+    right: -14px;
+    
+    &:hover {
+      transform: none;
+      background: var(--color-primary);
+    }
+    
+    &:active {
+      background: var(--color-primary-dark);
+      transform: scale(0.9);
+    }
+  }
+  
+  .nav-badge-stripe {
+    width: 4px;
+    height: 18px;
+    
+    @media (max-width: 768px) {
+      width: 3px;
+      height: 14px;
+    }
+  }
+}
+
+// ===========================
+// FORCE HARDWARE ACCELERATION
+// ===========================
+.nav-badge-stripe,
+.sidebar-toggle-btn {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// ===========================
+// CONTRAST & ACCESSIBILITY
+// ===========================
+@media (prefers-contrast: high) {
+  .nav-badge-stripe {
+    background: #ff0000 !important;
+    box-shadow: 
+      0 0 0 2px #ffffff,
+      0 0 0 3px #000000;
+  }
+  
+  .sidebar-toggle-btn {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-badge-stripe {
+    box-shadow: 
+      0 1px 3px rgba(239, 68, 68, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+}

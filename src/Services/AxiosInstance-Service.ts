@@ -1,4 +1,5 @@
 // src/Services/AxiosInstance-Service.ts
+// KORRIGIERT: Keine automatische Weiterleitung bei 401-Fehlern
 import axios from "axios";
 
 // Base URL aus Vite Env
@@ -14,8 +15,6 @@ const axiosInstance = axios.create({
 // Request-Interceptor für automatisches Token-Handling
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Debug-Logging für die finale URL
-
     // Token aus localStorage holen und in Header setzen
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -24,7 +23,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("❌ Request Interceptor Error:", error);
+    console.error("Request Interceptor Error:", error);
     return Promise.reject(error);
   }
 );
@@ -32,29 +31,28 @@ axiosInstance.interceptors.request.use(
 // Response-Interceptor für automatisches Token-Management
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Debug-Logging für erfolgreiche Responses
     return response;
   },
   (error) => {
     // Debug-Logging für Fehler-Responses
     console.error(
-      `❌ API Error: ${error.response?.status} ${error.config?.url}`,
+      `API Error: ${error.response?.status} ${error.config?.url}`,
       error.response?.data
     );
 
-    // Bei 401 (Unauthorized) Token entfernen und zur Login-Seite weiterleiten
+    // KORRIGIERT: Bei 401 nur Token entfernen, KEINE automatische Weiterleitung
     if (error.response?.status === 401) {
-      console.warn("🔐 Token ungültig - Logout erforderlich");
+      console.warn("Token ungültig - Entferne Auth-Daten");
+      
+      // Auth-Daten entfernen
       localStorage.removeItem("authToken");
       localStorage.removeItem("userData");
-
-      // Zur Login-Seite weiterleiten (nur wenn nicht bereits auf Login-Seite)
-      if (
-        !window.location.pathname.includes("/login") &&
-        window.location.pathname !== "/"
-      ) {
-        window.location.href = "/";
-      }
+      localStorage.removeItem("oauthProvider");
+      
+      // ENTFERNT: Automatische Weiterleitung - überlassen wir den Components
+      // if (!window.location.pathname.includes("/login") && window.location.pathname !== "/") {
+      //   window.location.href = "/";
+      // }
     }
 
     return Promise.reject(error);

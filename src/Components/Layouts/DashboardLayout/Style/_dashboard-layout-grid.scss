@@ -1,0 +1,43 @@
+// =============================================================================
+// DASHBOARD LAYOUT GRID SYSTEM
+// Datei: _dashboard-layout-grid.scss
+// Zweck: Grid-Container und Layout-Struktur
+// =============================================================================
+
+// ===========================
+// DASHBOARD LAYOUT CONTAINER
+// ===========================
+.dashboard-layout {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main";
+  grid-template-columns: 80px 1fr; // Standard: Collapsed sidebar
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+  background: transparent;
+  transition: grid-template-columns 0.3s ease;
+
+  // Expanded Sidebar State
+  &.layout--sidebar-expanded {
+    grid-template-columns: 280px 1fr;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+}
+
+// ===========================
+// RESPONSIVE GRID ADJUSTMENTS
+// ===========================
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 80px 1fr; // Tablet bleibt collapsed
+  }
+}
