@@ -12,7 +12,7 @@
 
 - Loading Übergänge mit großen Animationen von DB zu LP und LP zu DB 
 - Landingpage überlegen
--
+- Allgemeines Dynamisches Modal erstellen und dann überall nutzen genauso wie eigenes Dynamisches Dropdown für Select und Option - Daten vom BE später
 
 ## Noch zu machen LP 
 
@@ -20,7 +20,6 @@
 
 - Verlinkung Kontakt geht ---> ABER auf Telefon macht es Probleme und führt wieder zurück [Besser Umsetzen]
 -  
-
 
 ## Noch zu machen DB
 
