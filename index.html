@@ -3,21 +3,51 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="WebsiteIcon" href="/src/assets/Images/Logo/CandleScopeLogo.png" />
+  <!-- ANGEPASST: Icon-Type korrigiert (war "WebsiteIcon", jetzt "image/png") -->
+  <link rel="icon" type="image/png" href="/src/assets/Images/Logo/CandleScopeLogo.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/src/assets/Images/Logo/CandleScopeLogo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000" />
-  <meta name="description"
-    content="Portfolio von Chris Schubert - Full-Stack Developer mit Leidenschaft für moderne Webtechnologien und außergewöhnliche Benutzererfahrungen." />
+  <!-- ANGEPASST: Theme-Color von #000 auf #A259FF (deine Brand-Farbe) -->
+  <meta name="theme-color" content="#A259FF" />
+  
+  <!-- BASIC META TAGS -->
+  <meta name="description" content="Portfolio von Chris Schubert - Full-Stack Developer mit Leidenschaft für moderne Webtechnologien und außergewöhnliche Benutzererfahrungen." />
   <meta name="author" content="Chris Schubert" />
+  <!-- NEU: Keywords für SEO hinzugefügt -->
+  <meta name="keywords" content="Chris Schubert, Full-Stack Developer, React, TypeScript, Web Developer, Portfolio, Potsdam, Frontend, Backend" />
 
-  <!-- Open Graph Meta Tags -->
+  <!-- OPEN GRAPH META TAGS (Facebook, Discord, WhatsApp) -->
   <meta property="og:title" content="Chris Schubert - Full-Stack Developer Portfolio" />
-  <meta property="og:description" content="Entdecken Sie meine Projekte und Erfahrungen als Full-Stack Developer." />
+  <!-- ERWEITERT: Präzisere Description mit Tech-Stack -->
+  <meta property="og:description" content="Entdecken Sie meine Projekte als Full-Stack Developer - React, TypeScript, Node.js und moderne Webtechnologien aus Potsdam." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://chris-schubert.de" />
+  <!-- ANGEPASST: URL von chris-schubert.de auf candlescope-frontend.vercel.app -->
+  <meta property="og:url" content="https://candlescope-frontend.vercel.app" />
+  <!-- KORRIGIERT: CandleScope Logo aus public/ Ordner verwenden -->
+  <meta property="og:image" content="https://candlescope-frontend.vercel.app/CandleScopeLogo.png" />
+  <!-- NEU: Bildgrößen-Spezifikationen für bessere Darstellung -->
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="CandleScope Logo - Portfolio von Chris Schubert, Full-Stack Developer" />
+  <!-- NEU: Site-Name für bessere Branding -->
+  <meta property="og:site_name" content="Chris Schubert Portfolio" />
+  <meta property="og:locale" content="de_DE" />
 
-  <title>Chris Schubert - Portfolio</title>
+  <!-- TWITTER CARDS -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Chris Schubert - Full-Stack Developer" />
+  <meta name="twitter:description" content="Portfolio mit React-Projekten und modernen Web-Technologien aus Potsdam." />
+  <!-- KORRIGIERT: Twitter Image URL angepasst -->
+  <meta name="twitter:image" content="https://candlescope-frontend.vercel.app/CandleScopeLogo.png" />
+  <meta name="twitter:image:alt" content="CandleScope Logo - Chris Schubert Portfolio" />
+
+  <!-- LINKEDIN SPECIFIC -->
+  <meta property="og:image:type" content="image/png" />
+  
+  <!-- WHATSAPP OPTIMIERUNG - KORRIGIERT: Secure URL angepasst -->
+  <meta property="og:image:secure_url" content="https://candlescope-frontend.vercel.app/CandleScopeLogo.png" />
+
+  <title>CandleScope - We(B)Art</title>
 </head>
 
 <body>
