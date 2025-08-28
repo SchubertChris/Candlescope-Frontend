@@ -81,18 +81,6 @@ const CandleScopeSection: React.FC = () => {
     return () => clearInterval(interval);
   }, [features.length]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsVisible(entry.isIntersecting);
-      },
-      { threshold: 0.3 }
-    );
-    const section = document.querySelector('.candlescope-section');
-    if (section) observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section className="candlescope-section" id="candlescope">
       <div className="candlescope-bg">
@@ -109,7 +97,7 @@ const CandleScopeSection: React.FC = () => {
 
       <div className="candlescope-container">
         {/* Header */}
-        <div className={`candlescope-header ${isVisible ? 'header-visible' : ''}`}>
+        <div className="candlescope-header header-visible">
           <div className="header-badge">
             <Rocket className="w-5 h-5 badge-icon" />
             <span className="badge-text">USB Finance App</span> {/* Geändert */}
