@@ -30,8 +30,8 @@
     position: fixed;
     
     // GEÄNDERT: Von unten rechts zu oben rechts mit 90vh Abstand von oben
-    inset-block-start: 90vh !important;    // 90% der Viewport-Höhe von oben
-    inset-inline-end: 2rem !important;     // Rechts bleibt
+    inset-block-start: 80vh !important;    // 90% der Viewport-Höhe von oben
+    inset-inline-end: 3rem !important;     // Rechts bleibt
     inset-block-start: calc(90vh + env(safe-area-inset-top));
     inset-inline-end: calc(2rem + env(safe-area-inset-right));
 
