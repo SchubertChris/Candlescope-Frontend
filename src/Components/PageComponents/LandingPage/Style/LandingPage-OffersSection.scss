@@ -10,11 +10,6 @@
   position: relative;
   padding: 6rem 0;
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--color-primary-rgb), 0.05) 0%,
-    rgba(var(--color-secondary-rgb), 0.02) 100%
-  );
 
   // ===========================
   // SECTION HEADER
@@ -87,7 +82,7 @@
     position: relative;
     width: 100%;
     min-height: 75vh;
-    border: 3px solid var(--color-primary);
+    border: 1px solid var(--color-text-primary);
     border-radius: 24px;
     backdrop-filter: blur(15px);
     background-size: cover;
@@ -108,13 +103,12 @@
 
     // Hover-Effekte
     &:hover {
-      transform: scale(1.02);
       box-shadow: 
         0 25px 50px rgba(0, 0, 0, 0.25),
         0 0 0 1px rgba(var(--color-primary-rgb), 0.3);
       
       .offer-overlay {
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.3);
       }
 
       .offer-content {
@@ -166,7 +160,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.65); // ERHÖHT: Bessere Lesbarkeit
+      background: rgba(0, 0, 0, 0.4); // ERHÖHT: Bessere Lesbarkeit
       transition: all 0.4s ease;
       z-index: 1;
     }
@@ -207,7 +201,7 @@
           width: 64px;
           height: 64px;
           background: rgba(var(--color-primary-rgb), 0.2);
-          border: 2px solid var(--color-primary);
+          border: 1px solid var(--color-text-primary);
           border-radius: 16px;
           display: flex;
           align-items: center;
@@ -218,7 +212,7 @@
           .icon {
             width: 32px;
             height: 32px;
-            color: var(--color-primary);
+            color: var(--color-text-primary);
           }
         }
 
@@ -265,11 +259,11 @@
             .price {
               font-size: 1.5rem;
               font-weight: 700;
-              color: var(--color-primary);
+              color: var(--color-text-primary);
               background: rgba(var(--color-primary-rgb), 0.2); // ERHÖHT: Bessere Sichtbarkeit
               padding: 0.5rem 1rem;
               border-radius: 12px;
-              border: 2px solid var(--color-primary); // VERSTÄRKT: Besserer Kontrast
+              border: 2px solid var(--color-text-primary); // VERSTÄRKT: Besserer Kontrast
               backdrop-filter: blur(10px);
               text-shadow: none; // Entfernt für bessere Klarheit
             }
@@ -331,7 +325,7 @@
 
       // Customer Feedback
       .customer-feedback {
-        box-shadow: inset 0px 1px 15px var(--color-primary);
+        box-shadow: inset 0px 1px 15px var(--color-text-primary);
         background: rgba(0, 0, 0, 0.4); // VERDUNKELT: Bessere Lesbarkeit
         padding: 1.5rem;
         border-radius: 16px;
@@ -404,7 +398,7 @@
           gap: 0.75rem;
           background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
           color: white;
-          border: 2px solid var(--color-primary); // HINZUGEFÜGT: Border für bessere Sichtbarkeit
+          border: 2px solid var(--color-text-primary); // HINZUGEFÜGT: Border für bessere Sichtbarkeit
           padding: 1rem 2rem;
           border-radius: 50px;
           font-size: 1.125rem;
@@ -416,6 +410,8 @@
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(var(--color-primary-rgb), 0.5); // VERSTÄRKT
+            border: 2px solid var(--color-primary);
+            background: #76099a3e;
           }
 
           .cta-icon {

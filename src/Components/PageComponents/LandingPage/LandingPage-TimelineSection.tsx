@@ -1,255 +1,438 @@
 // src/Components/PageComponents/LandingPage/LandingPage-TimelineSection.tsx
-// Timeline mit Story Cards - Small & Big Width Rectangles + Badge System
+// EXPERTISE SHOWCASE - Professionelle 3-Bereiche-Präsentation mit Swipe-Navigation
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import './Style/LandingPage-TimelineSection.scss';
 
-interface TimelineItem {
+// =============================================================================
+// INTERFACES & TYPES
+// =============================================================================
+
+interface SkillItem {
+  name: string;
+  level: 'expert' | 'advanced' | 'intermediate';
+}
+
+interface ExpertiseArea {
   id: number;
-  year: string;
   title: string;
   subtitle: string;
   description: string;
-  type: 'small' | 'big';
-  category: 'education' | 'work' | 'project' | 'achievement';
+  icon: string;
   image: string;
-  badge: {
-    text: string;
-    color: string;
+  primaryColor: string;
+  skills: SkillItem[];
+  achievements: string[];
+  experience: {
+    years: string;
+    positions: string;
   };
-  tags: string[];
 }
 
-const TimelineSection: React.FC = () => {
-  const timelineRef = useRef<HTMLDivElement>(null);
+interface AnimatedStat {
+  value: number;
+  label: string;
+  suffix?: string;
+}
 
-  const timelineData: TimelineItem[] = [
-    {
-      id: 1,
-      year: '2024',
-      title: 'Full-Stack Entwicklung',
-      subtitle: 'Digital Career Institute Berlin',
-      description: 'Intensive Weiterbildung in modernen Webtechnologien mit Fokus auf React, TypeScript und Node.js. Entwicklung von mehreren Real-World Projekten.',
-      type: 'big',
-      category: 'education',
-      image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&q=80',
-      badge: {
-        text: 'Aktuell',
-        color: '#4CAF50'
-      },
-      tags: ['React', 'TypeScript', 'Node.js', 'MongoDB']
-    },
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+const TimelineSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  
+  // State Management
+  const [currentIndex, setCurrentIndex] = useState(0); // Start mit erster Karte (IT)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [statsVisible, setStatsVisible] = useState(false);
+
+  // =============================================================================
+  // EXPERTISE BEREICHE DATEN
+  // =============================================================================
+
+  const expertiseAreas: ExpertiseArea[] = [
     {
       id: 2,
-      year: '2021-2023',
-      title: 'Vorstandsfahrer & Allrounder',
-      subtitle: 'BBU Verband Berlin-Brandenburgischer Wohnungsunternehmen',
-      description: 'Verantwortung für die logistische Betreuung des Vorstands und administrative Aufgaben.',
-      type: 'small',
-      category: 'work',
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80',
-      badge: {
-        text: '2 Jahre',
-        color: '#2196F3'
-      },
-      tags: ['Organisation', 'Kommunikation', 'Verantwortung']
+      title: 'IT & Softwareentwicklung',
+      subtitle: 'Full-Stack Development & Innovation',
+      description: 'Moderne Webtechnologien, innovative Lösungsansätze und eine Leidenschaft für sauberen Code. Von React-Frontends bis zu Node.js-Backends entwickle ich durchdachte digitale Lösungen.',
+      icon: '💻',
+      image: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&q=80',
+      primaryColor: '#0066CC',
+      skills: [
+        { name: 'React & TypeScript', level: 'advanced' },
+        { name: 'Node.js & Backend APIs', level: 'intermediate' },
+        { name: 'HTML5, CSS3, SCSS', level: 'advanced' },
+        { name: 'Git & Versionskontrolle', level: 'advanced' },
+        { name: 'UI/UX Design Principles', level: 'intermediate' },
+        { name: 'Agile Entwicklung', level: 'intermediate' }
+      ],
+      achievements: [
+        'Eigene Desktop-App CandleScope entwickelt',
+        'Portfolio 2.0 mit Full-Stack Architektur',
+        'DCI Weiterbildung Full-Stack Development',
+        '7 Eigene Projekte realisiert',
+        'Moderne Tech-Stack Expertise'
+      ],
+      experience: {
+        years: 'Advanced',
+        positions: '7 Eigene Projekte'
+      }
+    },
+    {
+      id: 1,
+      title: 'Gastronomie & Service',
+      subtitle: 'Premium Hospitality Excellence',
+      description: 'Vom Bundestag bis zur gehobenen Gastronomie – meine Expertise in erstklassigem Service und Kundenbetreuung bildet das Fundament für außergewöhnliche Kundenerlebnisse.',
+      icon: '🍽️',
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+      primaryColor: '#8B4513',
+      skills: [
+        { name: 'Kundenservice Excellence', level: 'expert' },
+        { name: 'Teamführung & Koordination', level: 'expert' },
+        { name: 'Qualitätsmanagement', level: 'advanced' },
+        { name: 'Konfliktmanagement', level: 'expert' },
+        { name: 'Cross-Cultural Communication', level: 'advanced' },
+        { name: 'Hochdruck-Situationen', level: 'expert' }
+      ],
+      achievements: [
+        'Service im Deutschen Bundestag',
+        'Gehobene Gastronomie Potsdam',
+        'IHK Hotelfachmann Ausbildung',
+        'VIP & Diplomaten-Betreuung',
+        'Multichannel Customer Experience'
+      ],
+      experience: {
+        years: 'Expert',
+        positions: '4 Premium-Positionen'
+      }
     },
     {
       id: 3,
-      year: '2022',
-      title: 'CandleScope Finance App',
-      subtitle: 'Eigenständige Produktentwicklung',
-      description: 'Entwicklung einer dezentralen Finanz-Analysesoftware für Krypto-Trading mit CSV/PDF Export-Funktionalität.',
-      type: 'big',
-      category: 'project',
+      title: 'Finanzwesen & Krypto',
+      subtitle: 'Financial Technology & Blockchain',
+      description: 'Von traditionellen Finanzprozessen bis hin zu innovativen Blockchain-Lösungen. Meine Expertise vereint klassisches Banking mit der Zukunft der dezentralen Finanztechnologie.',
+      icon: '📊',
       image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
-      badge: {
-        text: 'Innovation',
-        color: '#FF9800'
-      },
-      tags: ['FinTech', 'Krypto', 'Data Analysis', 'Desktop App']
-    },
-    {
-      id: 4,
-      year: '2018-2021',
-      title: 'Stationskellner',
-      subtitle: 'Brasserie zu Gutenberg Potsdam',
-      description: 'Hochwertige Gastronomie mit Fokus auf Kundenerfahrung und Teamwork in anspruchsvollem Umfeld.',
-      type: 'small',
-      category: 'work',
-      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
-      badge: {
-        text: '3 Jahre',
-        color: '#9C27B0'
-      },
-      tags: ['Kundenservice', 'Teamwork', 'Qualität']
-    },
-    {
-      id: 5,
-      year: '2015-2018',
-      title: 'Deutscher Bundestag',
-      subtitle: 'Käfer Restaurant - Stationskellner',
-      description: 'Exklusive Gastronomie im politischen Zentrum Deutschlands. Höchste Servicestandards und Diskretion.',
-      type: 'big',
-      category: 'work',
-      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80',
-      badge: {
-        text: 'Prestige',
-        color: '#E91E63'
-      },
-      tags: ['Premium Service', 'Bundestag', 'Networking', 'Diskretion']
-    },
-    {
-      id: 6,
-      year: '2012-2015',
-      title: 'Hotelfachmann IHK',
-      subtitle: 'Romantik Hotel am Jägertor Potsdam',
-      description: 'Vollständige Ausbildung in allen Hotelbereichen mit Fokus auf Gästebetreuung und operative Exzellenz.',
-      type: 'small',
-      category: 'education',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
-      badge: {
-        text: 'IHK',
-        color: '#607D8B'
-      },
-      tags: ['Ausbildung', 'Hotelmanagement', 'Kundenorientierung']
+      primaryColor: '#228B22',
+      skills: [
+        { name: 'Kryptowährungsanalyse', level: 'advanced' },
+        { name: 'Blockchain Technologie', level: 'intermediate' },
+        { name: 'Finanzmarktanalyse', level: 'advanced' },
+        { name: 'Risk Management', level: 'intermediate' },
+        { name: 'Trading Algorithmen', level: 'intermediate' },
+        { name: 'DeFi Protokolle', level: 'intermediate' }
+      ],
+      achievements: [
+        'CandleScope Finance App entwickelt',
+        'CSV/PDF Export für Trading-Daten',
+        'Krypto-Portfolio Management',
+        'Marktanalyse & Trend-Erkennung',
+        'Fintech Innovation Projects'
+      ],
+      experience: {
+        years: 'Advanced',
+        positions: '2 FinTech Projekte'
+      }
     }
   ];
 
-  useEffect(() => {
-    // Intersection Observer für Scroll-Animationen
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('timeline-item-visible');
-          }
-        });
-      },
-      { 
-        threshold: 0.2,
-        rootMargin: '50px'
-      }
-    );
+  // =============================================================================
+  // ANIMIERTE STATISTIKEN
+  // =============================================================================
 
-    const timelineItems = timelineRef.current?.querySelectorAll('.timeline-item');
-    timelineItems?.forEach((item) => observer.observe(item));
+  const animatedStats: AnimatedStat[] = [
+    { value: 7, label: 'Eigene Projekte' },
+    { value: 3, label: 'Qualifikationen' },
+    { value: 4, label: 'Branchen' },
+    { value: 17, label: 'Jahre Erfahrung' }
+  ];
 
-    return () => observer.disconnect();
+  // =============================================================================
+  // NAVIGATION LOGIC
+  // =============================================================================
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentIndex(index);
   }, []);
 
+  const nextSlide = useCallback(() => {
+    setCurrentIndex(prev => prev === 2 ? 0 : prev + 1);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex(prev => prev === 0 ? 2 : prev - 1);
+  }, []);
+
+  // =============================================================================
+  // AUTO-PLAY LOGIC
+  // =============================================================================
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 10000); // 10 Sekunden
+
+    return () => clearInterval(timer);
+  }, [isAutoPlaying, nextSlide]);
+
+  // =============================================================================
+  // TOUCH HANDLERS
+  // =============================================================================
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setIsAutoPlaying(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      prevSlide();
+    }
+
+    setTouchStartX(0);
+    setTouchEndX(0);
+    setTimeout(() => setIsAutoPlaying(true), 3000);
+  };
+
+  // =============================================================================
+  // INTERSECTION OBSERVER FÜR STATS
+  // =============================================================================
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStatsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
+  // =============================================================================
+  // SKILL LEVEL MAPPING
+  // =============================================================================
+
+  const getSkillLevelClass = (level: string): string => {
+    switch (level) {
+      case 'expert': return 'skill-expert';
+      case 'advanced': return 'skill-advanced';
+      case 'intermediate': return 'skill-intermediate';
+      default: return 'skill-beginner';
+    }
+  };
+
+  // =============================================================================
+  // RENDER
+  // =============================================================================
+
   return (
-    <section className="timeline-section" id="timeline" ref={timelineRef}>
+    <section className="timeline-section expertise-showcase" id="timeline" ref={sectionRef}>
       {/* Section Header */}
-      <div className="timeline-header reveal">
-        <h2 className="timeline-title">
-          <span className="timeline-title-accent">Meine</span>
-          <span className="timeline-title-main">Journey</span>
+      <div className="expertise-header">
+        <h2 className="expertise-title">
+          <span className="title-accent">Meine</span>
+          <span className="title-main">Expertise</span>
         </h2>
-        <p className="timeline-subtitle">
-          Von der Hotellerie über den Bundestag zur Softwareentwicklung - 
-          eine Geschichte von kontinuierlicher Weiterentwicklung und vielfältigen Erfahrungen.
+        <p className="expertise-subtitle">
+          Drei Kernbereiche, die meine vielseitige Erfahrung und Leidenschaft für Exzellenz widerspiegeln
         </p>
       </div>
 
-      {/* Timeline Container */}
-      <div className="timeline-container">
-        {/* Vertical Line */}
-        <div className="timeline-line" />
-
-        {/* Timeline Items */}
-        <div className="timeline-items">
-          {timelineData.map((item, index) => (
-            <div
-              key={item.id}
-              className={`timeline-item timeline-item-${item.type} timeline-card`}
-              data-category={item.category}
-              style={{
-                '--item-delay': `${index * 0.2}s`,
-                '--item-index': index
-              } as React.CSSProperties}
+      {/* Mobile Swipe Cards */}
+      <div className="expertise-carousel" ref={carouselRef}>
+        <div 
+          className="carousel-container"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            transform: `translateX(-${currentIndex * 100}vw)`,
+            transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+          }}
+        >
+          {expertiseAreas.map((area, index) => (
+            <div 
+              key={area.id} 
+              className={`expertise-card ${index === currentIndex ? 'active' : ''}`}
+              style={{ '--primary-color': area.primaryColor } as React.CSSProperties}
             >
-              {/* Year Indicator */}
-              <div className="timeline-year">
-                <span className="year-text">{item.year}</span>
-                <div className="year-dot" />
-              </div>
-
-              {/* Story Card */}
-              <div className="story-card">
-                {/* Badge */}
-                <div 
-                  className="story-badge"
-                  style={{ backgroundColor: item.badge.color }}
-                >
-                  {item.badge.text}
-                </div>
-
-                {/* Image Container */}
-                <div className="story-image">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    loading="lazy"
-                  />
-                  <div className="story-overlay" />
-                </div>
-
-                {/* Content */}
-                <div className="story-content">
-                  <div className="story-category">
-                    {item.category === 'education' && '🎓 Bildung'}
-                    {item.category === 'work' && '💼 Beruf'}
-                    {item.category === 'project' && '🚀 Projekt'}
-                    {item.category === 'achievement' && '🏆 Erfolg'}
-                  </div>
-
-                  <h3 className="story-title">{item.title}</h3>
-                  <h4 className="story-subtitle">{item.subtitle}</h4>
-                  <p className="story-description">{item.description}</p>
-
-                  {/* Tags */}
-                  <div className="story-tags">
-                    {item.tags.map((tag, tagIndex) => (
-                      <span key={tagIndex} className="story-tag">
-                        {tag}
-                      </span>
-                    ))}
+              <div>
+                <div className="card-header">
+                  <div className="card-icon">{area.icon}</div>
+                  <div className="card-badge" style={{ backgroundColor: area.primaryColor }}>
+                    {area.experience.years}
                   </div>
                 </div>
 
-                {/* Interactive Elements */}
-                <div className="story-interactions">
-                  <button className="story-expand" aria-label="Details anzeigen">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 5v14m-7-7h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  </button>
+                <div className="card-image">
+                  <img src={area.image} alt={area.title} loading="lazy" />
+                  <div className="image-overlay"></div>
+                </div>
+
+                <div className="card-content">
+                  <h3 className="card-title">{area.title}</h3>
+                  <h4 className="card-subtitle">{area.subtitle}</h4>
+                  <p className="card-description">{area.description}</p>
+
+                  <div className="skills-section">
+                    <h5 className="skills-title">Kernkompetenzen</h5>
+                    <div className="skills-grid">
+                      {area.skills.map((skill, skillIndex) => (
+                        <div key={skillIndex} className={`skill-item ${getSkillLevelClass(skill.level)}`}>
+                          <span className="skill-name">{skill.name}</span>
+                          <span className="skill-level"></span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="achievements-section">
+                    <h5 className="achievements-title">Erfolge & Meilensteine</h5>
+                    <ul className="achievements-list">
+                      {area.achievements.map((achievement, achievementIndex) => (
+                        <li key={achievementIndex} className="achievement-item">
+                          <span className="achievement-icon">✓</span>
+                          <span className="achievement-text">{achievement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="experience-stats">
+                    <div className="stat">
+                      <span className="stat-value">{area.experience.years}</span>
+                      <span className="stat-label">Level</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-value">{area.experience.positions}</span>
+                      <span className="stat-label">Portfolio</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        <div className="carousel-navigation">
+          {expertiseAreas.map((_, index) => (
+            <button
+              key={index}
+              className={`nav-dot ${index === currentIndex ? 'active' : ''}`}
+              onClick={() => goToSlide(index)}
+              aria-label={`Zur Expertise ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        <div className="swipe-indicator">
+          <span className="swipe-text">← Swipe →</span>
+        </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="timeline-stats reveal">
-        <div className="stat-item">
-          <div className="stat-number">13+</div>
-          <div className="stat-label">Jahre Berufserfahrung</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-number">4</div>
-          <div className="stat-label">Verschiedene Branchen</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-number">2</div>
-          <div className="stat-label">Abgeschlossene Ausbildungen</div>
-        </div>
-        <div className="stat-item">
-          <div className="stat-number">1</div>
-          <div className="stat-label">Eigenes Projekt</div>
-        </div>
+      {/* Desktop Grid - Kompakt nebeneinander */}
+      <div className="expertise-desktop-grid">
+        {expertiseAreas.map((area) => (
+          <div 
+            key={area.id} 
+            className="desktop-card"
+            style={{ '--primary-color': area.primaryColor } as React.CSSProperties}
+          >
+            <div className="desktop-card-image">
+              <img src={area.image} alt={area.title} loading="lazy" />
+              <div className="image-overlay"></div>
+            </div>
+
+            <div 
+              className="card-badge" 
+              style={{ backgroundColor: area.primaryColor }}
+            >
+              {area.experience.years}
+            </div>
+
+            <div className="desktop-card-content">
+              <div className="desktop-card-header">
+                <h3 className="card-title">{area.title}</h3>
+                <h4 className="card-subtitle">{area.subtitle}</h4>
+                <p className="card-description">{area.description}</p>
+              </div>
+
+              <div className="desktop-skills-compact">
+                <h5 className="skills-title">Top Skills</h5>
+                <div className="skills-compact-grid">
+                  {area.skills.slice(0, 4).map((skill, skillIndex) => (
+                    <div 
+                      key={skillIndex} 
+                      className={`skill-compact ${getSkillLevelClass(skill.level)}`}
+                      style={{ '--index': skillIndex } as React.CSSProperties}
+                    >
+                      <span className="skill-name">{skill.name}</span>
+                      <span className="skill-level"></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="desktop-experience-stats">
+                <div className="stat">
+                  <span className="stat-value">{area.experience.years}</span>
+                  <span className="stat-label">Level</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value">{area.achievements.length}</span>
+                  <span className="stat-label">Erfolge</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Animated Stats */}
+      <div className={`expertise-stats ${statsVisible ? 'visible' : ''}`}>
+        {animatedStats.map((stat, index) => (
+          <div key={index} className="stat-item" style={{ '--delay': `${index * 0.2}s` } as React.CSSProperties}>
+            <div className="stat-number">
+              <span className="counter">
+                {statsVisible ? stat.value : 0}
+              </span>
+              {stat.suffix && <span className="suffix">{stat.suffix}</span>}
+            </div>
+            <div className="stat-label">{stat.label}</div>
+          </div>
+        ))}
       </div>
     </section>
   );
